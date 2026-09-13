@@ -58,6 +58,7 @@ img{max-width:100%;display:block}
 button{font:inherit;color:inherit;cursor:pointer}
 a{color:var(--sky-600)}
 .zh{font-family:"Noto Sans TC",sans-serif}
+.zh:empty,.section__title em:empty{display:none}
 
 :focus-visible{outline:3px solid var(--sky-500);outline-offset:3px;border-radius:6px}
 
@@ -89,6 +90,23 @@ a{color:var(--sky-600)}
   background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 62%);
   filter:blur(2px);
 }
+/* golden-hour wash that fades in once the site unlocks */
+.sky__sunset{
+  position:absolute;inset:0;
+  opacity:0;
+  transition:opacity 1.8s ease;
+  background:
+    radial-gradient(62vmax 42vmax at 50% 100%,rgba(255,228,164,.9),rgba(255,198,150,.28) 44%,rgba(255,198,150,0) 70%),
+    linear-gradient(180deg,#a9d6f2 0%,#cbe3f7 20%,#f4d9e7 44%,#ffd7b6 68%,#ffe9c7 86%,#fff6e6 100%);
+}
+body.is-unlocked .sky__sunset{opacity:1}
+.cloud,
+.cloud::before,
+.cloud::after{transition:background 1.2s ease}
+body.is-unlocked .sky .cloud,
+body.is-unlocked .sky .cloud::before,
+body.is-unlocked .sky .cloud::after{background:#fff2df}
+body.is-unlocked .sky .star{opacity:0;transition:opacity 1s ease}
 .cloud{
   position:absolute;
   background:#fff;
@@ -136,7 +154,16 @@ a{color:var(--sky-600)}
   padding:clamp(24px,6vw,72px) 20px;
   text-align:center;
 }
-.lock__inner{max-width:720px;animation:rise .9s cubic-bezier(.2,.8,.25,1) both}
+.lock__inner{max-width:720px;animation:rise .9s cubic-bezier(.2,.8,.25,1) both;position:relative;z-index:1}
+.lock__horizon{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:clamp(120px,24vh,220px);
+  z-index:0;
+  pointer-events:none;
+  opacity:.7;
+}
+.lock__horizon svg{width:100%;height:100%;display:block}
 .lock__name,.hero__name{
   font-family:var(--font-display);
   font-weight:800;
@@ -206,6 +233,22 @@ a{color:var(--sky-600)}
   opacity:.85;
 }
 .lock__note strong{color:var(--sky-600)}
+.lock__lyric{
+  margin:1.7rem auto 0;
+  max-width:32ch;
+  font-style:italic;
+  color:var(--sky-700);
+  font-size:clamp(.92rem,2.3vw,1.05rem);
+}
+.lock__lyric cite{
+  display:block;
+  font-style:normal;
+  font-size:.72rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--sky-500);
+  margin-top:.5rem;
+}
 
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
@@ -280,6 +323,32 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
   box-shadow:0 6px 14px -8px rgba(46,121,172,.6);
 }
 .washi--tl{top:-14px;left:34px;transform:rotate(-4deg)}
+
+/* sunset scene */
+.sunset{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:0 20px clamp(44px,7vw,84px);
+  text-align:center;
+}
+.sunset__scene{
+  position:relative;
+  border-radius:clamp(24px,4vw,46px);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,.85);
+  aspect-ratio:1200/420;
+}
+.sunset__scene svg{width:100%;height:100%;display:block}
+.sunset__caption{
+  margin:1.3rem auto 0;
+  max-width:34ch;
+  font-family:var(--font-display);
+  font-weight:700;
+  color:var(--sky-700);
+  font-size:clamp(1.05rem,2.9vw,1.5rem);
+  line-height:1.3;
+}
 
 /* buttons */
 .btn{
@@ -570,6 +639,27 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
   max-width:88vw;text-align:center;
 }
 .toast.is-shown{transform:translate(-50%,0);opacity:1;visibility:visible}
+
+/* music toggle */
+.music-btn{
+  position:fixed;right:18px;bottom:18px;z-index:95;
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;
+  border:1px solid rgba(255,255,255,.9);
+  background:rgba(255,255,255,.75);
+  backdrop-filter:blur(10px);
+  color:var(--sky-600);font-size:1.2rem;
+  box-shadow:var(--shadow-sm);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.music-btn[hidden]{display:none}
+.music-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.music-btn.is-playing{animation:musicPulse 2.6s ease-in-out infinite}
+.music-btn__icon{line-height:1}
+@keyframes musicPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(126,196,236,.55)}
+  50%{box-shadow:0 0 0 12px rgba(126,196,236,0)}
+}
 
 /* ==========================================================================
    Scroll reveal

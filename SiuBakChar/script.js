@@ -9,77 +9,86 @@
 const CONFIG = {
   /* Her birthday, with timezone. Format: YYYY-MM-DDTHH:mm:ss+HH:MM */
   birthday: "2026-10-12T00:00:00+08:00",
+
+  /* Background music — drop the files into assets/ with these names,
+     or change the paths. Leave a value as "" to disable that track.
+     waiting page: 五月天《因為你 所以我》 / celebration page: 五月天《相信》 */
+  music: {
+    cover: "assets/because-of-you.mp3",
+    celebrate: "assets/believe.mp3",
+  },
 };
 
 /* --------------------------------------------------------------------------
-   2) CONTENT — all the words on the page (English + Traditional Chinese)
+   2) CONTENT — all the words on the page (English; Chinese slots ready to fill later)
    -------------------------------------------------------------------------- */
 const CONTENT = {
   /* The letter typed out under the title */
   letter:
-    "To my dearest Siu Bak Char, my 小白Char —\n\n" +
+    "To my dearest Siu Bak Char,\n\n" +
     "Thank you for walking into my most ordinary days and turning them into the ones I want to keep forever. You are my favourite hello, my softest place to land, and the reason a plain Tuesday can suddenly feel like a celebration.\n\n" +
-    "多謝你，喺我最平凡嘅日子裡面出現，將每一日都變成值得收藏嘅回憶。你係我最鍾意嘅「你好」，亦都係我最想返去嘅地方。\n\n" +
-    "Happy birthday, my love. May this year love you back as much as you love everyone around you.\n" +
-    "生日快樂，我最親愛嘅你。願你今年被世界溫柔對待，就好似你溫柔對待身邊每一個人咁。\n\n" +
-    "Forever yours,\nSiu Gai Mo（小雞毛）",
+    "Happy birthday, my love. May this year love you back as much as you love everyone around you.\n\n" +
+    "Forever yours,\nSiu Gai Mo",
+
+  /* Optional Chinese version of the letter — fill this in later and it appears automatically */
+  letterZh: "",
 
   /* Love-story timeline — add / remove / edit freely */
   timeline: [
     {
-      when: "Chapter One · 第一章",
+      when: "Chapter One",
       title: "The first hello",
-      zhTitle: "第一次嘅「你好」",
+      zhTitle: "",
       text: "I still remember how nervous I was. One hello, and somehow my whole week rearranged itself around you.",
-      zhText: "我仲記得嗰日有幾緊張。一句「你好」，就令我成個星期都圍住你轉。",
+      zhText: "",
     },
     {
-      when: "Chapter Two · 第二章",
+      when: "Chapter Two",
       title: "Our first date",
-      zhTitle: "第一次約會",
+      zhTitle: "",
       text: "I planned the day a hundred times in my head, and it still went nothing like I imagined — it was better.",
-      zhText: "我喺腦海入面計劃咗一百次，但最後同我想像嘅完全唔同——係更好。",
+      zhText: "",
     },
     {
-      when: "Chapter Three · 第三章",
+      when: "Chapter Three",
       title: "Officially us",
-      zhTitle: "正式成為「我們」",
+      zhTitle: "",
       text: "No big speech, no fireworks. Just two people quietly deciding to choose each other, again and again.",
-      zhText: "冇盛大嘅告白，冇煙花。只係兩個人，靜靜咁決定一次又一次選擇對方。",
+      zhText: "",
     },
     {
-      when: "Chapter Four · 第四章",
+      when: "Chapter Four",
       title: "Our first trip together",
-      zhTitle: "第一次一齊去旅行",
+      zhTitle: "",
       text: "Wrong turns, shared snacks, and photos we'll keep forever. I'd get lost with you anywhere.",
-      zhText: "行錯路、分住食嘅零食，同埋會一直收藏嘅相。同你一齊，去邊度盪失路都得。",
+      zhText: "",
     },
     {
-      when: "Chapter Five · 第五章",
+      when: "Chapter Five",
       title: "The small fights & the making up",
-      zhTitle: "小爭吵，同埋和好",
+      zhTitle: "",
       text: "We learned that loving someone isn't about never arguing — it's about always finding the way back to each other.",
-      zhText: "後尾我哋明白，愛一個人唔係永遠唔吵架，而係每一次都會搵到路返去對方身邊。",
+      zhText: "",
     },
     {
-      when: "Chapter Six · 第六章",
+      when: "Chapter Six",
       title: "Today, and every day after",
-      zhTitle: "今日，同埋之後每一日",
+      zhTitle: "",
       text: "Here we are. Still choosing each other, still laughing at the same jokes. Happy birthday, my love.",
-      zhText: "我哋仲喺度。仍然選擇對方，仍然為同一個笑話而笑。生日快樂，我最愛嘅人。",
+      zhText: "",
     },
   ],
 
   /* Polaroid wall — drop real files into assets/ and set src, e.g. src:"assets/photo-01.jpg" */
   gallery: [
-    { cap: "Us, somewhere happy", zh: "我們，喺某個開心嘅地方", src: "" },
-    { cap: "That lazy afternoon", zh: "嗰個懶洋洋嘅下午", src: "" },
-    { cap: "Your favourite face", zh: "我最鍾意嘅你", src: "" },
-    { cap: "Tiny adventure", zh: "小小嘅冒險", src: "" },
-    { cap: "Food we still talk about", zh: "我哋仲講緊嘅嘢食", src: "" },
-    { cap: "Rainy day, warm us", zh: "落雨天，暖暖嘅我們", src: "" },
-    { cap: "Just because", zh: "純粹因為想影", src: "" },
-    { cap: "Here's to more", zh: "祝我哋仲有更多", src: "" },
+    { cap: "Us, somewhere happy", zh: "", src: "" },
+    { cap: "That lazy afternoon", zh: "", src: "" },
+    { cap: "Your favourite face", zh: "", src: "" },
+    { cap: "Tiny adventure", zh: "", src: "" },
+    { cap: "Food we still talk about", zh: "", src: "" },
+    { cap: "Rainy day, warm us", zh: "", src: "" },
+    { cap: "Just because", zh: "", src: "" },
+    { cap: "Here's to more", zh: "", src: "" },
   ],
 
   /* Open-when letters */
@@ -87,54 +96,54 @@ const CONTENT = {
     {
       icon: "🌙",
       en: "you can't sleep",
-      zh: "當你睡不著的時候",
+      zh: "",
       body: "If the night feels too long, imagine I'm right there, tracing little circles on your hand until your breathing slows down. You are safe, you are loved, and tomorrow can wait.",
-      bodyZh: "如果夜晚太長，就當我喺你身邊，喺你手背上畫圈圈，直到你呼吸慢慢變慢。你好安全，你被愛住，聽日嘅事可以等一等。",
+      bodyZh: "",
     },
     {
       icon: "💧",
       en: "you're having a hard day",
-      zh: "當你難過的時候",
+      zh: "",
       body: "You don't have to be strong all the time. Feel it, let it out, and then let me carry some of it for you. I'm not going anywhere.",
-      bodyZh: "你唔需要成日都咁堅強。想喊就喊，然後分一部分俾我幫你孭。我邊度都唔會去。",
+      bodyZh: "",
     },
     {
       icon: "🫂",
       en: "you miss me",
-      zh: "當你想我的時候",
+      zh: "",
       body: "Good news: I'm always just one call away, and I'm probably thinking about you right now too. Distance is just a number — you live in my every day.",
-      bodyZh: "好消息：我永遠都喺一個電話嘅距離。而且我而家好可能都喺度掛住你。距離只係一個數字——你一直都住喺我每一日裡面。",
+      bodyZh: "",
     },
     {
       icon: "😂",
       en: "you need to laugh",
-      zh: "當你想笑的時候",
+      zh: "",
       body: "Remember that time we laughed so hard we couldn't breathe? I still don't fully know why it was funny, and I still laugh every single time.",
-      bodyZh: "記得嗰次我哋笑到透唔到氣嗎？我到而家都唔係好清楚有咩咁好笑，但每一次諗起都會笑。",
+      bodyZh: "",
     },
     {
       icon: "🌪️",
       en: "you feel overwhelmed",
-      zh: "當你覺得頂唔順的時候",
+      zh: "",
       body: "One thing at a time. You don't have to solve everything today. Close the laptop, drink some water, and breathe. I'll be proud of you either way.",
-      bodyZh: "一步一步嚟。你唔需要今日解決所有嘢。合埋電腦，飲啖水，深呼吸。無論點，我都為你驕傲。",
+      bodyZh: "",
     },
     {
       icon: "✨",
       en: "you doubt yourself",
-      zh: "當你懷疑自己的時候",
+      zh: "",
       body: "I wish you could see yourself the way I see you — brave, kind, and so much brighter than you give yourself credit for. You're the best thing in my sky.",
-      bodyZh: "我好想你可以用我嘅眼睛睇吓自己——勇敢、善良，比你所想嘅閃亮好多。你係我天空入面最美好嘅嘢。",
+      bodyZh: "",
     },
   ],
 
-  /* Footer lyric — a short line from your favourite band */
-  lyric: "如果我們不曾相遇，我現在會在哪裡？",
-  lyricCite: "— Mayday 五月天《如果我們不曾相遇》",
+  /* Footer lyric on the celebration page */
+  lyric: "勾勾手蓋手印，這一刻有約定。那愛情變美麗，因為我開始相信。",
+  lyricCite: "— 五月天《相信》",
 
   /* Hidden message behind the moon */
   secret:
-    "P.S. 你嘅笑容係我最想收藏嘅星星 ✨ 願你今年嘅每一個願望都成真，就好似你為我做嘅每一件小事咁美好。",
+    "P.S. Your smile is the star I most want to keep. May every wish you make this year come true.",
 };
 
 /* ==========================================================================
@@ -165,9 +174,9 @@ function renderTimeline() {
         <span class="timeline__dot"></span>
         <div class="card">
           <p class="card__date">${item.when}</p>
-          <h3 class="card__title">${item.title}<span class="card__zh">${item.zhTitle}</span></h3>
+          <h3 class="card__title">${item.title}${item.zhTitle ? `<span class="card__zh">${item.zhTitle}</span>` : ""}</h3>
           <p class="card__text">${item.text}</p>
-          <p class="card__text">${item.zhText}</p>
+          ${item.zhText ? `<p class="card__text">${item.zhText}</p>` : ""}
         </div>
       </li>`
     )
@@ -199,8 +208,8 @@ function renderEnvelopes() {
       <button class="envelope reveal" style="--env:${ENV_COLORS[i % ENV_COLORS.length]}" data-index="${i}" type="button">
         <span class="envelope__icon" aria-hidden="true">${l.icon}</span>
         <span class="envelope__label">Open when ${l.en}</span>
-        <span class="envelope__zh">${l.zh}</span>
-        <span class="envelope__hint">Read it · 打開</span>
+        ${l.zh ? `<span class="envelope__zh">${l.zh}</span>` : ""}
+        <span class="envelope__hint">Read it</span>
       </button>`
     )
     .join("");
@@ -248,17 +257,22 @@ function revealSite(withConfetti) {
   observeReveals();
   if (withConfetti) launchConfetti(7000);
   startTypewriter();
+  switchMusic("celebrate");
 }
 
 /* ---------------- typewriter ---------------- */
+function fullLetter() {
+  return CONTENT.letterZh ? `${CONTENT.letter}\n\n${CONTENT.letterZh}` : CONTENT.letter;
+}
+
 function startTypewriter() {
   const el = $("typed-letter");
   if (!el) return;
   if (REDUCED) {
-    el.textContent = CONTENT.letter;
+    el.textContent = fullLetter();
     return;
   }
-  setTimeout(() => typeWriter(el, CONTENT.letter, 24), 800);
+  setTimeout(() => typeWriter(el, fullLetter(), 24), 800);
 }
 
 function typeWriter(el, text, speed) {
@@ -304,9 +318,9 @@ function openLetter(i) {
   const l = CONTENT.openWhen[i];
   if (!l) return;
   lastFocused = document.activeElement;
-  $("modal-kicker").textContent = "A letter for when · 給你的信";
-  $("modal-title").innerHTML = `Open when ${l.en}<span class="zh">${l.zh}</span>`;
-  $("modal-body").innerHTML = `<p>${l.body}</p><p>${l.bodyZh}</p>`;
+  $("modal-kicker").textContent = "A letter for when";
+  $("modal-title").innerHTML = `Open when ${l.en}${l.zh ? `<span class="zh">${l.zh}</span>` : ""}`;
+  $("modal-body").innerHTML = `<p>${l.body}</p>${l.bodyZh ? `<p>${l.bodyZh}</p>` : ""}`;
   const modal = $("modal");
   modal.hidden = false;
   document.body.style.overflow = "hidden";
@@ -461,6 +475,88 @@ function confettiTick(now) {
   }
 }
 
+/* ---------------- background music ---------------- */
+const BGM = { el: null, btn: null, icon: null, current: null, wantPlay: true };
+
+function musicAvailable() {
+  return BGM.el && BGM.el.getAttribute("src");
+}
+
+function setTrack(kind) {
+  const cfg = CONFIG.music || {};
+  const src = kind === "celebrate" ? cfg.celebrate : cfg.cover;
+  BGM.current = kind;
+  if (!src) {
+    if (BGM.btn) BGM.btn.hidden = true;
+    return;
+  }
+  if (BGM.el.getAttribute("src") !== src) {
+    BGM.el.setAttribute("src", src);
+    BGM.el.load();
+  }
+}
+
+function tryPlay() {
+  if (!musicAvailable() || !BGM.wantPlay) return;
+  const p = BGM.el.play();
+  if (p && p.catch) p.catch(() => updateMusicUI(false));
+}
+
+function updateMusicUI(playing) {
+  if (!BGM.btn) return;
+  BGM.icon.textContent = playing ? "🎵" : "🔇";
+  BGM.btn.classList.toggle("is-playing", playing);
+  BGM.btn.setAttribute("aria-pressed", String(playing));
+  BGM.btn.setAttribute("aria-label", playing ? "Pause music" : "Play music");
+  BGM.btn.title = playing ? "Pause music" : "Play music";
+}
+
+function onMusicButton() {
+  if (!musicAvailable()) return;
+  if (BGM.el.paused) {
+    BGM.wantPlay = true;
+    tryPlay();
+  } else {
+    BGM.wantPlay = false;
+    BGM.el.pause();
+  }
+}
+
+function switchMusic(kind) {
+  if (!BGM.el || BGM.current === kind) return;
+  setTrack(kind);
+}
+
+function initMusic() {
+  BGM.el = $("bgm");
+  BGM.btn = $("music-btn");
+  BGM.icon = $("music-icon");
+  if (!BGM.el || !BGM.btn || !CONFIG.music) return;
+
+  BGM.el.addEventListener("canplay", () => {
+    BGM.btn.hidden = false;
+    tryPlay();
+  });
+  BGM.el.addEventListener("playing", () => updateMusicUI(true));
+  BGM.el.addEventListener("pause", () => updateMusicUI(false));
+  BGM.el.addEventListener("error", () => {
+    BGM.btn.hidden = true;
+  });
+
+  BGM.btn.addEventListener("click", onMusicButton);
+
+  /* Sound autoplay is blocked until the first interaction, so retry on gesture */
+  const gesture = (e) => {
+    if (BGM.btn.contains(e.target)) return;
+    if (BGM.wantPlay && BGM.el.paused) tryPlay();
+  };
+  ["pointerdown", "keydown", "touchstart"].forEach((ev) =>
+    window.addEventListener(ev, gesture, { passive: true })
+  );
+
+  setTrack("cover");
+}
+
 /* ---------------- init ---------------- */
 function init() {
   renderTimeline();
@@ -490,6 +586,8 @@ function init() {
   });
 
   window.addEventListener("resize", resizeCanvas);
+
+  initMusic();
 
   const preview = /[?&]preview=1/.test(location.search) || location.hash === "#preview";
   if (preview) {

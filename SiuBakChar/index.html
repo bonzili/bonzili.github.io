@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Siu Bak Char · Happy Birthday 🌷</title>
-<meta name="description" content="A little corner of the sky, made just for you. 一個只為你而做的小小天空。">
+<meta name="description" content="A little corner of the sky, made just for you.">
 <meta name="theme-color" content="#6FB8E8">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +17,7 @@
 <!-- ============ ambient sky ============ -->
 <div class="sky" aria-hidden="true">
   <div class="sky__glow"></div>
+  <div class="sky__sunset"></div>
   <div class="cloud cloud--1"></div>
   <div class="cloud cloud--2"></div>
   <div class="cloud cloud--3"></div>
@@ -30,11 +31,34 @@
 
 <!-- ============ 1. COUNTDOWN LOCK ============ -->
 <section class="lock" id="lock" aria-label="Countdown">
+  <div class="lock__horizon" aria-hidden="true">
+    <svg viewBox="0 0 1200 220" preserveAspectRatio="xMidYMax slice">
+      <path d="M0 150 Q300 120 600 146 T1200 138 V220 H0 Z" fill="#54a9dd" opacity=".16"/>
+      <g fill="#2E79AC" opacity=".38" transform="translate(600 220) scale(.82) translate(-600 -220)">
+        <g transform="translate(566,150)">
+          <circle cx="0" cy="-46" r="16"/>
+          <path d="M-21 -30 q21 -11 42 0 q7 34 0 52 h-42 q-7 -18 0 -52 Z"/>
+        </g>
+        <g transform="translate(622,150)">
+          <circle cx="0" cy="-50" r="16"/>
+          <path d="M-21 -34 q21 -11 42 0 q7 34 0 56 h-42 q-7 -22 0 -56 Z"/>
+        </g>
+        <g transform="translate(672,150)">
+          <ellipse cx="-2" cy="-9" rx="12" ry="9"/>
+          <circle cx="10" cy="-19" r="7"/>
+          <path d="M15 -19 q6 -1 6 3 q0 3 -6 3 Z"/>
+          <path d="M5 -24 q-2 -8 2 -8 q4 0 3 8 Z"/>
+          <path d="M12 -25 q-1 -8 3 -8 q4 0 3 8 Z"/>
+        </g>
+      </g>
+      <path d="M0 182 Q280 156 600 180 T1200 176 V220 H0 Z" fill="#1f5a84" opacity=".22"/>
+    </svg>
+  </div>
   <div class="lock__inner">
     <div class="mascot">
       <img class="mascot__img"
-           src="assets/mascot.png"
-           alt="Our little Maltese"
+           src="assets/SiuBakandSiuGaiMo.gif"
+           alt="Siu Bak Char and Siu Gai Mo"
            onerror="this.classList.add('is-missing'); this.nextElementSibling.classList.add('is-shown');">
       <svg class="mascot__fallback" viewBox="0 0 200 190" role="img" aria-label="A little white Maltese pup holding balloons">
         <defs>
@@ -67,18 +91,19 @@
       </svg>
     </div>
 
-    <p class="kicker">A little surprise for · 一份小驚喜，送給</p>
-    <h1 class="lock__name">Siu Bak Char <span class="zh">小白Char</span></h1>
-    <p class="lock__sub">Something special is on its way.<br>有些心意，正在悄悄靠近。</p>
+    <p class="kicker">A little surprise for</p>
+    <h1 class="lock__name">Siu Bak Char <span class="zh"></span></h1>
+    <p class="lock__sub">Something special is on its way.</p>
 
     <div class="countdown" id="countdown" role="timer" aria-live="polite">
-      <div class="countdown__cell"><span class="countdown__num" id="cd-days">--</span><span class="countdown__label">Days · 日</span></div>
-      <div class="countdown__cell"><span class="countdown__num" id="cd-hours">--</span><span class="countdown__label">Hours · 時</span></div>
-      <div class="countdown__cell"><span class="countdown__num" id="cd-mins">--</span><span class="countdown__label">Mins · 分</span></div>
-      <div class="countdown__cell"><span class="countdown__num" id="cd-secs">--</span><span class="countdown__label">Secs · 秒</span></div>
+      <div class="countdown__cell"><span class="countdown__num" id="cd-days">--</span><span class="countdown__label">Days</span></div>
+      <div class="countdown__cell"><span class="countdown__num" id="cd-hours">--</span><span class="countdown__label">Hours</span></div>
+      <div class="countdown__cell"><span class="countdown__num" id="cd-mins">--</span><span class="countdown__label">Mins</span></div>
+      <div class="countdown__cell"><span class="countdown__num" id="cd-secs">--</span><span class="countdown__label">Secs</span></div>
     </div>
 
-    <p class="lock__note">Come back on <strong>12 October 2026</strong> · 十月十二日，記得回來哦 🌷</p>
+    <p class="lock__note">Come back on <strong>12 October 2026</strong> 🌷</p>
+    <p class="lock__lyric">因為有你，所以有我<cite>— 五月天《因為你 所以我》</cite></p>
   </div>
 </section>
 
@@ -88,23 +113,82 @@
   <!-- hero + letter -->
   <section class="hero" aria-label="Birthday greeting">
     <div class="hero__inner">
-      <p class="kicker kicker--dark">Happy Birthday · 生日快樂</p>
-      <h1 class="hero__name">Siu Bak Char <span class="zh">小白Char</span></h1>
-      <p class="hero__from">from <strong>Siu Gai Mo</strong> <span class="zh">小雞毛</span>, with all my heart</p>
+      <p class="kicker kicker--dark">Happy Birthday</p>
+      <h1 class="hero__name">Siu Bak Char <span class="zh"></span></h1>
+      <p class="hero__from">from <strong>Siu Gai Mo</strong>, with all my heart</p>
 
       <div class="letter-card">
         <span class="washi washi--tl" aria-hidden="true"></span>
         <p class="letter" id="typed-letter" aria-live="polite"></p>
-        <a class="btn" href="#timeline">Let's look back · 一起回顧 <span aria-hidden="true">↓</span></a>
+        <a class="btn" href="#timeline">Let's look back <span aria-hidden="true">↓</span></a>
       </div>
     </div>
+  </section>
+
+  <!-- sunset -->
+  <section class="sunset" aria-labelledby="sunset-caption">
+    <div class="sunset__scene" aria-hidden="true">
+      <svg viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax slice">
+        <defs>
+          <linearGradient id="sunsetSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a9d6f2"/>
+            <stop offset="38%" stop-color="#f4d9e7"/>
+            <stop offset="66%" stop-color="#ffd6b4"/>
+            <stop offset="100%" stop-color="#ffeac9"/>
+          </linearGradient>
+          <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#fff4c9"/>
+            <stop offset="45%" stop-color="#ffcf9b" stop-opacity=".8"/>
+            <stop offset="100%" stop-color="#ffcf9b" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <rect width="1200" height="420" fill="url(#sunsetSky)"/>
+        <circle cx="600" cy="312" r="210" fill="url(#sunGlow)"/>
+        <circle cx="600" cy="312" r="62" fill="#ffe9a8"/>
+
+        <g fill="#ffffff" opacity=".5">
+          <ellipse cx="250" cy="118" rx="96" ry="20"/>
+          <ellipse cx="300" cy="132" rx="70" ry="14"/>
+          <ellipse cx="905" cy="92" rx="120" ry="22"/>
+          <ellipse cx="1010" cy="116" rx="80" ry="15"/>
+          <ellipse cx="1080" cy="176" rx="84" ry="16"/>
+        </g>
+
+        <path d="M0 352 Q250 296 520 344 T1200 330 V420 H0 Z" fill="#9db4c8" opacity=".5"/>
+        <path d="M0 372 Q300 332 640 368 T1200 360 V420 H0 Z" fill="#6f8b98" opacity=".72"/>
+
+        <g fill="#264c5b">
+          <g transform="translate(576,366)">
+            <circle cx="0" cy="-58" r="13"/>
+            <path d="M-11 -44 q11 -5 22 0 l4 32 h-9 l-6 -20 -6 20 h-9 Z"/>
+          </g>
+          <g transform="translate(628,366)">
+            <circle cx="0" cy="-54" r="12"/>
+            <path d="M-10 -41 q10 -5 20 0 l4 29 h-8 l-6 -18 -6 18 h-8 Z"/>
+          </g>
+          <path d="M587 326 q14 8 28 5" fill="none" stroke="#264c5b" stroke-width="4" stroke-linecap="round"/>
+          <g transform="translate(672,366)">
+            <ellipse cx="-2" cy="-10" rx="14" ry="11"/>
+            <circle cx="12" cy="-22" r="8"/>
+            <path d="M18 -22 q7 -1 7 3 q0 3 -7 3 Z"/>
+            <path d="M6 -28 q-2 -9 3 -9 q5 0 3 9 Z"/>
+            <path d="M14 -29 q-1 -9 4 -9 q5 0 3 9 Z"/>
+            <path d="M-15 -12 q-12 -1 -14 -12 q9 0 15 8 Z"/>
+          </g>
+        </g>
+
+        <path d="M0 384 Q260 356 640 380 T1200 378 V420 H0 Z" fill="#3d5f68"/>
+      </svg>
+    </div>
+    <p class="sunset__caption" id="sunset-caption">Wherever we are, I'll always watch the sunset with you.</p>
   </section>
 
   <!-- timeline -->
   <section class="section" id="timeline" aria-labelledby="timeline-title">
     <header class="section__head">
       <p class="kicker kicker--dark">Since the very first day</p>
-      <h2 class="section__title" id="timeline-title">Our Story <em>我們的故事</em></h2>
+      <h2 class="section__title" id="timeline-title">Our Story <em></em></h2>
     </header>
     <ol class="timeline" id="timeline-list"></ol>
   </section>
@@ -113,8 +197,8 @@
   <section class="section section--paper" id="gallery" aria-labelledby="gallery-title">
     <header class="section__head">
       <p class="kicker kicker--dark">Little windows into us</p>
-      <h2 class="section__title" id="gallery-title">Polaroid Wall <em>我們的照片牆</em></h2>
-      <button class="btn btn--ghost" id="slideshow-btn" type="button">▶ Play the slideshow · 播放幻燈片</button>
+      <h2 class="section__title" id="gallery-title">Polaroid Wall <em></em></h2>
+      <button class="btn btn--ghost" id="slideshow-btn" type="button">▶ Play the slideshow</button>
     </header>
     <div class="gallery" id="gallery-grid"></div>
   </section>
@@ -123,8 +207,8 @@
   <section class="section" id="letters" aria-labelledby="letters-title">
     <header class="section__head">
       <p class="kicker kicker--dark">For whenever you need them</p>
-      <h2 class="section__title" id="letters-title">Open When… <em>當你…的時候，打開它</em></h2>
-      <p class="section__lede">Pick the one that fits how you feel today. 選一封，陪你此刻的心情。</p>
+      <h2 class="section__title" id="letters-title">Open When… <em></em></h2>
+      <p class="section__lede">Pick the one that fits how you feel today.</p>
     </header>
     <div class="envelopes" id="envelope-list"></div>
   </section>
@@ -149,7 +233,7 @@
         <circle cx="40" cy="60" r="5" fill="#FFC2DC" opacity=".6"/>
         <circle cx="80" cy="60" r="5" fill="#FFC2DC" opacity=".6"/>
       </svg>
-      <div class="banner">Happy Birthday · 生日快樂</div>
+      <div class="banner">Happy Birthday</div>
       <svg viewBox="0 0 120 120" class="chipmunk chipmunk--flip">
         <ellipse cx="60" cy="112" rx="34" ry="6" fill="#2E79AC" opacity=".12"/>
         <path d="M98 92 C116 84 112 54 94 56 C102 70 94 82 80 84 Z" fill="#C98A5A"/>
@@ -170,8 +254,8 @@
       </svg>
     </div>
     <p class="footer__lyric" id="footer-lyric"></p>
-    <p class="footer__sign">Made with sky-blue and a lot of love · <span class="zh">用天空藍同滿滿嘅愛做成</span></p>
-    <p class="footer__tiny">Siu Gai Mo <span class="zh">小雞毛</span> &rarr; Siu Bak Char <span class="zh">小白Char</span> · <span id="year"></span></p>
+    <p class="footer__sign">Made with sky-blue and a lot of love</p>
+    <p class="footer__tiny">Siu Gai Mo &rarr; Siu Bak Char · <span id="year"></span></p>
     <button class="moon" id="moon" type="button" aria-label="A hidden little something">🌙</button>
   </footer>
 </main>
@@ -184,12 +268,17 @@
     <p class="modal__kicker" id="modal-kicker">A letter for you</p>
     <h3 class="modal__title" id="modal-title"></h3>
     <div class="modal__body" id="modal-body"></div>
-    <p class="modal__sign">— Siu Gai Mo <span class="zh">小雞毛</span></p>
+    <p class="modal__sign">— Siu Gai Mo</p>
   </article>
 </div>
 
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<audio id="bgm" loop preload="auto" playsinline></audio>
+<button class="music-btn" id="music-btn" type="button" aria-label="Play music" aria-pressed="false" hidden>
+  <span class="music-btn__icon" id="music-icon" aria-hidden="true">🔇</span>
+</button>
 
 <script src="script.js"></script>
 </body>
