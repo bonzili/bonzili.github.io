@@ -96,6 +96,13 @@ const CONTENT = {
      Any one can be opened, then a 7-day cooldown starts before the next. */
   openWhen: [
     {
+      icon: "🌪️",
+      en: "you feel overwhelmed",
+      zh: "",
+      body: "Take a deep breath!",
+      bodyZh: "I know it feels like a million things are being thrown at you rn and there just aren't enough hours in the day to give everything it deserves. I didn't know how to say this but listen to me: You are not falling behind, and you are NOT greedy. You simply love life and want to experience everything it has to offerrrr. You have such a kind heart full of curiosity and excitement for life (just like meee:D) and this is a beautiful thing! Life is a longgggggggg journey meant to be treasured. Rmb you are a human not a machine:< Your worth doesnt decrease when you rest and people who love you just for you being yourself! Get a glass of water, take a deep breath, pick just one small task to finish. I believe in you so much, and no matter what me dou hai gum proud of my bb💙",
+    },
+    {
       icon: "💧",
       en: "you're having a hard day",
       zh: "",
@@ -127,13 +134,6 @@ const CONTENT = {
       */
       body: "",
       bodyZh: "",
-    },
-    {
-      icon: "🌪️",
-      en: "you feel overwhelmed",
-      zh: "",
-      body: "Take a deep breath!",
-      bodyZh: "I know it feels like a million things are being thrown at you rn and there just aren't enough hours in the day to give everything it deserves. I didn't know how to say this but listen to me: You are not falling behind, and you are NOT greedy. You simply love life and want to experience everything it has to offerrrr. You have such a kind heart full of curiosity and excitement for life (just like meee:D) and this is a beautiful thing! Life is a longgggggggg journey meant to be treasured. Rmb you are a human not a machine:< Your worth doesnt decrease when you rest and people who love you just for you being yourself! Get a glass of water, take a deep breath, pick just one small task to finish. I believe in you so much, and no matter what me dou hai gum proud of my bb💙",
     },
   ],
 
