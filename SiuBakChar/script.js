@@ -99,6 +99,7 @@ const CONTENT = {
       icon: "🌪️",
       en: "you feel overwhelmed",
       zh: "",
+      gif: "assets/overwhelmed.gif",
       body: "Take a deep breath!",
       bodyZh: "I know it feels like a million things are being thrown at you rn and there just aren't enough hours in the day to give everything it deserves. I didn't know how to say this but listen to me: You are not falling behind, and you are NOT greedy. You simply love life and want to experience everything it has to offerrrr. You have such a kind heart full of curiosity and excitement for life (just like meee:D) and this is a beautiful thing! Life is a longgggggggg journey meant to be treasured. Rmb you are a human not a machine:< Your worth doesnt decrease when you rest and people who love you just for you being yourself! Get a glass of water, take a deep breath, pick just one small task to finish. I believe in you so much, and no matter what me dou hai gum proud of my bb💙",
     },
@@ -106,6 +107,7 @@ const CONTENT = {
       icon: "💧",
       en: "you're having a hard day",
       zh: "",
+      gif: "assets/hard-day.gif",
       /* DRAFT (still writing) — move back into body/bodyZh when ready:
       body: "My love,",
       bodyZh: "Close your eyes and take a deep breath. Tomorrow gets to be a completely blank page. Until then, you did enough today. You don't have to be strong all the time. Feel it, let it out, and then let me carry some of it for you. I'm not going anywhere.",
@@ -117,6 +119,7 @@ const CONTENT = {
       icon: "🫂",
       en: "you miss me",
       zh: "",
+      gif: "assets/miss-me.gif",
       /* DRAFT (still writing) — move back into body/bodyZh when ready:
       body: "Hey bbbbbbb,",
       bodyZh: "Good news: I'm probably thinking about you right now too:D. Just text me/call me/annoy me whenever you read this.",
@@ -128,6 +131,7 @@ const CONTENT = {
       icon: "✨",
       en: "you doubt yourself",
       zh: "",
+      gif: "assets/doubt-yourself.gif",
       /* DRAFT (still writing) — move back into body/bodyZh when ready:
       body: "To the girl I believe in most",
       bodyZh: "I wish you could see yourself the way I see you — brave, kind, and so much brighter than you give yourself credit for. You're the best thing in my sky. it’s only because you care so deeply. That doesn’t mean you’re incapable; it just means you’re human and ambitious. Lek Lek geh Siu Bakkkk💙",
@@ -136,6 +140,10 @@ const CONTENT = {
       bodyZh: "",
     },
   ],
+
+  /* Fallback GIF used if a letter has no `gif`, or its gif file is missing.
+     Each letter's own gif is set in the `gif` field above. Set to "" to disable. */
+  letterGif: "assets/SiuBakandSiuGaiMo.gif",
 
   /* Footer lyric on the celebration page */
   lyric: "勾勾手蓋手印，這一刻有約定。<br>那愛情變美麗，因為我開始相信。",
@@ -430,6 +438,25 @@ function openLetter(i) {
   $("modal-kicker").textContent = "A letter for when";
   $("modal-title").innerHTML = `Open when ${l.en}${l.zh ? `<span class="zh">${l.zh}</span>` : ""}`;
   $("modal-body").innerHTML = `${l.body ? `<p>${l.body}</p>` : ""}${l.bodyZh ? `<p>${l.bodyZh}</p>` : ""}`;
+
+  const gif = l.gif || CONTENT.letterGif;
+  const fallback = CONTENT.letterGif;
+  const gifEl = $("modal-gif");
+  if (gifEl) {
+    if (gif) {
+      gifEl.hidden = false;
+      gifEl.onerror = () => {
+        /* per-letter gif missing? fall back to the shared one, else hide */
+        if (fallback && gifEl.getAttribute("src") !== fallback) gifEl.src = fallback;
+        else gifEl.hidden = true;
+      };
+      gifEl.src = gif;
+    } else {
+      gifEl.hidden = true;
+      gifEl.onerror = null;
+      gifEl.removeAttribute("src");
+    }
+  }
   const modal = $("modal");
   modal.hidden = false;
   document.body.style.overflow = "hidden";
@@ -609,16 +636,17 @@ function setTrack(kind) {
 function tryPlay() {
   if (!musicAvailable() || !BGM.wantPlay) return;
   const p = BGM.el.play();
-  if (p && p.catch) p.catch(() => updateMusicUI(false));
+  if (p && p.catch) p.catch(() => updateMusicUI());
 }
 
-function updateMusicUI(playing) {
+function updateMusicUI() {
   if (!BGM.btn) return;
-  BGM.icon.textContent = playing ? "🎵" : "🔇";
-  BGM.btn.classList.toggle("is-playing", playing);
-  BGM.btn.setAttribute("aria-pressed", String(playing));
-  BGM.btn.setAttribute("aria-label", playing ? "Pause music" : "Play music");
-  BGM.btn.title = playing ? "Pause music" : "Play music";
+  const on = !BGM.el.paused && !BGM.el.muted;
+  BGM.icon.textContent = on ? "🎵" : "🔇";
+  BGM.btn.classList.toggle("is-playing", on);
+  BGM.btn.setAttribute("aria-pressed", String(on));
+  BGM.btn.setAttribute("aria-label", on ? "Mute music" : "Unmute music");
+  BGM.btn.title = on ? "Mute music" : "Unmute music";
 }
 
 function applyVolume(v) {
@@ -638,13 +666,14 @@ function supportsVolume() {
 
 function onMusicButton() {
   if (!musicAvailable()) return;
-  if (BGM.el.paused) {
+  if (BGM.el.muted) {
+    BGM.el.muted = false;
     BGM.wantPlay = true;
     tryPlay();
   } else {
-    BGM.wantPlay = false;
-    BGM.el.pause();
+    BGM.el.muted = true;
   }
+  updateMusicUI();
 }
 
 function switchMusic(kind) {
@@ -681,15 +710,18 @@ function initMusic() {
     BGM.wrap.classList.add("no-vol");
   }
 
+  BGM.el.muted = true;
   BGM.el.addEventListener("canplay", () => {
     BGM.wrap.hidden = false;
     tryPlay();
   });
-  BGM.el.addEventListener("playing", () => updateMusicUI(true));
-  BGM.el.addEventListener("pause", () => updateMusicUI(false));
+  BGM.el.addEventListener("playing", () => updateMusicUI());
+  BGM.el.addEventListener("pause", () => updateMusicUI());
+  BGM.el.addEventListener("volumechange", () => updateMusicUI());
   BGM.el.addEventListener("error", () => {
     BGM.wrap.hidden = true;
   });
+  updateMusicUI();
 
   BGM.btn.addEventListener("click", onMusicButton);
 

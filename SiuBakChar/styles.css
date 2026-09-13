@@ -656,6 +656,13 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
 .modal__title{font-family:var(--font-display);font-weight:800;color:var(--sky-700);font-size:clamp(1.4rem,4vw,1.9rem);margin:0 0 .3rem;line-height:1.2}
 .modal__title .zh{display:block;font-family:"Noto Sans TC",sans-serif;font-size:.6em;color:var(--sky-500);margin-top:.4em;font-weight:700}
 .modal__body{margin-top:1.2rem;color:var(--ink);font-size:1.02rem;white-space:pre-line}
+.modal__gif{
+  display:block;
+  width:min(190px,54%);
+  margin:1.1rem auto 0;
+  border-radius:var(--radius-sm);
+}
+.modal__gif[hidden]{display:none}
 .modal__sign{margin-top:1.6rem;text-align:right;color:var(--sky-600);font-weight:700;font-size:.95rem}
 
 /* ==========================================================================
