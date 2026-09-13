@@ -518,6 +518,16 @@ function applyVolume(v) {
   if (BGM.vol) BGM.vol.value = String(BGM.el.volume);
 }
 
+/* iOS Safari ignores programmatic volume changes (hardware-only) */
+function supportsVolume() {
+  const el = BGM.el;
+  const original = el.volume;
+  el.volume = original === 1 ? 0.5 : 1;
+  const changed = el.volume !== original;
+  el.volume = original;
+  return changed;
+}
+
 function onMusicButton() {
   if (!musicAvailable()) return;
   if (BGM.el.paused) {
@@ -542,21 +552,26 @@ function initMusic() {
   BGM.vol = $("music-vol");
   if (!BGM.el || !BGM.wrap || !BGM.btn || !CONFIG.music) return;
 
-  /* volume — use the saved preference, otherwise the config default */
-  let saved = null;
-  try {
-    saved = parseFloat(localStorage.getItem(VOL_KEY));
-  } catch (e) {}
-  const def = CONFIG.music.volume != null ? CONFIG.music.volume : 0.5;
-  applyVolume(Number.isFinite(saved) ? saved : def);
-
-  BGM.vol.addEventListener("input", () => {
-    applyVolume(parseFloat(BGM.vol.value));
+  /* volume — hide the slider where it can't work (iOS), else use saved/default level */
+  if (supportsVolume()) {
+    let saved = null;
     try {
-      localStorage.setItem(VOL_KEY, String(BGM.el.volume));
+      saved = parseFloat(localStorage.getItem(VOL_KEY));
     } catch (e) {}
-    if (BGM.el.paused && BGM.wantPlay) tryPlay();
-  });
+    const def = CONFIG.music.volume != null ? CONFIG.music.volume : 0.5;
+    applyVolume(Number.isFinite(saved) ? saved : def);
+
+    BGM.vol.addEventListener("input", () => {
+      applyVolume(parseFloat(BGM.vol.value));
+      try {
+        localStorage.setItem(VOL_KEY, String(BGM.el.volume));
+      } catch (e) {}
+      if (BGM.el.paused && BGM.wantPlay) tryPlay();
+    });
+  } else {
+    BGM.vol.hidden = true;
+    BGM.wrap.classList.add("no-vol");
+  }
 
   BGM.el.addEventListener("canplay", () => {
     BGM.wrap.hidden = false;

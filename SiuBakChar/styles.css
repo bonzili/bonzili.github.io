@@ -643,6 +643,8 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
   box-shadow:var(--shadow-sm);
 }
 .music[hidden]{display:none}
+.music.no-vol{padding:7px}
+.music__vol[hidden]{display:none}
 .music__btn{
   width:40px;height:40px;border-radius:50%;
   display:grid;place-items:center;
