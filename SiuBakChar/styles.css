@@ -155,15 +155,6 @@ body.is-unlocked .sky .star{opacity:0;transition:opacity 1s ease}
   text-align:center;
 }
 .lock__inner{max-width:720px;animation:rise .9s cubic-bezier(.2,.8,.25,1) both;position:relative;z-index:1}
-.lock__horizon{
-  position:absolute;
-  left:0;right:0;bottom:0;
-  height:clamp(120px,24vh,220px);
-  z-index:0;
-  pointer-events:none;
-  opacity:.7;
-}
-.lock__horizon svg{width:100%;height:100%;display:block}
 .lock__name,.hero__name{
   font-family:var(--font-display);
   font-weight:800;
@@ -640,22 +631,44 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
 }
 .toast.is-shown{transform:translate(-50%,0);opacity:1;visibility:visible}
 
-/* music toggle */
-.music-btn{
+/* music control */
+.music{
   position:fixed;right:18px;bottom:18px;z-index:95;
-  width:52px;height:52px;border-radius:50%;
-  display:grid;place-items:center;
+  display:flex;align-items:center;gap:10px;
+  padding:7px 14px 7px 7px;
+  border-radius:999px;
   border:1px solid rgba(255,255,255,.9);
-  background:rgba(255,255,255,.75);
+  background:rgba(255,255,255,.78);
   backdrop-filter:blur(10px);
-  color:var(--sky-600);font-size:1.2rem;
   box-shadow:var(--shadow-sm);
-  transition:transform .2s ease,box-shadow .2s ease;
 }
-.music-btn[hidden]{display:none}
-.music-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-.music-btn.is-playing{animation:musicPulse 2.6s ease-in-out infinite}
-.music-btn__icon{line-height:1}
+.music[hidden]{display:none}
+.music__btn{
+  width:40px;height:40px;border-radius:50%;
+  display:grid;place-items:center;
+  border:none;background:var(--sky-100);color:var(--sky-600);
+  font-size:1.05rem;transition:transform .2s ease;
+}
+.music__btn:hover{transform:scale(1.07)}
+.music__btn.is-playing{animation:musicPulse 2.6s ease-in-out infinite}
+.music__icon{line-height:1}
+.music__vol{
+  -webkit-appearance:none;appearance:none;
+  width:92px;height:5px;border-radius:999px;outline:none;
+  background:linear-gradient(90deg,var(--sky-300),var(--sky-100));
+}
+.music__vol::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--sky-500);border:2px solid #fff;
+  box-shadow:0 2px 6px -1px rgba(46,121,172,.6);cursor:pointer;
+}
+.music__vol::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--sky-500);border:2px solid #fff;
+  box-shadow:0 2px 6px -1px rgba(46,121,172,.6);cursor:pointer;
+}
+@media (max-width:420px){.music__vol{width:70px}}
 @keyframes musicPulse{
   0%,100%{box-shadow:0 0 0 0 rgba(126,196,236,.55)}
   50%{box-shadow:0 0 0 12px rgba(126,196,236,0)}

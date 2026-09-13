@@ -16,6 +16,7 @@ const CONFIG = {
   music: {
     cover: "assets/because-of-you.mp3",
     celebrate: "assets/believe.mp3",
+    volume: 0.35,
   },
 };
 
@@ -138,7 +139,7 @@ const CONTENT = {
   ],
 
   /* Footer lyric on the celebration page */
-  lyric: "勾勾手蓋手印，這一刻有約定。那愛情變美麗，因為我開始相信。",
+  lyric: "勾勾手蓋手印，這一刻有約定。<br>那愛情變美麗，因為我開始相信。",
   lyricCite: "— 五月天《相信》",
 
   /* Hidden message behind the moon */
@@ -476,7 +477,8 @@ function confettiTick(now) {
 }
 
 /* ---------------- background music ---------------- */
-const BGM = { el: null, btn: null, icon: null, current: null, wantPlay: true };
+const BGM = { el: null, wrap: null, btn: null, icon: null, vol: null, current: null, wantPlay: true };
+const VOL_KEY = "bgmVolume";
 
 function musicAvailable() {
   return BGM.el && BGM.el.getAttribute("src");
@@ -487,7 +489,7 @@ function setTrack(kind) {
   const src = kind === "celebrate" ? cfg.celebrate : cfg.cover;
   BGM.current = kind;
   if (!src) {
-    if (BGM.btn) BGM.btn.hidden = true;
+    if (BGM.wrap) BGM.wrap.hidden = true;
     return;
   }
   if (BGM.el.getAttribute("src") !== src) {
@@ -511,6 +513,11 @@ function updateMusicUI(playing) {
   BGM.btn.title = playing ? "Pause music" : "Play music";
 }
 
+function applyVolume(v) {
+  BGM.el.volume = Math.min(1, Math.max(0, v));
+  if (BGM.vol) BGM.vol.value = String(BGM.el.volume);
+}
+
 function onMusicButton() {
   if (!musicAvailable()) return;
   if (BGM.el.paused) {
@@ -529,25 +536,43 @@ function switchMusic(kind) {
 
 function initMusic() {
   BGM.el = $("bgm");
+  BGM.wrap = $("music");
   BGM.btn = $("music-btn");
   BGM.icon = $("music-icon");
-  if (!BGM.el || !BGM.btn || !CONFIG.music) return;
+  BGM.vol = $("music-vol");
+  if (!BGM.el || !BGM.wrap || !BGM.btn || !CONFIG.music) return;
+
+  /* volume — use the saved preference, otherwise the config default */
+  let saved = null;
+  try {
+    saved = parseFloat(localStorage.getItem(VOL_KEY));
+  } catch (e) {}
+  const def = CONFIG.music.volume != null ? CONFIG.music.volume : 0.5;
+  applyVolume(Number.isFinite(saved) ? saved : def);
+
+  BGM.vol.addEventListener("input", () => {
+    applyVolume(parseFloat(BGM.vol.value));
+    try {
+      localStorage.setItem(VOL_KEY, String(BGM.el.volume));
+    } catch (e) {}
+    if (BGM.el.paused && BGM.wantPlay) tryPlay();
+  });
 
   BGM.el.addEventListener("canplay", () => {
-    BGM.btn.hidden = false;
+    BGM.wrap.hidden = false;
     tryPlay();
   });
   BGM.el.addEventListener("playing", () => updateMusicUI(true));
   BGM.el.addEventListener("pause", () => updateMusicUI(false));
   BGM.el.addEventListener("error", () => {
-    BGM.btn.hidden = true;
+    BGM.wrap.hidden = true;
   });
 
   BGM.btn.addEventListener("click", onMusicButton);
 
   /* Sound autoplay is blocked until the first interaction, so retry on gesture */
   const gesture = (e) => {
-    if (BGM.btn.contains(e.target)) return;
+    if (BGM.wrap.contains(e.target)) return;
     if (BGM.wantPlay && BGM.el.paused) tryPlay();
   };
   ["pointerdown", "keydown", "touchstart"].forEach((ev) =>

@@ -31,29 +31,6 @@
 
 <!-- ============ 1. COUNTDOWN LOCK ============ -->
 <section class="lock" id="lock" aria-label="Countdown">
-  <div class="lock__horizon" aria-hidden="true">
-    <svg viewBox="0 0 1200 220" preserveAspectRatio="xMidYMax slice">
-      <path d="M0 150 Q300 120 600 146 T1200 138 V220 H0 Z" fill="#54a9dd" opacity=".16"/>
-      <g fill="#2E79AC" opacity=".38" transform="translate(600 220) scale(.82) translate(-600 -220)">
-        <g transform="translate(566,150)">
-          <circle cx="0" cy="-46" r="16"/>
-          <path d="M-21 -30 q21 -11 42 0 q7 34 0 52 h-42 q-7 -18 0 -52 Z"/>
-        </g>
-        <g transform="translate(622,150)">
-          <circle cx="0" cy="-50" r="16"/>
-          <path d="M-21 -34 q21 -11 42 0 q7 34 0 56 h-42 q-7 -22 0 -56 Z"/>
-        </g>
-        <g transform="translate(672,150)">
-          <ellipse cx="-2" cy="-9" rx="12" ry="9"/>
-          <circle cx="10" cy="-19" r="7"/>
-          <path d="M15 -19 q6 -1 6 3 q0 3 -6 3 Z"/>
-          <path d="M5 -24 q-2 -8 2 -8 q4 0 3 8 Z"/>
-          <path d="M12 -25 q-1 -8 3 -8 q4 0 3 8 Z"/>
-        </g>
-      </g>
-      <path d="M0 182 Q280 156 600 180 T1200 176 V220 H0 Z" fill="#1f5a84" opacity=".22"/>
-    </svg>
-  </div>
   <div class="lock__inner">
     <div class="mascot">
       <img class="mascot__img"
@@ -103,7 +80,7 @@
     </div>
 
     <p class="lock__note">Come back on <strong>12 October 2026</strong> 🌷</p>
-    <p class="lock__lyric">因為有你，所以有我<cite>— 五月天《因為你 所以我》</cite></p>
+    <p class="lock__lyric">因為有你，所以有我。<cite>— 五月天《因為你 所以我》</cite></p>
   </div>
 </section>
 
@@ -276,9 +253,12 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <audio id="bgm" loop preload="auto" playsinline></audio>
-<button class="music-btn" id="music-btn" type="button" aria-label="Play music" aria-pressed="false" hidden>
-  <span class="music-btn__icon" id="music-icon" aria-hidden="true">🔇</span>
-</button>
+<div class="music" id="music" hidden>
+  <button class="music__btn" id="music-btn" type="button" aria-label="Play music" aria-pressed="false">
+    <span class="music__icon" id="music-icon" aria-hidden="true">🔇</span>
+  </button>
+  <input class="music__vol" id="music-vol" type="range" min="0" max="1" step="0.01" value="0.35" aria-label="Music volume">
+</div>
 
 <script src="script.js"></script>
 </body>
