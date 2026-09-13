@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Siu Bak Char · Happy Birthday 🌷</title>
+<meta name="description" content="A little corner of the sky, made just for you. 一個只為你而做的小小天空。">
+<meta name="theme-color" content="#6FB8E8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌷</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="is-locked">
+
+<!-- ============ ambient sky ============ -->
+<div class="sky" aria-hidden="true">
+  <div class="sky__glow"></div>
+  <div class="cloud cloud--1"></div>
+  <div class="cloud cloud--2"></div>
+  <div class="cloud cloud--3"></div>
+  <div class="cloud cloud--4"></div>
+  <span class="star star--1"></span>
+  <span class="star star--2"></span>
+  <span class="star star--3"></span>
+  <span class="star star--4"></span>
+  <span class="star star--5"></span>
+</div>
+
+<!-- ============ 1. COUNTDOWN LOCK ============ -->
+<section class="lock" id="lock" aria-label="Countdown">
+  <div class="lock__inner">
+    <div class="mascot">
+      <img class="mascot__img"
+           src="assets/mascot.png"
+           alt="Our little Maltese"
+           onerror="this.classList.add('is-missing'); this.nextElementSibling.classList.add('is-shown');">
+      <svg class="mascot__fallback" viewBox="0 0 200 190" role="img" aria-label="A little white Maltese pup holding balloons">
+        <defs>
+          <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e7f3fc"/>
+          </linearGradient>
+          <linearGradient id="bal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFC2DC"/><stop offset="1" stop-color="#FF9CC4"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="100" cy="176" rx="52" ry="9" fill="#2E79AC" opacity=".12"/>
+        <path d="M100 78 C100 40 120 22 150 18" fill="none" stroke="#C9B8F5" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M100 78 C100 48 86 30 66 24" fill="none" stroke="#C9B8F5" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="152" cy="18" r="16" fill="url(#bal)"/>
+        <circle cx="66" cy="22" r="13" fill="#A9E8D4"/>
+        <ellipse cx="100" cy="132" rx="46" ry="40" fill="url(#fur)"/>
+        <circle cx="100" cy="92" r="42" fill="url(#fur)"/>
+        <ellipse cx="84" cy="70" rx="15" ry="22" fill="#eef6fc" transform="rotate(-18 84 70)"/>
+        <ellipse cx="116" cy="70" rx="15" ry="22" fill="#eef6fc" transform="rotate(18 116 70)"/>
+        <ellipse cx="100" cy="108" rx="20" ry="15" fill="#ffffff"/>
+        <circle cx="88" cy="94" r="4.5" fill="#3A3A55"/>
+        <circle cx="112" cy="94" r="4.5" fill="#3A3A55"/>
+        <circle cx="86.5" cy="92.5" r="1.6" fill="#fff"/>
+        <circle cx="110.5" cy="92.5" r="1.6" fill="#fff"/>
+        <ellipse cx="100" cy="106" rx="7" ry="5.5" fill="#3A3A55"/>
+        <path d="M100 111 v4 M100 115 q-6 5 -12 1 M100 115 q6 5 12 1" fill="none" stroke="#3A3A55" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="72" cy="108" r="6" fill="#FFC2DC" opacity=".55"/>
+        <circle cx="128" cy="108" r="6" fill="#FFC2DC" opacity=".55"/>
+        <path d="M84 168 q-8 -14 4 -20 M116 168 q8 -14 -4 -20" fill="none" stroke="#dbeaf5" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <p class="kicker">A little surprise for · 一份小驚喜，送給</p>
+    <h1 class="lock__name">Siu Bak Char <span class="zh">小白Char</span></h1>
+    <p class="lock__sub">Something special is on its way.<br>有些心意，正在悄悄靠近。</p>
+
+    <div class="countdown" id="countdown" role="timer" aria-live="polite">
+      <div class="countdown__cell"><span class="countdown__num" id="cd-days">--</span><span class="countdown__label">Days · 日</span></div>
+      <div class="countdown__cell"><span class="countdown__num" id="cd-hours">--</span><span class="countdown__label">Hours · 時</span></div>
+      <div class="countdown__cell"><span class="countdown__num" id="cd-mins">--</span><span class="countdown__label">Mins · 分</span></div>
+      <div class="countdown__cell"><span class="countdown__num" id="cd-secs">--</span><span class="countdown__label">Secs · 秒</span></div>
+    </div>
+
+    <p class="lock__note">Come back on <strong>12 October 2026</strong> · 十月十二日，記得回來哦 🌷</p>
+  </div>
+</section>
+
+<!-- ============ 2–6. THE SITE ============ -->
+<main class="site" id="site">
+
+  <!-- hero + letter -->
+  <section class="hero" aria-label="Birthday greeting">
+    <div class="hero__inner">
+      <p class="kicker kicker--dark">Happy Birthday · 生日快樂</p>
+      <h1 class="hero__name">Siu Bak Char <span class="zh">小白Char</span></h1>
+      <p class="hero__from">from <strong>Siu Gai Mo</strong> <span class="zh">小雞毛</span>, with all my heart</p>
+
+      <div class="letter-card">
+        <span class="washi washi--tl" aria-hidden="true"></span>
+        <p class="letter" id="typed-letter" aria-live="polite"></p>
+        <a class="btn" href="#timeline">Let's look back · 一起回顧 <span aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- timeline -->
+  <section class="section" id="timeline" aria-labelledby="timeline-title">
+    <header class="section__head">
+      <p class="kicker kicker--dark">Since the very first day</p>
+      <h2 class="section__title" id="timeline-title">Our Story <em>我們的故事</em></h2>
+    </header>
+    <ol class="timeline" id="timeline-list"></ol>
+  </section>
+
+  <!-- gallery -->
+  <section class="section section--paper" id="gallery" aria-labelledby="gallery-title">
+    <header class="section__head">
+      <p class="kicker kicker--dark">Little windows into us</p>
+      <h2 class="section__title" id="gallery-title">Polaroid Wall <em>我們的照片牆</em></h2>
+      <button class="btn btn--ghost" id="slideshow-btn" type="button">▶ Play the slideshow · 播放幻燈片</button>
+    </header>
+    <div class="gallery" id="gallery-grid"></div>
+  </section>
+
+  <!-- open-when letters -->
+  <section class="section" id="letters" aria-labelledby="letters-title">
+    <header class="section__head">
+      <p class="kicker kicker--dark">For whenever you need them</p>
+      <h2 class="section__title" id="letters-title">Open When… <em>當你…的時候，打開它</em></h2>
+      <p class="section__lede">Pick the one that fits how you feel today. 選一封，陪你此刻的心情。</p>
+    </header>
+    <div class="envelopes" id="envelope-list"></div>
+  </section>
+
+  <footer class="footer">
+    <div class="chipmunks" aria-hidden="true">
+      <svg viewBox="0 0 120 120" class="chipmunk">
+        <ellipse cx="60" cy="112" rx="34" ry="6" fill="#2E79AC" opacity=".12"/>
+        <path d="M22 92 C4 84 8 54 26 56 C18 70 26 82 40 84 Z" fill="#C98A5A"/>
+        <ellipse cx="60" cy="86" rx="30" ry="26" fill="#E0A574"/>
+        <circle cx="60" cy="52" r="27" fill="#EDB98A"/>
+        <ellipse cx="46" cy="36" rx="8" ry="11" fill="#EDB98A" transform="rotate(-14 46 36)"/>
+        <ellipse cx="74" cy="36" rx="8" ry="11" fill="#EDB98A" transform="rotate(14 74 36)"/>
+        <ellipse cx="46" cy="37" rx="4" ry="6" fill="#C98A5A" transform="rotate(-14 46 37)"/>
+        <ellipse cx="74" cy="37" rx="4" ry="6" fill="#C98A5A" transform="rotate(14 74 37)"/>
+        <ellipse cx="60" cy="64" rx="15" ry="12" fill="#FFF3E6"/>
+        <circle cx="50" cy="50" r="4" fill="#3A3A55"/>
+        <circle cx="70" cy="50" r="4" fill="#3A3A55"/>
+        <circle cx="48.6" cy="48.6" r="1.4" fill="#fff"/>
+        <circle cx="68.6" cy="48.6" r="1.4" fill="#fff"/>
+        <ellipse cx="60" cy="61" rx="4.5" ry="3.5" fill="#3A3A55"/>
+        <circle cx="40" cy="60" r="5" fill="#FFC2DC" opacity=".6"/>
+        <circle cx="80" cy="60" r="5" fill="#FFC2DC" opacity=".6"/>
+      </svg>
+      <div class="banner">Happy Birthday · 生日快樂</div>
+      <svg viewBox="0 0 120 120" class="chipmunk chipmunk--flip">
+        <ellipse cx="60" cy="112" rx="34" ry="6" fill="#2E79AC" opacity=".12"/>
+        <path d="M98 92 C116 84 112 54 94 56 C102 70 94 82 80 84 Z" fill="#C98A5A"/>
+        <ellipse cx="60" cy="86" rx="30" ry="26" fill="#E0A574"/>
+        <circle cx="60" cy="52" r="27" fill="#EDB98A"/>
+        <ellipse cx="46" cy="36" rx="8" ry="11" fill="#EDB98A" transform="rotate(-14 46 36)"/>
+        <ellipse cx="74" cy="36" rx="8" ry="11" fill="#EDB98A" transform="rotate(14 74 36)"/>
+        <ellipse cx="46" cy="37" rx="4" ry="6" fill="#C98A5A" transform="rotate(-14 46 37)"/>
+        <ellipse cx="74" cy="37" rx="4" ry="6" fill="#C98A5A" transform="rotate(14 74 37)"/>
+        <ellipse cx="60" cy="64" rx="15" ry="12" fill="#FFF3E6"/>
+        <circle cx="50" cy="50" r="4" fill="#3A3A55"/>
+        <circle cx="70" cy="50" r="4" fill="#3A3A55"/>
+        <circle cx="48.6" cy="48.6" r="1.4" fill="#fff"/>
+        <circle cx="68.6" cy="48.6" r="1.4" fill="#fff"/>
+        <ellipse cx="60" cy="61" rx="4.5" ry="3.5" fill="#3A3A55"/>
+        <circle cx="40" cy="60" r="5" fill="#FFC2DC" opacity=".6"/>
+        <circle cx="80" cy="60" r="5" fill="#FFC2DC" opacity=".6"/>
+      </svg>
+    </div>
+    <p class="footer__lyric" id="footer-lyric"></p>
+    <p class="footer__sign">Made with sky-blue and a lot of love · <span class="zh">用天空藍同滿滿嘅愛做成</span></p>
+    <p class="footer__tiny">Siu Gai Mo <span class="zh">小雞毛</span> &rarr; Siu Bak Char <span class="zh">小白Char</span> · <span id="year"></span></p>
+    <button class="moon" id="moon" type="button" aria-label="A hidden little something">🌙</button>
+  </footer>
+</main>
+
+<!-- envelope reader -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <article class="modal__card">
+    <button class="modal__close" type="button" data-close aria-label="Close">✕</button>
+    <p class="modal__kicker" id="modal-kicker">A letter for you</p>
+    <h3 class="modal__title" id="modal-title"></h3>
+    <div class="modal__body" id="modal-body"></div>
+    <p class="modal__sign">— Siu Gai Mo <span class="zh">小雞毛</span></p>
+  </article>
+</div>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
