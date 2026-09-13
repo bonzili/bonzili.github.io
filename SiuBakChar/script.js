@@ -16,7 +16,7 @@ const CONFIG = {
   music: {
     cover: "assets/because-of-you.mp3",
     celebrate: "assets/believe.mp3",
-    volume: 0.35,
+    volume: 0.2,
   },
 };
 
@@ -92,49 +92,48 @@ const CONTENT = {
     { cap: "Here's to more", zh: "", src: "" },
   ],
 
-  /* Open-when letters */
+  /* Open-when letters — write your own words in `body` (and optional `bodyZh`).
+     Any one can be opened, then a 7-day cooldown starts before the next. */
   openWhen: [
-    {
-      icon: "🌙",
-      en: "you can't sleep",
-      zh: "",
-      body: "If the night feels too long, imagine I'm right there, tracing little circles on your hand until your breathing slows down. You are safe, you are loved, and tomorrow can wait.",
-      bodyZh: "",
-    },
     {
       icon: "💧",
       en: "you're having a hard day",
       zh: "",
-      body: "You don't have to be strong all the time. Feel it, let it out, and then let me carry some of it for you. I'm not going anywhere.",
+      /* DRAFT (still writing) — move back into body/bodyZh when ready:
+      body: "My love,",
+      bodyZh: "Close your eyes and take a deep breath. Tomorrow gets to be a completely blank page. Until then, you did enough today. You don't have to be strong all the time. Feel it, let it out, and then let me carry some of it for you. I'm not going anywhere.",
+      */
+      body: "",
       bodyZh: "",
     },
     {
       icon: "🫂",
       en: "you miss me",
       zh: "",
-      body: "Good news: I'm always just one call away, and I'm probably thinking about you right now too. Distance is just a number — you live in my every day.",
-      bodyZh: "",
-    },
-    {
-      icon: "😂",
-      en: "you need to laugh",
-      zh: "",
-      body: "Remember that time we laughed so hard we couldn't breathe? I still don't fully know why it was funny, and I still laugh every single time.",
-      bodyZh: "",
-    },
-    {
-      icon: "🌪️",
-      en: "you feel overwhelmed",
-      zh: "",
-      body: "One thing at a time. You don't have to solve everything today. Close the laptop, drink some water, and breathe. I'll be proud of you either way.",
+      /* DRAFT (still writing) — move back into body/bodyZh when ready:
+      body: "Hey bbbbbbb,",
+      bodyZh: "Good news: I'm probably thinking about you right now too:D. Just text me/call me/annoy me whenever you read this.",
+      */
+      body: "",
       bodyZh: "",
     },
     {
       icon: "✨",
       en: "you doubt yourself",
       zh: "",
-      body: "I wish you could see yourself the way I see you — brave, kind, and so much brighter than you give yourself credit for. You're the best thing in my sky.",
+      /* DRAFT (still writing) — move back into body/bodyZh when ready:
+      body: "To the girl I believe in most",
+      bodyZh: "I wish you could see yourself the way I see you — brave, kind, and so much brighter than you give yourself credit for. You're the best thing in my sky. it’s only because you care so deeply. That doesn’t mean you’re incapable; it just means you’re human and ambitious. Lek Lek geh Siu Bakkkk💙",
+      */
+      body: "",
       bodyZh: "",
+    },
+    {
+      icon: "🌪️",
+      en: "you feel overwhelmed",
+      zh: "",
+      body: "Take a deep breath!",
+      bodyZh: "I know it feels like a million things are being thrown at you rn and there just aren't enough hours in the day to give everything it deserves. I didn't know how to say this but listen to me: You are not falling behind, and you are NOT greedy. You simply love life and want to experience everything it has to offerrrr. You have such a kind heart full of curiosity and excitement for life (just like meee:D) and this is a beautiful thing! Life is a longgggggggg journey meant to be treasured. Rmb you are a human not a machine:< Your worth doesnt decrease when you rest and people who love you just for you being yourself! Get a glass of water, take a deep breath, pick just one small task to finish. I believe in you so much, and no matter what me dou hai gum proud of my bb💙",
     },
   ],
 
@@ -203,17 +202,20 @@ function renderGallery() {
 }
 
 function renderEnvelopes() {
-  $("envelope-list").innerHTML = CONTENT.openWhen
+  const list = $("envelope-list");
+  if (!list) return;
+  list.innerHTML = CONTENT.openWhen
     .map(
       (l, i) => `
       <button class="envelope reveal" style="--env:${ENV_COLORS[i % ENV_COLORS.length]}" data-index="${i}" type="button">
         <span class="envelope__icon" aria-hidden="true">${l.icon}</span>
         <span class="envelope__label">Open when ${l.en}</span>
         ${l.zh ? `<span class="envelope__zh">${l.zh}</span>` : ""}
-        <span class="envelope__hint">Read it</span>
+        <span class="envelope__hint" data-hint></span>
       </button>`
     )
     .join("");
+  refreshEnvelopeStates();
 }
 
 function renderFooter() {
@@ -312,16 +314,122 @@ function observeReveals() {
   els.forEach((e) => io.observe(e));
 }
 
-/* ---------------- letters modal ---------------- */
+/* ---------------- open-when letters (one per week) ---------------- */
 let lastFocused = null;
+
+const OPEN_WHEN_KEY = "openWhenLog";
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+/* localStorage may be blocked (private mode etc.) — fall back to no gate */
+let storageOK = true;
+try {
+  localStorage.setItem("__ow_test__", "1");
+  localStorage.removeItem("__ow_test__");
+} catch (e) {
+  storageOK = false;
+}
+
+function getLog() {
+  const empty = CONTENT.openWhen.map(() => 0);
+  if (!storageOK) return empty;
+  try {
+    const raw = JSON.parse(localStorage.getItem(OPEN_WHEN_KEY) || "[]");
+    return empty.map((_, i) => Number(raw[i]) || 0);
+  } catch (e) {
+    return empty;
+  }
+}
+
+function saveLog(log) {
+  if (!storageOK) return;
+  try {
+    localStorage.setItem(OPEN_WHEN_KEY, JSON.stringify(log));
+  } catch (e) {}
+}
+
+function lastOpened(log) {
+  let last = 0;
+  log.forEach((t) => {
+    if (t > last) last = t;
+  });
+  return last;
+}
+
+/* "opened" (readable again) | "open" (can open now) | "locked" (7-day cooldown) */
+function envelopeState(i, log, now) {
+  if (log[i]) return "opened";
+  if (!storageOK) return "open";
+  const last = lastOpened(log);
+  if (last && now < last + WEEK_MS) return "locked";
+  return "open";
+}
+
+function formatWait(ms) {
+  const totalMin = Math.max(0, Math.ceil(ms / 60000));
+  const d = Math.floor(totalMin / 1440);
+  const h = Math.floor((totalMin % 1440) / 60);
+  const m = totalMin % 60;
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function refreshEnvelopeStates() {
+  const list = $("envelope-list");
+  if (!list) return;
+  const log = getLog();
+  const now = Date.now();
+  const last = lastOpened(log);
+  const wait = last ? last + WEEK_MS - now : 0;
+  const anyLeft = log.some((t) => !t);
+
+  list.querySelectorAll(".envelope").forEach((btn) => {
+    const i = Number(btn.dataset.index);
+    const state = envelopeState(i, log, now);
+    btn.dataset.state = state;
+    btn.setAttribute("aria-disabled", String(state === "locked"));
+    btn.classList.toggle("envelope--opened", state === "opened");
+    btn.classList.toggle("envelope--locked", state === "locked");
+    const hint = btn.querySelector("[data-hint]");
+    if (!hint) return;
+    if (state === "opened") hint.textContent = "Read again";
+    else if (state === "open") hint.textContent = "Read it";
+    else hint.textContent = "Opens in " + formatWait(wait);
+  });
+
+  const status = $("ow-status");
+  if (!status) return;
+  if (!anyLeft) status.textContent = "You've opened them all — re-read any time.";
+  else if (wait > 0) status.textContent = "Next letter unlocks in " + formatWait(wait) + ".";
+  else status.textContent = "Pick any one letter to open.";
+}
 
 function openLetter(i) {
   const l = CONTENT.openWhen[i];
   if (!l) return;
+
+  const log = getLog();
+  const now = Date.now();
+  const state = envelopeState(i, log, now);
+
+  if (state === "locked") {
+    toast("The next letter unlocks in " + formatWait(lastOpened(log) + WEEK_MS - now) + ".");
+    return;
+  }
+
+  const hasContent = !!(l.body || l.bodyZh);
+
+  /* mark as opened the first time (starts the next 7-day wait) — blanks don't count */
+  if (state !== "opened" && hasContent) {
+    log[i] = now;
+    saveLog(log);
+    refreshEnvelopeStates();
+  }
+
   lastFocused = document.activeElement;
   $("modal-kicker").textContent = "A letter for when";
   $("modal-title").innerHTML = `Open when ${l.en}${l.zh ? `<span class="zh">${l.zh}</span>` : ""}`;
-  $("modal-body").innerHTML = `<p>${l.body}</p>${l.bodyZh ? `<p>${l.bodyZh}</p>` : ""}`;
+  $("modal-body").innerHTML = `${l.body ? `<p>${l.body}</p>` : ""}${l.bodyZh ? `<p>${l.bodyZh}</p>` : ""}`;
   const modal = $("modal");
   modal.hidden = false;
   document.body.style.overflow = "hidden";
@@ -605,19 +713,39 @@ function init() {
   renderFooter();
   $("year").textContent = new Date().getFullYear();
 
+  observeReveals();
+  setInterval(refreshEnvelopeStates, 30000);
+
   $("slideshow-btn").addEventListener("click", openSlideshow);
 
-  $("envelope-list").addEventListener("click", (e) => {
-    const btn = e.target.closest(".envelope");
-    if (btn) openLetter(Number(btn.dataset.index));
-  });
+  const envelopeList = $("envelope-list");
+  if (envelopeList) {
+    envelopeList.addEventListener("click", (e) => {
+      const btn = e.target.closest(".envelope");
+      if (btn) openLetter(Number(btn.dataset.index));
+    });
+  }
+
+  const owOpen = $("open-when-open");
+  const owClose = $("open-when-close");
+  if (owOpen)
+    owOpen.addEventListener("click", () => {
+      $("lock").classList.add("is-letters");
+      refreshEnvelopeStates();
+      window.scrollTo({ top: 0, behavior: "auto" });
+    });
+  if (owClose)
+    owClose.addEventListener("click", () => {
+      $("lock").classList.remove("is-letters");
+      window.scrollTo({ top: 0, behavior: "auto" });
+    });
 
   document.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeLetter));
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (!$("modal").hidden) closeLetter();
-      if (slideshowEl && !slideshowEl.hidden) closeSlideshow();
-    }
+    if (e.key !== "Escape") return;
+    if (!$("modal").hidden) closeLetter();
+    else if (slideshowEl && !slideshowEl.hidden) closeSlideshow();
+    else if ($("lock").classList.contains("is-letters")) $("lock").classList.remove("is-letters");
   });
 
   $("moon").addEventListener("click", () => {

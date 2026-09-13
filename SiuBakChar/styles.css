@@ -154,7 +154,7 @@ body.is-unlocked .sky .star{opacity:0;transition:opacity 1s ease}
   padding:clamp(24px,6vw,72px) 20px;
   text-align:center;
 }
-.lock__inner{max-width:720px;animation:rise .9s cubic-bezier(.2,.8,.25,1) both;position:relative;z-index:1}
+.lock__inner{max-width:720px;width:100%;animation:rise .9s cubic-bezier(.2,.8,.25,1) both;position:relative;z-index:1}
 .lock__name,.hero__name{
   font-family:var(--font-display);
   font-weight:800;
@@ -553,6 +553,48 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
 .envelope__label{display:block;position:relative;font-family:var(--font-display);font-weight:700;font-size:1.08rem;color:var(--sky-700);margin:.6rem 0 .2rem;line-height:1.25}
 .envelope__zh{display:block;position:relative;font-family:"Noto Sans TC",sans-serif;font-size:.92rem;color:var(--sky-500)}
 .envelope__hint{position:relative;display:inline-block;margin-top:1rem;font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--blossom-deep)}
+
+/* weekly-gated states */
+.envelope--locked{cursor:default;opacity:.68;filter:saturate(.6)}
+.envelope--locked:hover{transform:none;box-shadow:var(--shadow-sm)}
+.envelope--locked .envelope__hint{color:var(--ink-soft)}
+.envelope--opened{background:linear-gradient(180deg,#ffffff,#f0f8ff)}
+.envelope--opened .envelope__hint{color:var(--sky-500)}
+
+/* waiting-page letters view */
+.lock__letters{display:none;width:100%;max-width:720px;text-align:center;padding:clamp(16px,4vw,32px) 0}
+.lock.is-letters .lock__inner{display:none}
+.lock.is-letters .lock__letters{display:block;animation:rise .5s cubic-bezier(.2,.8,.25,1) both}
+.ow-open{margin-top:1.9rem}
+.ow-back{
+  display:block;margin:0 auto 1.1rem;
+  background:none;border:none;padding:.4em .2em;
+  color:var(--sky-600);font-weight:700;font-size:.92rem;cursor:pointer;
+}
+.ow-back:hover{text-decoration:underline}
+.waiting-letters__title{
+  font-family:var(--font-display);
+  font-weight:800;
+  color:var(--sky-700);
+  font-size:clamp(1.6rem,4.2vw,2.4rem);
+  margin:0;
+  line-height:1.1;
+}
+.waiting-letters__lede{
+  color:var(--sky-700);
+  opacity:.85;
+  max-width:46ch;
+  margin:.7rem auto 1rem;
+  font-size:clamp(.9rem,2.2vw,1rem);
+}
+.waiting-letters__status{
+  color:var(--sky-600);
+  font-weight:700;
+  font-size:.95rem;
+  min-height:1.3em;
+  margin:0 auto 1.7rem;
+}
+.lock__letters .envelopes{text-align:left}
 
 /* ==========================================================================
    Footer
