@@ -117,15 +117,15 @@ const CONTENT = {
       zh: "",
       gif: "assets/miss-me.gif",
       body: "Hey bbbbbbb,",
-      bodyZh: "Good news: I'm missing you just as muchhhh (probably even moreee:D)!. I wish I could just pop up right next to you right now and give u a biggggg hugggg and tip tip:p (lowkey I very like tip tip with uuuuuuuu even tho my face wui hai sai nei d jong:D). Every single second that passes right now is just counting down until we can see each other very soonnn. Im not gonna abandon u to go on a solo trip for half a month anymoree, so I bet we'll see each other super soon!! In the mean time, just close your eyes, imagine me hugging you tight, and text me/call me/annoy me whenever you read this:D I'm also missing you and can't wait to see my bb soon tooo💙",
+      bodyZh: "Good news: I'm missing you just as muchhhh (probably even moreee:D)!. I wish I could just pop up right next to you right now and give u a biggggg hugggg and tip tip:p (lowkey I really like tip tip with uuuuuuuu even tho my face wui hai sai nei d jong:D). Every single second that passes right now is just counting down until we can see each other very soonnn. Im not gonna abandon u to go on a solo trip for half a month anymoree, so I bet we'll see each other super soon!! In the mean time, just close your eyes, imagine me hugging you tight, and text me/call me/annoy me whenever you read this:D I'm also missing you and can't wait to see my bb soon tooo💙",
     },
     {
       icon: "✨",
       en: "you doubt yourself",
       zh: "",
       gif: "assets/doubt-yourself.gif",
-      body: "To the girl I believe in most",
-      bodyZh: "Stop being too harsh on yourself:< I really wish you could see yourself the way I see you — thoughtful, kind, and so much brighter than you give yourself credit for! Think about all those scary, difficult things you’ve faced before, u dou managed to figure them out anyway! If you're feeling unsure right now, it's only because you care deeply, but that definitely doesn’t mean you’re incapable :< Whenever your own confidence runs out, feel free to borrow mine, because I know exactly what kind of magic you're capable of creating:D (Reminds me of that DisneySea song when I'm writing this lmao). Just take it step by step. I believe in my lek lek geh Siu Bakkkk must be able to do it!",
+      body: "To the girl I believe in most,",
+      bodyZh: "Stop being too harsh on yourself:< I really wish you could see how amazing you look through my eyes — you’re way smarter and better at things than you give yourself credit for! Think about all those scary, difficult things you’ve faced before, u dou managed to figure them out anyway! If you're feeling unsure right now, it's only because you care deeply, but that definitely doesn’t mean you’re incapable :< Whenever your own confidence runs out, feel free to borrow mine, because I know exactly what kind of magic you're capable of creating:D (Reminds me of that DisneySea song when I'm writing this lmao). Just take it step by step. I believe in my lek lek geh Siu Bakkkk must be able to do it!",
     },
   ],
 
