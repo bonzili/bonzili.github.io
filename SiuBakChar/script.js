@@ -108,36 +108,24 @@ const CONTENT = {
       en: "you're having a hard day",
       zh: "",
       gif: "assets/hard-day.gif",
-      /* DRAFT (still writing) — move back into body/bodyZh when ready:
       body: "My love,",
-      bodyZh: "Close your eyes and take a deep breath. Tomorrow gets to be a completely blank page. Until then, you did enough today. You don't have to be strong all the time. Feel it, let it out, and then let me carry some of it for you. I'm not going anywhere.",
-      */
-      body: "",
-      bodyZh: "",
+      bodyZh: "I bet today was completely flooded with annoying tasks from seniors:< I’m sorry everything felt so frustrating today. Put everything down, take a deep breath, and just rest right now! A bad day is just 24 hours that didn’t go our way, but it does NOT mean your whole life is messed up or that you're doing badly. You don’t need to be strong, solve any big problems, or be productive all the timee gahhh. You did your absolute best today, and you survived it! Your only job for the rest of tonight is to lie on the bed and just hea:D. Tomorrow gets to be a completely fresh blank page. Sending you the biggest hugggg from siu gai mo:D. Get some more rest. You did good today and me dim dou hai gum support my bb💙",
     },
     {
       icon: "🫂",
       en: "you miss me",
       zh: "",
       gif: "assets/miss-me.gif",
-      /* DRAFT (still writing) — move back into body/bodyZh when ready:
       body: "Hey bbbbbbb,",
-      bodyZh: "Good news: I'm probably thinking about you right now too:D. Just text me/call me/annoy me whenever you read this.",
-      */
-      body: "",
-      bodyZh: "",
+      bodyZh: "Good news: I'm missing you just as muchhhh (probably even moreee:D)!. I wish I could just pop up right next to you right now and give u a biggggg hugggg and tip tip:p (lowkey I very like tip tip with uuuuuuuu even tho my face wui hai sai nei d jong:D). Every single second that passes right now is just counting down until we can see each other very soonnn. Im not gonna abandon u to go on a solo trip for half a month anymoree, so I bet we'll see each other super soon!! In the mean time, just close your eyes, imagine me hugging you tight, and text me/call me/annoy me whenever you read this:D I'm also missing you and can't wait to see my bb soon tooo💙",
     },
     {
       icon: "✨",
       en: "you doubt yourself",
       zh: "",
       gif: "assets/doubt-yourself.gif",
-      /* DRAFT (still writing) — move back into body/bodyZh when ready:
       body: "To the girl I believe in most",
-      bodyZh: "I wish you could see yourself the way I see you — brave, kind, and so much brighter than you give yourself credit for. You're the best thing in my sky. it’s only because you care so deeply. That doesn’t mean you’re incapable; it just means you’re human and ambitious. Lek Lek geh Siu Bakkkk💙",
-      */
-      body: "",
-      bodyZh: "",
+      bodyZh: "Stop being too harsh on yourself:< I really wish you could see yourself the way I see you — thoughtful, kind, and so much brighter than you give yourself credit for! Think about all those scary, difficult things you’ve faced before, u dou managed to figure them out anyway! If you're feeling unsure right now, it's only because you care deeply, but that definitely doesn’t mean you’re incapable :< Whenever your own confidence runs out, feel free to borrow mine, because I know exactly what kind of magic you're capable of creating:D (Reminds me of that DisneySea song when I'm writing this lmao). Just take it step by step. I believe in my lek lek geh Siu Bakkkk must be able to do it!",
     },
   ],
 
@@ -328,6 +316,10 @@ let lastFocused = null;
 const OPEN_WHEN_KEY = "openWhenLog";
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
+/* Add ?preview=0 to the URL to debug: ignores the 7-day cooldown and
+   does not record opens (so it won't disturb the real state). */
+const OW_BYPASS = /[?&]preview=0/.test(location.search);
+
 /* localStorage may be blocked (private mode etc.) — fall back to no gate */
 let storageOK = true;
 try {
@@ -365,6 +357,7 @@ function lastOpened(log) {
 
 /* "opened" (readable again) | "open" (can open now) | "locked" (7-day cooldown) */
 function envelopeState(i, log, now) {
+  if (OW_BYPASS) return log[i] ? "opened" : "open";
   if (log[i]) return "opened";
   if (!storageOK) return "open";
   const last = lastOpened(log);
@@ -407,7 +400,8 @@ function refreshEnvelopeStates() {
 
   const status = $("ow-status");
   if (!status) return;
-  if (!anyLeft) status.textContent = "You've opened them all — re-read any time.";
+  if (OW_BYPASS) status.textContent = "Debug: weekly gate bypassed.";
+  else if (!anyLeft) status.textContent = "You've opened them all — re-read any time.";
   else if (wait > 0) status.textContent = "Next letter unlocks in " + formatWait(wait) + ".";
   else status.textContent = "Pick any one letter to open.";
 }
@@ -427,8 +421,8 @@ function openLetter(i) {
 
   const hasContent = !!(l.body || l.bodyZh);
 
-  /* mark as opened the first time (starts the next 7-day wait) — blanks don't count */
-  if (state !== "opened" && hasContent) {
+  /* mark as opened the first time (starts the next 7-day wait) — blanks and debug bypass don't count */
+  if (state !== "opened" && hasContent && !OW_BYPASS) {
     log[i] = now;
     saveLog(log);
     refreshEnvelopeStates();
