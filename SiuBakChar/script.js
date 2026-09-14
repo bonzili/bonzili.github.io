@@ -83,8 +83,8 @@ const CONTENT = {
   /* Polaroid wall — drop real files into assets/ and set src, e.g. src:"assets/photo-01.jpg" */
   gallery: [
     { cap: "Our first date", zh: "", src: "assets/first-date.jpg" },
-    { cap: "Mayday, together", zh: "五月天", src: "assets/mayday.jpg" },
-    { cap: "Hanabi night", zh: "花火", src: "assets/hanabi.jpg" },
+    { cap: "Mayday, together", zh: "", src: "assets/mayday.jpg" },
+    { cap: "Hanabi night", zh: "", src: "assets/hanabi.jpg" },
     { cap: "Tiny adventure", zh: "", src: "" },
     { cap: "Food we still talk about", zh: "", src: "" },
     { cap: "Rainy day, warm us", zh: "", src: "" },
