@@ -82,9 +82,9 @@ const CONTENT = {
 
   /* Polaroid wall — drop real files into assets/ and set src, e.g. src:"assets/photo-01.jpg" */
   gallery: [
-    { cap: "Us, somewhere happy", zh: "", src: "" },
-    { cap: "That lazy afternoon", zh: "", src: "" },
-    { cap: "Your favourite face", zh: "", src: "" },
+    { cap: "Our first date", zh: "", src: "assets/first-date.jpg" },
+    { cap: "Mayday, together", zh: "五月天", src: "assets/mayday.jpg" },
+    { cap: "Hanabi night", zh: "花火", src: "assets/hanabi.jpg" },
     { cap: "Tiny adventure", zh: "", src: "" },
     { cap: "Food we still talk about", zh: "", src: "" },
     { cap: "Rainy day, warm us", zh: "", src: "" },
@@ -117,7 +117,7 @@ const CONTENT = {
       zh: "",
       gif: "assets/miss-me.gif",
       body: "Hey bbbbbbb,",
-      bodyZh: "Good news: I'm missing you just as muchhhh (probably even moreee:D)!. I wish I could just pop up right next to you right now and give u a biggggg hugggg and tip tip:p (lowkey I really like tip tip with uuuuuuuu even tho my face wui hai sai nei d jong:D). Every single second that passes right now is just counting down until we can see each other very soonnn. Im not gonna abandon u to go on a solo trip for half a month anymoree, so I bet we'll see each other super soon!! In the mean time, just close your eyes, imagine me hugging you tight, and text me/call me/annoy me whenever you read this:D I'm also missing you and can't wait to see my bb soon tooo💙",
+      bodyZh: "Good news: I'm missing you just as muchhhh (probably even moreee:D)! I wish I could just pop up right next to you right now and give u a biggggg hugggg and tip tip:p (lowkey I really like tip tip with uuuuuuuu even tho my face wui hai sai nei d jong:D). Every single second that passes right now is just counting down until we can see each other very soonnn. I'm not gonna abandon u to go on a solo trip for half a month anymoree, so I bet we'll see each other super soon!! In the mean time, just close your eyes, imagine me hugging you tight, and text me/call me/annoy me whenever you read this:D I'm also missing you and can't wait to see my bb soon tooo💙",
     },
     {
       icon: "✨",
