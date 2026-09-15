@@ -324,21 +324,53 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
 }
 .sunset__scene{
   position:relative;
+  max-width:min(520px,92vw);
+  margin:0 auto;
   border-radius:clamp(24px,4vw,46px);
   overflow:hidden;
   box-shadow:var(--shadow);
   border:1px solid rgba(255,255,255,.85);
-  aspect-ratio:1200/420;
+  aspect-ratio:1096/1600;
 }
-.sunset__scene svg{width:100%;height:100%;display:block}
+.sunset__img{width:100%;height:100%;object-fit:cover;display:block}
 .sunset__caption{
   margin:1.3rem auto 0;
-  max-width:34ch;
+  max-width:36ch;
   font-family:var(--font-display);
   font-weight:700;
   color:var(--sky-700);
   font-size:clamp(1.05rem,2.9vw,1.5rem);
-  line-height:1.3;
+  line-height:1.5;
+}
+.sunset__caption cite{
+  display:block;
+  font-style:normal;
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:.74rem;
+  letter-spacing:.1em;
+  color:var(--sky-500);
+  margin-top:.6rem;
+}
+.wall__lyric{
+  margin:clamp(30px,5vw,52px) auto 0;
+  max-width:42ch;
+  text-align:center;
+  font-family:var(--font-display);
+  font-weight:700;
+  color:var(--sky-700);
+  font-size:clamp(1.05rem,2.9vw,1.45rem);
+  line-height:1.5;
+}
+.wall__lyric cite{
+  display:block;
+  font-style:normal;
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:.74rem;
+  letter-spacing:.1em;
+  color:var(--sky-500);
+  margin-top:.6rem;
 }
 
 /* buttons */
