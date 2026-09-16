@@ -45,7 +45,7 @@
 
 /* ---------- reset-ish ---------- */
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;background:#bfe3fb}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;background:#bfe3fb;overflow-x:hidden;overflow-x:clip}
 body{
   margin:0;
   font-family:var(--font-body);
@@ -53,6 +53,7 @@ body{
   background:#bfe3fb;
   line-height:1.65;
   overflow-x:hidden;
+  overflow-x:clip;
 }
 img{max-width:100%;display:block}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -77,7 +78,10 @@ a{color:var(--sky-600)}
    ========================================================================== */
 .sky{
   position:fixed;
-  inset:0;
+  top:calc(-2px - env(safe-area-inset-top));
+  bottom:calc(-2px - env(safe-area-inset-bottom));
+  left:-2px;
+  right:-2px;
   z-index:0;
   overflow:hidden;
   background:linear-gradient(180deg,#bfe3fb 0%,#d9efff 42%,#f0f9ff 72%,#fff7ef 100%);
