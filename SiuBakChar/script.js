@@ -18,6 +18,16 @@ const CONFIG = {
     celebrate: "assets/believe.mp3",
     volume: 0.2,
   },
+
+  /* Open-when letters: one more letter becomes available at each of these
+     times (Hong Kong time, UTC+8). Missed weeks carry over. */
+  openWhen: {
+    unlockTimes: [
+      "2026-09-18T19:00:00+08:00",
+      "2026-09-25T19:00:00+08:00",
+      "2026-10-02T19:00:00+08:00",
+    ],
+  },
 };
 
 /* --------------------------------------------------------------------------
@@ -314,9 +324,8 @@ function observeReveals() {
 let lastFocused = null;
 
 const OPEN_WHEN_KEY = "openWhenLog";
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-/* Add ?preview=0 to the URL to debug: ignores the 7-day cooldown and
+/* Add ?preview=0 to the URL to debug: ignores the unlock schedule and
    does not record opens (so it won't disturb the real state). */
 const OW_BYPASS = /[?&]preview=0/.test(location.search);
 
@@ -347,22 +356,45 @@ function saveLog(log) {
   } catch (e) {}
 }
 
-function lastOpened(log) {
-  let last = 0;
-  log.forEach((t) => {
-    if (t > last) last = t;
-  });
-  return last;
+/* ---- weekly unlock schedule (Hong Kong time, UTC+8) ---- */
+const UNLOCK_MS = ((CONFIG.openWhen && CONFIG.openWhen.unlockTimes) || [])
+  .map((t) => Date.parse(t))
+  .filter((t) => !Number.isNaN(t))
+  .sort((a, b) => a - b);
+
+function unlocksPassed(now) {
+  return UNLOCK_MS.filter((t) => now >= t).length;
 }
 
-/* "opened" (readable again) | "open" (can open now) | "locked" (7-day cooldown) */
+/* one letter is available from the start; each passed unlock adds one more
+   (missed weeks carry over, capped at the number of letters) */
+function allowedOpened(now, total) {
+  return Math.min(total, 1 + unlocksPassed(now));
+}
+
+function nextUnlock(now) {
+  return UNLOCK_MS.find((t) => t > now) || 0;
+}
+
+/* e.g. "Fri 18 Sep, 7:00pm" — Hong Kong has no DST, so a fixed +8 shift is safe */
+function formatUnlock(ms) {
+  const d = new Date(ms + 8 * 3600 * 1000);
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  let h = d.getUTCHours();
+  const ampm = h >= 12 ? "pm" : "am";
+  h = h % 12 || 12;
+  const min = String(d.getUTCMinutes()).padStart(2, "0");
+  return `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${min}${ampm}`;
+}
+
+/* "opened" (readable again) | "open" (can open now) | "locked" (waiting for next unlock) */
 function envelopeState(i, log, now) {
   if (OW_BYPASS) return log[i] ? "opened" : "open";
   if (log[i]) return "opened";
   if (!storageOK) return "open";
-  const last = lastOpened(log);
-  if (last && now < last + WEEK_MS) return "locked";
-  return "open";
+  const opened = log.filter(Boolean).length;
+  return opened < allowedOpened(now, log.length) ? "open" : "locked";
 }
 
 function formatWait(ms) {
@@ -380,9 +412,11 @@ function refreshEnvelopeStates() {
   if (!list) return;
   const log = getLog();
   const now = Date.now();
-  const last = lastOpened(log);
-  const wait = last ? last + WEEK_MS - now : 0;
-  const anyLeft = log.some((t) => !t);
+  const total = log.length;
+  const opened = log.filter(Boolean).length;
+  const canOpenMore = opened < allowedOpened(now, total);
+  const next = nextUnlock(now);
+  const anyLeft = opened < total;
 
   list.querySelectorAll(".envelope").forEach((btn) => {
     const i = Number(btn.dataset.index);
@@ -395,14 +429,15 @@ function refreshEnvelopeStates() {
     if (!hint) return;
     if (state === "opened") hint.textContent = "Read again";
     else if (state === "open") hint.textContent = "Read it";
-    else hint.textContent = "Opens in " + formatWait(wait);
+    else hint.textContent = next ? "Opens " + formatUnlock(next) : "Locked for now";
   });
 
   const status = $("ow-status");
   if (!status) return;
   if (OW_BYPASS) status.textContent = "Debug: weekly gate bypassed.";
   else if (!anyLeft) status.textContent = "You've opened them all — re-read any time.";
-  else if (wait > 0) status.textContent = "Next letter unlocks in " + formatWait(wait) + ".";
+  else if (canOpenMore) status.textContent = "Pick any one letter to open.";
+  else if (next) status.textContent = "Next letter unlocks " + formatUnlock(next) + " (in " + formatWait(next - now) + ").";
   else status.textContent = "Pick any one letter to open.";
 }
 
@@ -415,13 +450,14 @@ function openLetter(i) {
   const state = envelopeState(i, log, now);
 
   if (state === "locked") {
-    toast("The next letter unlocks in " + formatWait(lastOpened(log) + WEEK_MS - now) + ".");
+    const next = nextUnlock(now);
+    toast(next ? "This letter opens " + formatUnlock(next) + "." : "This letter isn't ready yet.");
     return;
   }
 
   const hasContent = !!(l.body || l.bodyZh);
 
-  /* mark as opened the first time (starts the next 7-day wait) — blanks and debug bypass don't count */
+  /* mark as opened the first time (uses this week's slot) — blanks and debug bypass don't count */
   if (state !== "opened" && hasContent && !OW_BYPASS) {
     log[i] = now;
     saveLog(log);
