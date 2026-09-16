@@ -88,9 +88,9 @@ a{color:var(--sky-600)}
 }
 .sky__glow{
   position:absolute;
-  width:86vmax;height:86vmax;
-  right:-28vmax;top:-60vmax;
-  background:radial-gradient(circle,rgba(255,255,255,.85),rgba(255,255,255,0) 58%);
+  width:70vmax;height:70vmax;
+  right:-26vmax;top:80px;
+  background:radial-gradient(circle,rgba(255,255,255,.8),rgba(255,255,255,0) 62%);
   filter:blur(2px);
 }
 /* golden-hour wash that fades in once the site unlocks */
