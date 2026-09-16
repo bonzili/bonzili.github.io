@@ -254,14 +254,13 @@ function startCountdown() {
       Math.floor(diff / 60000) % 60,
       Math.floor(diff / 1000) % 60
     );
-    document.title = `${Math.floor(diff / 86400000)}d ${Math.floor(diff / 3600000) % 24}h until your surprise 🌷`;
   }
 }
 
 function revealSite(withConfetti) {
   document.body.classList.remove("is-locked");
   document.body.classList.add("is-unlocked");
-  document.title = "Siu Bak Char · Happy Birthday 🌷";
+  document.title = "Siu Bak Char💙";
   window.scrollTo({ top: 0, behavior: "auto" });
   observeReveals();
   if (withConfetti) launchConfetti(7000);
