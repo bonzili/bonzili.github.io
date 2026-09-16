@@ -78,20 +78,19 @@ a{color:var(--sky-600)}
    ========================================================================== */
 .sky{
   position:fixed;
-  top:calc(-2px - env(safe-area-inset-top));
-  bottom:calc(-2px - env(safe-area-inset-bottom));
-  left:-2px;
-  right:-2px;
+  inset:-2px;
   z-index:0;
   overflow:hidden;
-  background:linear-gradient(180deg,#bfe3fb 0%,#d9efff 42%,#f0f9ff 72%,#fff7ef 100%);
+  /* flat #bfe3fb for the top strip so it blends with the iOS status bar,
+     then fade into the sky gradient below */
+  background:linear-gradient(180deg,#bfe3fb 0,#bfe3fb 120px,#d9efff 46%,#f0f9ff 73%,#fff7ef 100%);
   pointer-events:none;
 }
 .sky__glow{
   position:absolute;
-  width:70vmax;height:70vmax;
-  right:-22vmax;top:-28vmax;
-  background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 62%);
+  width:86vmax;height:86vmax;
+  right:-28vmax;top:-60vmax;
+  background:radial-gradient(circle,rgba(255,255,255,.85),rgba(255,255,255,0) 58%);
   filter:blur(2px);
 }
 /* golden-hour wash that fades in once the site unlocks */
@@ -101,7 +100,7 @@ a{color:var(--sky-600)}
   transition:opacity 1.8s ease;
   background:
     radial-gradient(62vmax 42vmax at 50% 100%,rgba(255,228,164,.9),rgba(255,198,150,.28) 44%,rgba(255,198,150,0) 70%),
-    linear-gradient(180deg,#a9d6f2 0%,#cbe3f7 20%,#f4d9e7 44%,#ffd7b6 68%,#ffe9c7 86%,#fff6e6 100%);
+    linear-gradient(180deg,#bfe3fb 0,#bfe3fb 120px,#cbe3f7 30%,#f4d9e7 52%,#ffd7b6 72%,#ffe9c7 88%,#fff6e6 100%);
 }
 body.is-unlocked .sky__sunset{opacity:1}
 .cloud,
