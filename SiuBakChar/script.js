@@ -95,11 +95,20 @@ const CONTENT = {
     { cap: "Our first date", zh: "", src: "assets/first-date.jpg" },
     { cap: "Mayday, together", zh: "", src: "assets/mayday.jpg" },
     { cap: "Hanabi night", zh: "", src: "assets/hanabi.jpg" },
-    { cap: "Tiny adventure", zh: "", src: "" },
-    { cap: "Food we still talk about", zh: "", src: "" },
-    { cap: "Rainy day, warm us", zh: "", src: "" },
-    { cap: "Just because", zh: "", src: "" },
-    { cap: "Here's to more", zh: "", src: "" },
+    { cap: "Kai Tak", zh: "", src: "assets/kaitak.jpg" },
+    { cap: "Disneyland", zh: "", src: "assets/disney.jpg" },
+    { cap: "Camping", zh: "", src: "assets/camping.jpg" },
+  ],
+
+  /* "More and more incoming…" carousel — add photos any time with
+     { cap: "…", src: "assets/xxx.jpg" }. Leave src empty until you have the file. */
+  carousel: [
+    { cap: "Everyday us", zh: "", src: "" },
+    { cap: "Little moments", zh: "", src: "" },
+    { cap: "A random Tuesday", zh: "", src: "" },
+    { cap: "On the way", zh: "", src: "" },
+    { cap: "Snack runs", zh: "", src: "" },
+    { cap: "Us, lately", zh: "", src: "" },
   ],
 
   /* Open-when letters — write your own words in `body` (and optional `bodyZh`).
@@ -205,6 +214,37 @@ function renderGallery() {
         </figure>`;
     })
     .join("");
+}
+
+function renderCarousel() {
+  const track = $("carousel-track");
+  if (!track) return;
+  track.innerHTML = CONTENT.carousel
+    .map((c, i) => {
+      const grad = GRADS[(i + 3) % GRADS.length];
+      const media = c.src
+        ? `<img class="slide__img" src="${c.src}" alt="${c.cap}" loading="lazy">`
+        : `<div class="slide__ph" style="--g1:${grad[0]};--g2:${grad[1]}" aria-hidden="true">✦</div>`;
+      return `
+        <figure class="slide">
+          <div class="slide__media">${media}</div>
+          <figcaption class="slide__cap">${c.cap}${c.zh ? ` · ${c.zh}` : ""}</figcaption>
+        </figure>`;
+    })
+    .join("");
+}
+
+function initCarousel() {
+  const track = $("carousel-track");
+  if (!track) return;
+  const step = () => {
+    const first = track.querySelector(".slide");
+    return first ? first.getBoundingClientRect().width + 16 : 260;
+  };
+  const prev = $("carousel-prev");
+  const next = $("carousel-next");
+  if (prev) prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+  if (next) next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
 }
 
 function renderEnvelopes() {
@@ -811,6 +851,7 @@ function initMusic() {
 function init() {
   renderTimeline();
   renderGallery();
+  renderCarousel();
   renderEnvelopes();
   renderFooter();
   $("year").textContent = new Date().getFullYear();
@@ -819,6 +860,8 @@ function init() {
   setInterval(refreshEnvelopeStates, 30000);
 
   $("slideshow-btn").addEventListener("click", openSlideshow);
+
+  initCarousel();
 
   const envelopeList = $("envelope-list");
   if (envelopeList) {

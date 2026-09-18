@@ -493,10 +493,11 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
    ========================================================================== */
 .gallery{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  grid-template-columns:repeat(3,1fr);
   gap:clamp(18px,3vw,30px);
   margin-top:10px;
 }
+@media (max-width:800px){.gallery{grid-template-columns:repeat(2,1fr)}}
 .polaroid{
   margin:0;
   background:#fff;
@@ -556,6 +557,50 @@ body.is-unlocked .site{display:block;animation:fade .8s ease both}
 .slideshow__photo{aspect-ratio:1/1;border-radius:4px;width:100%;background:linear-gradient(140deg,var(--g1,#d8eeff),var(--g2,#ffc2dc));display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:800;font-size:3rem}
 .slideshow__cap{position:absolute;left:0;right:0;bottom:18px;text-align:center;color:var(--ink-soft)}
 .slideshow__close{position:absolute;top:-16px;right:-16px;width:44px;height:44px;border-radius:50%;border:none;background:#fff;color:var(--ink);font-size:1.1rem;box-shadow:var(--shadow)}
+
+/* ==========================================================================
+   "More and more incoming" carousel
+   ========================================================================== */
+.section--more{overflow:hidden}
+.carousel{position:relative;margin-top:6px}
+.carousel__track{
+  display:flex;
+  gap:clamp(12px,2.4vw,20px);
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding:6px clamp(4px,2vw,10px) 20px;
+}
+.carousel__track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 clamp(200px,56vw,290px);width:clamp(200px,56vw,290px);scroll-snap-align:center;margin:0}
+.slide__media{
+  position:relative;aspect-ratio:4/5;border-radius:var(--radius-sm);overflow:hidden;
+  background:#fff;box-shadow:var(--shadow-sm);border:1px solid rgba(255,255,255,.8);
+}
+.slide__img{width:100%;height:100%;object-fit:cover;display:block}
+.slide__ph{
+  width:100%;height:100%;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--g1,#d8eeff),var(--g2,#ffc2dc));
+  color:rgba(255,255,255,.92);font-family:var(--font-display);font-weight:800;font-size:1.7rem;
+}
+.slide__cap{margin-top:.65rem;text-align:center;font-size:.84rem;color:var(--ink-soft)}
+.carousel__nav{
+  position:absolute;top:calc(50% - 30px);transform:translateY(-50%);
+  width:44px;height:44px;border-radius:50%;
+  display:grid;place-items:center;z-index:2;
+  border:1px solid rgba(255,255,255,.9);
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(8px);
+  color:var(--sky-600);font-size:1.35rem;line-height:1;cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.carousel__nav--prev{left:-8px}
+.carousel__nav--next{right:-8px}
+.carousel__nav:hover{transform:translateY(-50%) scale(1.06);box-shadow:var(--shadow)}
+@media (max-width:720px){.carousel__nav{display:none}}
 
 /* ==========================================================================
    Open-when envelopes
