@@ -716,7 +716,33 @@ function initMusic() {
   BGM.btn = $("music-btn");
   BGM.icon = $("music-icon");
   BGM.vol = $("music-vol");
+  BGM.handle = $("music-handle");
   if (!BGM.el || !BGM.wrap || !BGM.btn || !CONFIG.music) return;
+
+  /* mobile: keep the volume slider tucked at the edge until the tab is tapped */
+  let panelHideTimer = null;
+  const setPanel = (open) => {
+    BGM.wrap.classList.toggle("is-open", open);
+    if (BGM.handle) {
+      BGM.handle.setAttribute("aria-expanded", String(open));
+      BGM.handle.textContent = open ? "›" : "‹";
+    }
+  };
+  const schedulePanelHide = () => {
+    clearTimeout(panelHideTimer);
+    panelHideTimer = setTimeout(() => setPanel(false), 4000);
+  };
+  if (BGM.handle) {
+    BGM.handle.addEventListener("click", () => {
+      const open = !BGM.wrap.classList.contains("is-open");
+      setPanel(open);
+      if (open) schedulePanelHide();
+      else clearTimeout(panelHideTimer);
+    });
+  }
+  document.addEventListener("pointerdown", (e) => {
+    if (BGM.wrap && !BGM.wrap.contains(e.target)) setPanel(false);
+  });
 
   /* volume — hide the slider where it can't work (iOS), else use saved/default level */
   if (supportsVolume()) {
@@ -733,6 +759,7 @@ function initMusic() {
         localStorage.setItem(VOL_KEY, String(BGM.el.volume));
       } catch (e) {}
       if (BGM.el.paused && BGM.wantPlay) tryPlay();
+      schedulePanelHide();
     });
   } else {
     BGM.vol.hidden = true;
