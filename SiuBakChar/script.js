@@ -103,11 +103,11 @@ const CONTENT = {
   /* "More and more incoming…" carousel — add photos any time with
      { cap: "…", src: "assets/xxx.jpg" }. Leave src empty until you have the file. */
   carousel: [
+    { cap: "On the ride", zh: "", src: "assets/carousell/carousel-1.jpg" },
+    { cap: "Sea breeze", zh: "", src: "assets/carousell/carousel-2.jpg" },
+    { cap: "Chip 'n Dale day", zh: "", src: "assets/carousell/carousel-3.jpg" },
     { cap: "Everyday us", zh: "", src: "" },
-    { cap: "Little moments", zh: "", src: "" },
     { cap: "A random Tuesday", zh: "", src: "" },
-    { cap: "On the way", zh: "", src: "" },
-    { cap: "Snack runs", zh: "", src: "" },
     { cap: "Us, lately", zh: "", src: "" },
   ],
 
@@ -681,25 +681,27 @@ function confettiTick(now) {
 }
 
 /* ---------------- background music ---------------- */
-const BGM = { el: null, wrap: null, btn: null, icon: null, vol: null, current: null, wantPlay: true };
+const BGM = { el: null, wrap: null, btn: null, icon: null, vol: null, current: "cover", started: false, wantPlay: true };
 const VOL_KEY = "bgmVolume";
 
 function musicAvailable() {
   return BGM.el && BGM.el.getAttribute("src");
 }
 
-function setTrack(kind) {
+function trackSrc(kind) {
   const cfg = CONFIG.music || {};
-  const src = kind === "celebrate" ? cfg.celebrate : cfg.cover;
-  BGM.current = kind;
-  if (!src) {
-    if (BGM.wrap) BGM.wrap.hidden = true;
-    return;
-  }
+  return kind === "celebrate" ? cfg.celebrate : cfg.cover;
+}
+
+/* attaching the src is what triggers the download — done only on first tap */
+function loadTrack(kind) {
+  const src = trackSrc(kind);
+  if (!src) return false;
   if (BGM.el.getAttribute("src") !== src) {
     BGM.el.setAttribute("src", src);
     BGM.el.load();
   }
+  return true;
 }
 
 function tryPlay() {
@@ -710,12 +712,13 @@ function tryPlay() {
 
 function updateMusicUI() {
   if (!BGM.btn) return;
-  const on = !BGM.el.paused && !BGM.el.muted;
+  const on = BGM.started && !BGM.el.paused && !BGM.el.muted;
   BGM.icon.textContent = on ? "🎵" : "🔇";
   BGM.btn.classList.toggle("is-playing", on);
   BGM.btn.setAttribute("aria-pressed", String(on));
-  BGM.btn.setAttribute("aria-label", on ? "Mute music" : "Unmute music");
-  BGM.btn.title = on ? "Mute music" : "Unmute music";
+  const label = !BGM.started ? "Play music" : on ? "Mute music" : "Unmute music";
+  BGM.btn.setAttribute("aria-label", label);
+  BGM.btn.title = label;
 }
 
 function applyVolume(v) {
@@ -742,8 +745,15 @@ function isIOS() {
 }
 
 function onMusicButton() {
-  if (!musicAvailable()) return;
-  if (BGM.el.muted) {
+  const src = trackSrc(BGM.current);
+  if (!src) return;
+  if (!BGM.started) {
+    /* first tap — download the song now and start with sound (user gesture) */
+    BGM.started = true;
+    BGM.el.muted = false;
+    BGM.wantPlay = true;
+    if (loadTrack(BGM.current)) tryPlay();
+  } else if (BGM.el.muted) {
     BGM.el.muted = false;
     BGM.wantPlay = true;
     tryPlay();
@@ -754,8 +764,8 @@ function onMusicButton() {
 }
 
 function switchMusic(kind) {
-  if (!BGM.el || BGM.current === kind) return;
-  setTrack(kind);
+  BGM.current = kind;
+  if (BGM.started) loadTrack(kind);
 }
 
 function initMusic() {
@@ -820,11 +830,10 @@ function initMusic() {
     BGM.panel = null;
   }
 
+  /* no src yet → the song is downloaded only when she taps the button */
+  BGM.el.preload = "none";
   BGM.el.muted = true;
-  BGM.el.addEventListener("canplay", () => {
-    BGM.wrap.hidden = false;
-    tryPlay();
-  });
+  BGM.wrap.hidden = false;
   BGM.el.addEventListener("playing", () => updateMusicUI());
   BGM.el.addEventListener("pause", () => updateMusicUI());
   BGM.el.addEventListener("volumechange", () => updateMusicUI());
@@ -834,17 +843,6 @@ function initMusic() {
   updateMusicUI();
 
   BGM.btn.addEventListener("click", onMusicButton);
-
-  /* Sound autoplay is blocked until the first interaction, so retry on gesture */
-  const gesture = (e) => {
-    if (BGM.wrap.contains(e.target)) return;
-    if (BGM.wantPlay && BGM.el.paused) tryPlay();
-  };
-  ["pointerdown", "keydown", "touchstart"].forEach((ev) =>
-    window.addEventListener(ev, gesture, { passive: true })
-  );
-
-  setTrack("cover");
 }
 
 /* ---------------- init ---------------- */
