@@ -119,7 +119,7 @@ const CONTENT = {
       zh: "",
       gif: "assets/hard-day.gif",
       body: "My love,",
-      bodyZh: "I bet today was completely flooded with annoying tasks from seniors:< I’m sorry everything felt so frustrating today. Put everything down, take a deep breath, and just rest right now! A bad day is just 24 hours that didn’t go our way, but it does NOT mean your whole life is messed up or that you're doing badly. You don’t need to be strong, solve any big problems, or be productive all the timee gahhh. You did your absolute best today, and you survived it! Your only job for the rest of tonight is to lie on the bed and just hea:D. Tomorrow gets to be a completely fresh blank page. Sending you the biggest hugggg from siu gai mo:D. Get some more rest. You did good today and me dim dou hai gum support my bb💙",
+      bodyZh: "I bet today was completely flooded with annoying tasks from seniors:< I’m sorry everything felt so frustrating today. Put everything down, take a deep breath, and just rest right now! A bad day is just 24 hours that didn’t go your way, but it does NOT mean your whole life is messed up. You don’t need to be strong, solve any big problems, or be productive all the timee gahhh. You did your best today, and you survived it~ Like YYLam always says 薄盡無悔! Your only job for the rest of tonight is to lie on the bed and just hea:D. Tomorrow gets to be a completely fresh blank page. Sending you the biggest hugggg from siu gai mo:D. Get some more rest. You did good today and me dim dou hai gum support my bb💙",
     },
     {
       icon: "🫂",
@@ -127,7 +127,7 @@ const CONTENT = {
       zh: "",
       gif: "assets/miss-me.gif",
       body: "Hey bbbbbbb,",
-      bodyZh: "Good news: I'm missing you just as muchhhh (probably even moreee:D)! I wish I could just pop up right next to you right now and give u a biggggg hugggg and tip tip:p (lowkey I really like tip tip with uuuuuuuu even tho my face wui hai sai nei d jong:D). Every single second that passes right now is just counting down until we can see each other very soonnn. I'm not gonna abandon u to go on a solo trip for half a month anymoree, so I bet we'll see each other super soon!! In the mean time, just close your eyes, imagine me hugging you tight, and text me/call me/annoy me whenever you read this:D I'm also missing you and can't wait to see my bb soon tooo💙",
+      bodyZh: "Good news: I'm missing you just as muchhhh (probably even moreee:D)! I wish I could just pop up right next to you right now and give u a biggggg hugggg and tip tip:p (lowkey I really like tip tip with uuuuuuuu even tho my face wui hai sai nei d jong:D). Every single second that passes right now is just counting down until we can see each other very soonnn. I bet we'll see each other super soon!! In the mean time, just close your eyes, imagine me hugging you tight, and text me/call me/annoy me whenever you read this:D I'm also missing you and can't wait to see my bb soon tooo💙",
     },
     {
       icon: "✨",
@@ -135,7 +135,7 @@ const CONTENT = {
       zh: "",
       gif: "assets/doubt-yourself.gif",
       body: "To the girl I believe in most,",
-      bodyZh: "Stop being too harsh on yourself:< I really wish you could see how amazing you look through my eyes — you’re way smarter and better at things than you give yourself credit for! Think about all those scary, difficult things you’ve faced before, u dou managed to figure them out anyway! If you're feeling unsure right now, it's only because you care deeply, but that definitely doesn’t mean you’re incapable :< Whenever your own confidence runs out, feel free to borrow mine, because I know exactly what kind of magic you're capable of creating:D (Reminds me of that DisneySea song when I'm writing this lmao). Just take it step by step. I believe in my lek lek geh Siu Bakkkk must be able to do it!",
+      bodyZh: "Stop being too harsh on yourself:< I really wish you could see how amazing you look through my eyes — you’re way smarter and better at things than you give yourself credit for! Think about all those scary, difficult things you’ve faced before, u dou managed to figure them out anyway! If you're feeling unsure right now, it's only because you care deeply, but that definitely doesn’t mean you’re incapable! Whenever your own confidence runs out, feel free to borrow mine, because I know exactly what kind of magic you're capable of creating:D (Suddenly reminds me of that DisneySea song when I'm writing this lmao). Just take it step by step. I believe in my lek lek geh Siu Bakkkk must be able to do it!",
     },
   ],
 
