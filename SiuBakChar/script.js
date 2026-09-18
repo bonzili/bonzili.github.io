@@ -119,7 +119,7 @@ const CONTENT = {
       zh: "",
       gif: "assets/hard-day.gif",
       body: "My love,",
-      bodyZh: "I bet today was completely flooded with annoying tasks from seniors:< I’m sorry everything felt so frustrating today. Put everything down, take a deep breath, and just rest right now! A bad day is just 24 hours that didn’t go your way, but it does NOT mean your whole life is messed up. You don’t need to be strong, solve any big problems, or be productive all the timee gahhh. You did your best today, and you survived it~ Like YYLam always says 薄盡無悔! Your only job for the rest of tonight is to lie on the bed and just hea:D. Tomorrow gets to be a completely fresh blank page. Sending you the biggest hugggg from siu gai mo:D. Get some more rest. You did good today and me dim dou hai gum support my bb💙",
+      bodyZh: "I bet today was completely flooded with annoying tasks from seniors:< I’m sorry everything felt so frustrating today. Put everything down, take a deep breath, and just rest right now! A bad day is just 24 hours that didn’t go your way, but it does NOT mean your whole life is messed up. You don’t need to be strong, solve any big problems, or be productive all the timee gahhh. You did your best today, and you survived it~ Like YYLam alway says 薄盡無悔! Your only job for the rest of tonight is to lie on the bed and just hea:D. Tomorrow gets to be a completely fresh blank page. Sending you the biggest hugggg from siu gai mo:D. Get some more rest. You did good today and me dim dou hai gum support my bb💙",
     },
     {
       icon: "🫂",
@@ -149,7 +149,7 @@ const CONTENT = {
 
   /* Hidden message behind the moon */
   secret:
-    "P.S. Your smile is the star I most want to keep. May every wish you make this year come true.",
+    "P.S. 願紅花與太陽，永遠同乘。生日快樂，就算生日以外都希望你日日快樂💙",
 };
 
 /* ==========================================================================
