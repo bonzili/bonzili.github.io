@@ -103,9 +103,9 @@ const CONTENT = {
   /* "More and more incoming…" carousel — add photos any time with
      { cap: "…", src: "assets/xxx.jpg" }. Leave src empty until you have the file. */
   carousel: [
-    { cap: "On the ride", zh: "", src: "assets/carousell/carousel-1.jpg" },
-    { cap: "Sea breeze", zh: "", src: "assets/carousell/carousel-2.jpg" },
-    { cap: "Chip 'n Dale day", zh: "", src: "assets/carousell/carousel-3.jpg" },
+    { cap: "On the ride", zh: "", src: "assets/carousell/carousel-1.jpg", pos: "20% 45%" },
+    { cap: "Sea breeze", zh: "", src: "assets/carousell/carousel-2.jpg", pos: "42% 42%" },
+    { cap: "Chip 'n Dale day", zh: "", src: "assets/carousell/carousel-3.jpg", pos: "50% 45%" },
     { cap: "Everyday us", zh: "", src: "" },
     { cap: "A random Tuesday", zh: "", src: "" },
     { cap: "Us, lately", zh: "", src: "" },
@@ -222,8 +222,9 @@ function renderCarousel() {
   track.innerHTML = CONTENT.carousel
     .map((c, i) => {
       const grad = GRADS[(i + 3) % GRADS.length];
+      const style = c.pos ? ` style="object-position:${c.pos}"` : "";
       const media = c.src
-        ? `<img class="slide__img" src="${c.src}" alt="${c.cap}" loading="lazy">`
+        ? `<img class="slide__img" src="${c.src}" alt="${c.cap}" loading="lazy"${style}>`
         : `<div class="slide__ph" style="--g1:${grad[0]};--g2:${grad[1]}" aria-hidden="true">✦</div>`;
       return `
         <figure class="slide">
