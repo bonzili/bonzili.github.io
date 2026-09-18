@@ -693,6 +693,14 @@ function supportsVolume() {
   return changed;
 }
 
+/* iPhone/iPad (incl. iPadOS which reports itself as MacIntel) */
+function isIOS() {
+  return (
+    /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
 function onMusicButton() {
   if (!musicAvailable()) return;
   if (BGM.el.muted) {
@@ -717,6 +725,7 @@ function initMusic() {
   BGM.icon = $("music-icon");
   BGM.vol = $("music-vol");
   BGM.handle = $("music-handle");
+  BGM.panel = $("music-panel");
   if (!BGM.el || !BGM.wrap || !BGM.btn || !CONFIG.music) return;
 
   /* mobile: keep the volume slider tucked at the edge until the tab is tapped */
@@ -744,8 +753,8 @@ function initMusic() {
     if (BGM.wrap && !BGM.wrap.contains(e.target)) setPanel(false);
   });
 
-  /* volume — hide the slider where it can't work (iOS), else use saved/default level */
-  if (supportsVolume()) {
+  /* volume — iOS ignores programmatic volume, so drop the slider UI there */
+  if (!isIOS() && supportsVolume()) {
     let saved = null;
     try {
       saved = parseFloat(localStorage.getItem(VOL_KEY));
@@ -762,8 +771,13 @@ function initMusic() {
       schedulePanelHide();
     });
   } else {
-    BGM.vol.hidden = true;
+    /* no usable volume control — keep only the play/mute button */
     BGM.wrap.classList.add("no-vol");
+    if (BGM.panel) BGM.panel.remove();
+    if (BGM.handle) BGM.handle.remove();
+    BGM.vol = null;
+    BGM.handle = null;
+    BGM.panel = null;
   }
 
   BGM.el.muted = true;
