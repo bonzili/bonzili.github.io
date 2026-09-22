@@ -106,9 +106,13 @@ const CONTENT = {
     { cap: "On the ride", zh: "", src: "assets/carousell/carousel-1.jpg", pos: "20% 45%" },
     { cap: "Sea breeze", zh: "", src: "assets/carousell/carousel-2.jpg", pos: "42% 42%" },
     { cap: "Chip 'n Dale day", zh: "", src: "assets/carousell/carousel-3.jpg", pos: "50% 45%" },
+    { cap: "Picnic at dusk", zh: "", src: "assets/carousell/carousel-4.jpg", pos: "50% 30%" },
+    { cap: "Lantern night", zh: "", src: "assets/carousell/carousel-5.jpg", pos: "50% 55%" },
+    { cap: "Flowers day", zh: "", src: "assets/carousell/carousel-6.jpg", pos: "50% 45%" },
+    { cap: "RedBird", zh: "", src: "assets/carousell/carousel-7.jpg", pos: "50% 90%" },
+    { cap: "Silly us", zh: "", src: "assets/carousell/carousel-8.jpg", pos: "32% 45%" },
     { cap: "Everyday us", zh: "", src: "" },
     { cap: "A random Tuesday", zh: "", src: "" },
-    { cap: "Us, lately", zh: "", src: "" },
   ],
 
   /* Open-when letters — write your own words in `body` (and optional `bodyZh`).
