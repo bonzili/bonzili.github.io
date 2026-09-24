@@ -47,45 +47,45 @@ const CONTENT = {
   /* Love-story timeline — add / remove / edit freely */
   timeline: [
     {
-      when: "Chapter One",
-      title: "The first hello",
+      when: "20 Mar 2026",
+      title: "First day matched:D",
       zhTitle: "",
-      text: "I still remember how nervous I was. One hello, and somehow my whole week rearranged itself around you.",
+      text: "Im glad I didnt just answer ",
       zhText: "",
     },
     {
-      when: "Chapter Two",
+      when: "12 Apr 2026",
       title: "Our first date",
       zhTitle: "",
       text: "I planned the day a hundred times in my head, and it still went nothing like I imagined — it was better.",
       zhText: "",
     },
     {
-      when: "Chapter Three",
+      when: "19 Apr 2026",
       title: "Officially us",
       zhTitle: "",
-      text: "No big speech, no fireworks. Just two people quietly deciding to choose each other, again and again.",
+      text: "I still vividly rmb how nervous I was that day but I'm really really glad that I asked the question under the ICC 擁抱時機·活出精彩:D",
       zhText: "",
     },
     {
-      when: "Chapter Four",
+      when: "8 Jul 2026",
       title: "Our first trip together",
       zhTitle: "",
-      text: "Wrong turns, shared snacks, and photos we'll keep forever. I'd get lost with you anywhere.",
+      text: "陪我一睇就睇左三場五月天",
       zhText: "",
     },
     {
-      when: "Chapter Five",
-      title: "The small fights & the making up",
+      when: "26 Aug 2026",
+      title: "Our second trip to Japan",
       zhTitle: "",
-      text: "We learned that loving someone isn't about never arguing — it's about always finding the way back to each other.",
+      text: "煙火幾靚都好，都不及有你係身邊賦予一切意義",
       zhText: "",
     },
     {
-      when: "Chapter Six",
-      title: "Today, and every day after",
+      when: "Today, and every day after",
+      title: "Happy Birthday:D",
       zhTitle: "",
-      text: "Here we are. Still choosing each other, still laughing at the same jokes. Happy birthday, my love.",
+      text: "吳仲翎，生日快樂，就算生日以外都希望你日日快樂💙",
       zhText: "",
     },
   ],
@@ -103,16 +103,14 @@ const CONTENT = {
   /* "More and more incoming…" carousel — add photos any time with
      { cap: "…", src: "assets/xxx.jpg" }. Leave src empty until you have the file. */
   carousel: [
-    { cap: "On the ride", zh: "", src: "assets/carousell/carousel-1.jpg", pos: "20% 45%" },
-    { cap: "Sea breeze", zh: "", src: "assets/carousell/carousel-2.jpg", pos: "42% 42%" },
-    { cap: "Chip 'n Dale day", zh: "", src: "assets/carousell/carousel-3.jpg", pos: "50% 45%" },
-    { cap: "Picnic at dusk", zh: "", src: "assets/carousell/carousel-4.jpg", pos: "50% 30%" },
-    { cap: "Lantern night", zh: "", src: "assets/carousell/carousel-5.jpg", pos: "50% 55%" },
-    { cap: "Flowers day", zh: "", src: "assets/carousell/carousel-6.jpg", pos: "50% 45%" },
-    { cap: "RedBird", zh: "", src: "assets/carousell/carousel-7.jpg", pos: "50% 90%" },
-    { cap: "Silly us", zh: "", src: "assets/carousell/carousel-8.jpg", pos: "32% 45%" },
-    { cap: "Everyday us", zh: "", src: "" },
-    { cap: "A random Tuesday", zh: "", src: "" },
+    { cap: "Taipei~", zh: "", src: "assets/carousell/carousel-1.jpg", pos: "20% 45%" },
+    { cap: "Enoshima~", zh: "", src: "assets/carousell/carousel-2.jpg", pos: "42% 42%" },
+    { cap: "Tokyo Disneyland~", zh: "", src: "assets/carousell/carousel-3.jpg", pos: "50% 45%" },
+    { cap: "Picnic:D", zh: "", src: "assets/carousell/carousel-4.jpg", pos: "50% 30%" },
+    { cap: "Mid Autumn!", zh: "", src: "assets/carousell/carousel-5.jpg", pos: "50% 55%" },
+    { cap: "Happy Day 100<3", zh: "", src: "assets/carousell/carousel-6.jpg", pos: "50% 45%" },
+    { cap: "HKUST", zh: "", src: "assets/carousell/carousel-7.jpg", pos: "50% 90%" },
+    { cap: ":0", zh: "", src: "assets/carousell/carousel-8.jpg", pos: "32% 45%" },
   ],
 
   /* Open-when letters — write your own words in `body` (and optional `bodyZh`).
@@ -162,7 +160,7 @@ const CONTENT = {
 
   /* Hidden message behind the moon */
   secret:
-    "P.S. 願紅花與太陽，永遠同乘。生日快樂，就算生日以外都希望你日日快樂💙",
+    "P.S. 願紅花與太陽，永遠同乘💙",
 };
 
 /* ==========================================================================
