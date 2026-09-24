@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Siu Bak &amp; Siu Gai Mo's Fire &amp; Water Quest</title>
+  <meta name="description" content="A birthday forest adventure for Siu Bak and Siu Gai Mo.">
+  <meta name="theme-color" content="#071a18">
+  <link rel="icon" type="image/gif" href="../SiuBakChar/assets/favicon.gif">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+  <div class="game-shell" id="game-shell">
+    <main class="stage" id="stage">
+      <canvas id="game" width="1280" height="720" role="img" aria-label="A two-player forest platform game starring Siu Bak and Siu Gai Mo"></canvas>
+
+      <header class="hud" id="hud" aria-label="Game status">
+        <div class="hud__chapter">
+          <p class="eyebrow" id="level-kicker">Forest 01 / 05</p>
+          <h1 id="level-name">Fern Hollow</h1>
+          <div class="journey" id="journey" aria-label="Level progress">
+            <span class="journey__step is-active"></span>
+            <span class="journey__step"></span>
+            <span class="journey__step"></span>
+            <span class="journey__step"></span>
+            <span class="journey__step"></span>
+          </div>
+          <div class="memory-meter" aria-label="Memory fireflies collected">
+            <span aria-hidden="true">✦</span>
+            <strong id="firefly-count">0</strong>
+            <small>/ 3</small>
+          </div>
+        </div>
+
+        <div class="hud__players" aria-label="Siu Bak and Siu Gai Mo collected diamonds">
+          <div class="gem-card gem-card--fire">
+            <span class="gem-card__mark" aria-hidden="true"></span>
+            <span><strong id="fire-gems">0</strong><small>/ 4</small></span>
+          </div>
+          <div class="gem-card gem-card--water">
+            <span class="gem-card__mark" aria-hidden="true"></span>
+            <span><strong id="water-gems">0</strong><small>/ 4</small></span>
+          </div>
+        </div>
+
+        <div class="hud__actions">
+          <button class="icon-button" id="sound-button" type="button" aria-label="Mute sound" aria-pressed="false">
+            <span class="sound-waves" aria-hidden="true"><i></i><i></i><i></i></span>
+          </button>
+          <button class="icon-button" id="restart-button" type="button" aria-label="Restart level">
+            <span aria-hidden="true">↻</span>
+          </button>
+          <button class="icon-button" id="pause-button" type="button" aria-label="Pause game">
+            <span aria-hidden="true">Ⅱ</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="toast" id="game-toast" role="status" aria-live="polite"></div>
+
+      <section class="screen screen--intro is-visible" id="intro-screen" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+        <div class="intro-card">
+          <div class="intro-card__seal" aria-hidden="true">
+            <span class="seal-flame"></span>
+            <span class="seal-drop"></span>
+            <span class="seal-heart">♥</span>
+          </div>
+          <p class="eyebrow eyebrow--light">A birthday quest from Siu Gai Mo</p>
+          <h2 id="intro-title">Siu Bak × Siu Gai Mo's<br><em>Fire &amp; Water Quest</em></h2>
+          <p class="intro-card__lede">Cross the moonlit forest together. Gather matching diamonds, light shared lanterns, catch fireflies, and find the surprise waiting at the heart of the trees.</p>
+
+          <div class="hero-pair" aria-label="Siu Bak and Siu Gai Mo">
+            <div class="hero-player hero-player--fire">
+              <span class="hero-player__shape" aria-hidden="true"></span>
+              <div><strong>Siu Bak</strong><small>fire · left, right, jump</small></div>
+            </div>
+            <span class="hero-pair__link" aria-hidden="true"></span>
+            <div class="hero-player hero-player--water">
+              <span class="hero-player__shape" aria-hidden="true"></span>
+              <div><strong>Siu Gai Mo</strong><small>water · left, right, jump</small></div>
+            </div>
+          </div>
+
+          <div class="rule-strip">
+            <span><i class="rule-dot rule-dot--fire"></i>Siu Bak collects fire diamonds</span>
+            <span><i class="rule-dot rule-dot--water"></i>Siu Gai Mo collects water diamonds</span>
+            <span class="rule-strip__warning">Opposite pools reset you · light the shared lantern</span>
+          </div>
+
+          <button class="primary-button" id="start-button" type="button">
+            <span>Enter the forest</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <p class="keyboard-note"><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd> for Siu Bak · <kbd>A</kbd><kbd>D</kbd><kbd>W</kbd> for Siu Gai Mo</p>
+        </div>
+      </section>
+
+      <section class="screen screen--pause" id="pause-screen" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden>
+        <div class="small-card">
+          <p class="eyebrow eyebrow--light">The forest is waiting</p>
+          <h2 id="pause-title">Paused</h2>
+          <p>Take a breath. Your two adventurers will stay right here.</p>
+          <button class="primary-button" id="resume-button" type="button">Continue the quest <span aria-hidden="true">→</span></button>
+          <button class="text-button" id="pause-restart-button" type="button">Restart this forest</button>
+        </div>
+      </section>
+
+      <section class="screen screen--clear" id="clear-screen" role="dialog" aria-modal="true" aria-labelledby="clear-title" hidden>
+        <div class="clear-card">
+          <div class="clear-card__rings" aria-hidden="true"><span></span><span></span><span></span></div>
+          <p class="eyebrow eyebrow--light">Forest cleared</p>
+          <h2 id="clear-title">Perfectly paired</h2>
+          <p id="clear-copy">Both diamonds found. Both doors open. The path deeper into the trees is glowing.</p>
+          <button class="primary-button" id="next-button" type="button"><span id="next-label">Follow the fireflies</span> <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+
+      <section class="screen screen--final" id="final-screen" role="dialog" aria-modal="true" aria-labelledby="final-title" hidden>
+        <div class="final-card">
+          <div class="final-card__lanterns" aria-hidden="true"><i></i><span>♥</span><i></i></div>
+          <img class="final-card__gif" src="../SiuBakChar/assets/birthday.gif" alt="A little birthday celebration">
+          <p class="eyebrow" id="final-context">You found the forest's little secret</p>
+          <h2 id="final-title">Happy Birthday, Siu Bak Char!</h2>
+          <p class="final-card__name">Siu Bak, this adventure was yours all along.</p>
+          <div class="memory-tally" aria-live="polite">
+            <span class="memory-tally__mark" aria-hidden="true">✦</span>
+            <div>
+              <strong><span id="final-firefly-count">0</span> / 15 fireflies found</strong>
+              <small id="final-firefly-copy">Every firefly is one small memory from our story.</small>
+            </div>
+          </div>
+          <blockquote>To my dearest Siu Bak,<br>May this year love you back as much as you love everyone around you.</blockquote>
+          <p class="final-card__sign">Forever yours,<br>Siu Gai Mo</p>
+          <div class="final-card__actions">
+            <button class="primary-button primary-button--rose" id="song-button" type="button" aria-pressed="false"><span id="song-label">Play our song</span> <span aria-hidden="true">♪</span></button>
+            <button class="text-button text-button--light" id="replay-button" type="button">Play the quest again</button>
+            <a class="final-card__link" href="../SiuBakChar/">Open your birthday scrapbook <span aria-hidden="true">→</span></a>
+          </div>
+          <audio id="celebration-audio" src="../SiuBakChar/assets/because-of-you.mp3" preload="none" loop></audio>
+        </div>
+      </section>
+
+      <div class="touch-controls" id="touch-controls" aria-label="Touch controls">
+        <div class="touch-controls__group touch-controls__group--water">
+          <span class="touch-controls__label">Siu Gai Mo</span>
+          <button type="button" data-player="water" data-action="left" aria-label="Move Siu Gai Mo left">←</button>
+          <button type="button" data-player="water" data-action="right" aria-label="Move Siu Gai Mo right">→</button>
+          <button class="touch-controls__jump" type="button" data-player="water" data-action="jump" aria-label="Jump Siu Gai Mo">↑</button>
+        </div>
+        <div class="touch-controls__group touch-controls__group--fire">
+          <span class="touch-controls__label">Siu Bak</span>
+          <button type="button" data-player="fire" data-action="left" aria-label="Move Siu Bak left">←</button>
+          <button type="button" data-player="fire" data-action="right" aria-label="Move Siu Bak right">→</button>
+          <button class="touch-controls__jump" type="button" data-player="fire" data-action="jump" aria-label="Jump Siu Bak">↑</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="control-legend" aria-label="Keyboard controls">
+      <p><span class="legend-mark legend-mark--fire"></span><strong>Siu Bak</strong> <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd></p>
+      <p><span class="legend-mark legend-mark--water"></span><strong>Siu Gai Mo</strong> <kbd>A</kbd><kbd>D</kbd><kbd>W</kbd></p>
+      <p class="control-legend__hint"><kbd>R</kbd> restart · <kbd>P</kbd> pause</p>
+    </footer>
+  </div>
+
+  <script src="script.js?v=11"></script>
+</body>
+</html>
