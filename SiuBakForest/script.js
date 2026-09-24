@@ -4,6 +4,7 @@ const CONFIG = {
   requiredGems: 4,
   progressKey: "siuBakForestProgress",
   soundKey: "siuBakForestSound",
+  identityKey: "siuBakForestIdentity",
   wishKey: "siuBakForestWishes",
   celebrationVolume: 0.24,
   characters: {
@@ -14,7 +15,8 @@ const CONFIG = {
 
 const platform = (x, y, w, h = 22, kind = "stone") => ({ x, y, w, h, kind });
 const pool = (x, w, type) => ({ x, y: 642, w, h: 48, type });
-const moving = (x, y, w, h, range, speed, phase) => ({ x, y, baseX: x, w, h, range, speed, phase, dx: 0, dy: 0, kind: "moving" });
+const moving = (x, y, w, h, axis, range, speed, phase) => ({ x, y, baseX: x, baseY: y, w, h, axis, range, speed, phase, dx: 0, dy: 0, kind: "moving" });
+const launchPad = (x, y, w, speed) => ({ x, y, w, h: 12, speed });
 const saw = (x, y, range, speed, phase, r = 22) => ({ x, y, baseX: x, range, speed, phase, r, type: "spore" });
 const spikes = (x, y, w, h = 32) => ({ x, y, w, h });
 const checkpoint = (x, y) => ({ x, y, active: false });
@@ -28,33 +30,37 @@ const LEVELS = [
     skyBottom: "#173f32",
     accent: "#7fd08d",
     platforms: [
-      platform(300, 555, 120),
-      platform(455, 470, 120),
-      platform(620, 555, 120),
-      platform(850, 520, 130)
+      platform(235, 555, 84, 95, "fern-pier"),
+      platform(395, 475, 78, 175, "fern-pier"),
+      platform(525, 545, 80, 105, "fern-step"),
+      platform(685, 465, 78, 185, "fern-pier"),
+      platform(835, 520, 175, 22, "root-bridge")
     ],
     pools: [
-      pool(355, 170, "fire"),
-      pool(605, 125, "water"),
-      pool(860, 155, "fire")
+      pool(205, 115, "fire"),
+      pool(340, 120, "water"),
+      pool(500, 110, "fire"),
+      pool(625, 115, "water"),
+      pool(770, 110, "fire")
     ],
     gems: [
-      { x: 250, y: 600, type: "fire" },
-      { x: 360, y: 510, type: "fire" },
-      { x: 515, y: 425, type: "fire" },
-      { x: 900, y: 475, type: "fire" },
-      { x: 165, y: 600, type: "water" },
-      { x: 515, y: 425, type: "water" },
-      { x: 680, y: 510, type: "water" },
-      { x: 1050, y: 590, type: "water" }
+      { x: 255, y: 529, type: "fire" },
+      { x: 300, y: 529, type: "water" },
+      { x: 415, y: 449, type: "fire" },
+      { x: 455, y: 449, type: "water" },
+      { x: 545, y: 519, type: "fire" },
+      { x: 585, y: 519, type: "water" },
+      { x: 860, y: 494, type: "fire" },
+      { x: 980, y: 494, type: "water" }
     ],
     wishes: [
-      wish(315, 500),
-      wish(520, 375),
-      wish(920, 450)
+      wish(435, 440),
+      wish(700, 439),
+      wish(940, 494)
     ],
-    checkpoints: [checkpoint(555, 470)],
+    checkpoints: [checkpoint(920, 520)],
     moving: [],
+    launchPads: [],
     spikes: [],
     saws: []
   },
@@ -65,36 +71,38 @@ const LEVELS = [
     skyBottom: "#17464a",
     accent: "#6ed9d6",
     platforms: [
-      platform(220, 560, 150),
-      platform(425, 475, 130),
-      platform(610, 560, 140),
-      platform(800, 470, 130),
-      platform(980, 555, 170)
+      platform(220, 545, 80, 105, "fall-pier"),
+      platform(350, 465, 80, 185, "fall-pier"),
+      platform(500, 385, 80, 265, "fall-pier"),
+      platform(880, 425, 80, 225, "fall-pier"),
+      platform(1000, 500, 130, 22, "bridge-root")
     ],
     pools: [
-      pool(290, 180, "fire"),
-      pool(510, 120, "water"),
-      pool(675, 140, "fire"),
-      pool(855, 145, "water"),
-      pool(1120, 85, "fire")
+      pool(215, 180, "fire"),
+      pool(415, 180, "water"),
+      pool(615, 180, "fire"),
+      pool(815, 175, "water")
     ],
     gems: [
-      { x: 275, y: 515, type: "fire" },
-      { x: 480, y: 430, type: "fire" },
-      { x: 900, y: 425, type: "fire" },
-      { x: 1080, y: 510, type: "fire" },
-      { x: 235, y: 515, type: "water" },
-      { x: 675, y: 515, type: "water" },
-      { x: 850, y: 425, type: "water" },
-      { x: 1005, y: 510, type: "water" }
+      { x: 245, y: 519, type: "fire" },
+      { x: 275, y: 519, type: "water" },
+      { x: 370, y: 439, type: "fire" },
+      { x: 410, y: 439, type: "water" },
+      { x: 520, y: 359, type: "fire" },
+      { x: 560, y: 359, type: "water" },
+      { x: 900, y: 399, type: "fire" },
+      { x: 940, y: 399, type: "water" }
     ],
     wishes: [
-      wish(290, 480),
-      wish(490, 350),
-      wish(1080, 475)
+      wish(390, 439),
+      wish(540, 359),
+      wish(1070, 474)
     ],
-    checkpoints: [checkpoint(730, 560)],
-    moving: [],
+    checkpoints: [checkpoint(1050, 500)],
+    moving: [
+      moving(665, 385, 120, 20, "x", 85, 0.72, 3.1)
+    ],
+    launchPads: [],
     spikes: [],
     saws: []
   },
@@ -105,38 +113,38 @@ const LEVELS = [
     skyBottom: "#29482a",
     accent: "#a7d77d",
     platforms: [
-      platform(230, 565, 150),
-      platform(425, 455, 130),
-      platform(610, 540, 130),
-      platform(800, 430, 130),
-      platform(975, 535, 165)
+      platform(215, 555, 90, 95, "moss-pier"),
+      platform(345, 475, 86, 175, "moss-pier"),
+      platform(720, 390, 100, 22, "choir-ledge"),
+      platform(890, 420, 86, 230, "moss-pier"),
+      platform(1010, 500, 120, 22, "root-exit")
     ],
     pools: [
-      pool(330, 125, "water"),
-      pool(515, 150, "fire"),
-      pool(745, 165, "water"),
-      pool(970, 150, "fire")
+      pool(275, 120, "water"),
+      pool(455, 145, "fire"),
+      pool(665, 135, "water"),
+      pool(835, 145, "fire")
     ],
     gems: [
-      { x: 295, y: 520, type: "fire" },
-      { x: 490, y: 410, type: "fire" },
-      { x: 675, y: 495, type: "fire" },
-      { x: 1055, y: 490, type: "fire" },
-      { x: 170, y: 600, type: "water" },
-      { x: 490, y: 410, type: "water" },
-      { x: 865, y: 385, type: "water" },
-      { x: 1120, y: 590, type: "water" }
+      { x: 235, y: 529, type: "fire" },
+      { x: 280, y: 529, type: "water" },
+      { x: 365, y: 449, type: "fire" },
+      { x: 410, y: 449, type: "water" },
+      { x: 740, y: 364, type: "fire" },
+      { x: 800, y: 364, type: "water" },
+      { x: 910, y: 394, type: "fire" },
+      { x: 955, y: 394, type: "water" }
     ],
     wishes: [
-      wish(300, 480),
-      wish(500, 330),
-      wish(1050, 420)
+      wish(420, 430),
+      wish(805, 350),
+      wish(1080, 470)
     ],
-    checkpoints: [checkpoint(900, 430)],
+    checkpoints: [checkpoint(1060, 500)],
     moving: [
-      moving(405, 350, 110, 18, 78, 0.92, 0.3),
-      moving(650, 300, 120, 18, 92, 0.74, 2.1)
+      moving(520, 500, 120, 20, "y", 80, 0.78, 0.3)
     ],
+    launchPads: [],
     spikes: [],
     saws: []
   },
@@ -147,49 +155,48 @@ const LEVELS = [
     skyBottom: "#343049",
     accent: "#c5b7ff",
     platforms: [
-      platform(180, 560, 120),
-      platform(340, 470, 120),
-      platform(500, 560, 120),
-      platform(650, 440, 120),
-      platform(800, 550, 120),
-      platform(950, 460, 120),
-      platform(1090, 555, 90)
+      platform(210, 555, 80, 95, "gear-pier"),
+      platform(585, 455, 110, 195, "gear-pier"),
+      platform(740, 245, 100, 22, "clock-deck"),
+      platform(1010, 450, 85, 200, "gear-pier"),
+      platform(335, 600, 170, 18, "escapement")
     ],
     pools: [
-      pool(260, 100, "water"),
-      pool(450, 120, "fire"),
-      pool(620, 130, "water"),
-      pool(820, 120, "fire"),
-      pool(1000, 110, "water")
+      pool(270, 130, "water"),
+      pool(420, 140, "fire"),
+      pool(600, 130, "water"),
+      pool(760, 130, "fire"),
+      pool(910, 80, "water")
     ],
     gems: [
-      { x: 240, y: 515, type: "fire" },
-      { x: 400, y: 425, type: "fire" },
-      { x: 710, y: 395, type: "fire" },
-      { x: 1010, y: 415, type: "fire" },
-      { x: 135, y: 600, type: "water" },
-      { x: 560, y: 515, type: "water" },
-      { x: 860, y: 505, type: "water" },
-      { x: 1135, y: 510, type: "water" }
+      { x: 230, y: 529, type: "fire" },
+      { x: 270, y: 529, type: "water" },
+      { x: 610, y: 429, type: "fire" },
+      { x: 665, y: 429, type: "water" },
+      { x: 755, y: 219, type: "fire" },
+      { x: 815, y: 219, type: "water" },
+      { x: 1030, y: 424, type: "fire" },
+      { x: 1070, y: 424, type: "water" }
     ],
     wishes: [
-      wish(240, 480),
-      wish(420, 345),
-      wish(1020, 335)
+      wish(260, 500),
+      wish(815, 190),
+      wish(1085, 400)
     ],
-    checkpoints: [checkpoint(600, 560)],
+    checkpoints: [checkpoint(1050, 450)],
     moving: [
-      moving(410, 330, 100, 18, 92, 0.86, 0.8),
-      moving(760, 310, 100, 18, 105, 0.68, 2.7)
+      moving(380, 500, 110, 20, "x", 80, 0.95, 4.3),
+      moving(850, 330, 100, 20, "y", 80, 0.78, 0.82)
+    ],
+    launchPads: [
+      launchPad(585, 455, 56, 860)
     ],
     spikes: [
-      spikes(350, 438, 34),
-      spikes(806, 518, 34),
-      spikes(962, 428, 30)
+      spikes(390, 568, 56, 32)
     ],
     saws: [
-      saw(555, 395, 105, 1.15, 0.4),
-      saw(865, 465, 98, 0.95, 2.4)
+      saw(720, 330, 70, 0.85, 4.3, 20),
+      saw(900, 525, 55, 0.75, 2.2, 18)
     ]
   },
   {
@@ -199,42 +206,44 @@ const LEVELS = [
     skyBottom: "#553037",
     accent: "#ffc48c",
     platforms: [
-      platform(170, 560, 140),
-      platform(350, 485, 130),
-      platform(520, 405, 130),
-      platform(700, 485, 130),
-      platform(860, 395, 130),
-      platform(1020, 500, 150)
+      platform(210, 555, 85, 95, "heart-pier"),
+      platform(610, 430, 115, 220, "heart-cleft"),
+      platform(760, 225, 100, 20, "heart-tip"),
+      platform(1038, 450, 102, 22, "heart-dais")
     ],
     pools: [
-      pool(260, 140, "fire"),
-      pool(460, 135, "water"),
-      pool(650, 165, "fire"),
-      pool(900, 140, "water")
+      pool(205, 130, "fire"),
+      pool(355, 145, "water"),
+      pool(520, 160, "fire"),
+      pool(705, 135, "water"),
+      pool(860, 130, "fire")
     ],
     gems: [
-      { x: 235, y: 515, type: "fire" },
-      { x: 415, y: 440, type: "fire" },
-      { x: 585, y: 360, type: "fire" },
-      { x: 1080, y: 455, type: "fire" },
-      { x: 125, y: 600, type: "water" },
-      { x: 585, y: 360, type: "water" },
-      { x: 765, y: 440, type: "water" },
-      { x: 925, y: 350, type: "water" }
+      { x: 235, y: 529, type: "fire" },
+      { x: 270, y: 529, type: "water" },
+      { x: 635, y: 404, type: "fire" },
+      { x: 700, y: 404, type: "water" },
+      { x: 785, y: 199, type: "fire" },
+      { x: 835, y: 199, type: "water" },
+      { x: 1050, y: 424, type: "fire" },
+      { x: 1110, y: 424, type: "water" }
     ],
     wishes: [
-      wish(240, 480),
-      wish(585, 280),
-      wish(1080, 375)
+      wish(260, 500),
+      wish(810, 180),
+      wish(1115, 410)
     ],
-    checkpoints: [checkpoint(625, 405)],
+    checkpoints: [checkpoint(1070, 450)],
     moving: [
-      moving(290, 350, 110, 18, 118, 0.82, 0.6),
-      moving(735, 330, 110, 18, 110, 0.72, 2.9)
+      moving(395, 500, 110, 20, "x", 85, 1, 4.21),
+      moving(930, 285, 100, 20, "y", 100, 0.75, 1.04)
+    ],
+    launchPads: [
+      launchPad(617, 430, 56, 840)
     ],
     spikes: [],
     saws: [
-      saw(785, 395, 82, 0.9, 1.4, 19)
+      saw(750, 300, 80, 0.82, 4.9, 20)
     ]
   }
 ];
@@ -269,10 +278,23 @@ const screens = {
   final: $("final-screen")
 };
 
-const dpr = Math.min(window.devicePixelRatio || 1, 2);
-canvas.width = Math.round(VIEW_WIDTH * dpr);
-canvas.height = Math.round(VIEW_HEIGHT * dpr);
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+let renderScale = 1;
+
+function resizeCanvas() {
+  const displayWidth = canvas.getBoundingClientRect().width || VIEW_WIDTH;
+  const pixelRatio = window.devicePixelRatio || 1;
+  renderScale = clamp((displayWidth / VIEW_WIDTH) * pixelRatio, 1, 3);
+  const width = Math.round(VIEW_WIDTH * renderScale);
+  const height = Math.round(VIEW_HEIGHT * renderScale);
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  ctx.setTransform(renderScale, 0, 0, renderScale, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+}
+
+resizeCanvas();
 
 let state = "intro";
 let levelIndex = 0;
@@ -283,6 +305,8 @@ let completedLevels = Math.min(Math.max(readNumber(CONFIG.progressKey, 0), 0), L
 let collectedWishKeys = new Set(readStringArray(CONFIG.wishKey));
 let totalFireflies = Math.min(collectedWishKeys.size, LEVELS.length * 3);
 let soundEnabled = readBoolean(CONFIG.soundKey, true);
+const savedIdentity = readString(CONFIG.identityKey, "fire");
+let identityType = ["fire", "water"].includes(savedIdentity) ? savedIdentity : "fire";
 let levelTime = 0;
 let visualTime = 0;
 let lastFrame = performance.now();
@@ -385,6 +409,15 @@ function readNumber(key, fallback) {
   }
 }
 
+function readString(key, fallback) {
+  try {
+    const value = window.localStorage.getItem(key);
+    return value === null ? fallback : value;
+  } catch {
+    return fallback;
+  }
+}
+
 function readStringArray(key) {
   try {
     const value = JSON.parse(window.localStorage.getItem(key) || "[]");
@@ -455,6 +488,38 @@ function createPlayer(type, x) {
   };
 }
 
+function setIdentity(nextType, persist = true) {
+  identityType = nextType === "water" ? "water" : "fire";
+  CONFIG.characters.fire = identityType === "fire" ? "Siu Bak" : "Siu Gai Mo";
+  CONFIG.characters.water = identityType === "water" ? "Siu Bak" : "Siu Gai Mo";
+  if (persist) saveValue(CONFIG.identityKey, identityType);
+
+  document.querySelectorAll('input[name="character-colour"]').forEach((input) => {
+    input.checked = input.value === identityType;
+  });
+
+  $("fire-hero-name").textContent = CONFIG.characters.fire;
+  $("water-hero-name").textContent = CONFIG.characters.water;
+  $("fire-rule-name").textContent = CONFIG.characters.fire;
+  $("water-rule-name").textContent = CONFIG.characters.water;
+  $("fire-key-name").textContent = CONFIG.characters.fire;
+  $("water-key-name").textContent = CONFIG.characters.water;
+  $("fire-touch-name").textContent = CONFIG.characters.fire;
+  $("water-touch-name").textContent = CONFIG.characters.water;
+  $("fire-legend-name").textContent = CONFIG.characters.fire;
+  $("water-legend-name").textContent = CONFIG.characters.water;
+
+  document.querySelectorAll(".touch-controls button[data-player]").forEach((button) => {
+    const name = CONFIG.characters[button.dataset.player];
+    const action = button.dataset.action;
+    button.setAttribute("aria-label", action === "jump" ? `Jump ${name}` : `Move ${name} ${action}`);
+  });
+
+  players.forEach((player) => {
+    player.name = CONFIG.characters[player.type];
+  });
+}
+
 function loadLevel(index) {
   levelIndex = index;
   level = JSON.parse(JSON.stringify(LEVELS[index]));
@@ -472,6 +537,7 @@ function loadLevel(index) {
   level.lastDoorHint = -Infinity;
   level.wishes = level.wishes || [];
   level.checkpoints = level.checkpoints || [];
+  level.launchPads = level.launchPads || [];
   level.fireflies = 0;
   level.wishes.forEach((item) => {
     item.taken = false;
@@ -511,7 +577,9 @@ function updateMovingPlatforms() {
   level.moving.forEach((item) => {
     item.prevX = item.x;
     item.prevY = item.y;
-    item.x = item.baseX + Math.sin(levelTime * item.speed + item.phase) * item.range;
+    const offset = Math.sin(levelTime * item.speed + item.phase) * item.range;
+    item.x = item.baseX + (item.axis === "x" ? offset : 0);
+    item.y = item.baseY + (item.axis === "y" ? offset : 0);
     item.dx = item.x - item.prevX;
     item.dy = item.y - item.prevY;
   });
@@ -595,6 +663,21 @@ function updatePlayer(player, delta) {
     }
   }
 
+  for (const pad of level.launchPads) {
+    const bottom = player.y + player.h;
+    const horizontal = player.x + player.w > pad.x && player.x < pad.x + pad.w;
+    if (!player.grounded || !horizontal || Math.abs(bottom - pad.y) > 4) continue;
+    player.vy = -pad.speed;
+    player.grounded = false;
+    player.groundId = null;
+    player.coyote = 0;
+    player.jumpQueued = false;
+    spawnBurst(player.x + player.w / 2, pad.y, COLORS.paper, 20, 150, "spark");
+    playTone(260, "triangle", 0.2, 0.04, 720, 0);
+    playTone(720, "sine", 0.2, 0.025, 1040, 0.08);
+    break;
+  }
+
   if (player.grounded) {
     player.coyote = 0.11;
     player.animation += Math.abs(player.vx) * delta * 0.065;
@@ -625,7 +708,7 @@ function collectGems(player) {
     playTone(gem.type === "fire" ? 610 : 720, "triangle", 0.15, 0.045, gem.type === "fire" ? 920 : 1080, 0.045);
     updateInterface();
     if (player.collected === CONFIG.requiredGems) {
-      showToast(`${player.name}'s door is glowing`, 1800);
+      showToast(`${player.type === "fire" ? "Red" : "Blue"} door is glowing`, 1800);
       playTone(gem.type === "fire" ? 860 : 980, "sine", 0.22, 0.04, gem.type === "fire" ? 1120 : 1280, 0.12);
     }
   });
@@ -707,7 +790,7 @@ function respawnPlayer(player, reason) {
   const color = player.type === "fire" ? COLORS.fire : COLORS.water;
   const lantern = level.checkpoints.find((item) => item.active);
   spawnBurst(player.x + player.w / 2, player.y + player.h / 2, color, 24, 220, "spark");
-  player.x = lantern ? lantern.x + (player.type === "fire" ? -18 : 18) : player.spawn.x;
+  player.x = lantern ? lantern.x + (player.type === "fire" ? -10 : 10) : player.spawn.x;
   player.y = lantern ? lantern.y - player.h : player.spawn.y;
   player.vx = 0;
   player.vy = 0;
@@ -737,12 +820,12 @@ function checkDoors() {
 
   if (atFireDoor && fire.collected < CONFIG.requiredGems && visualTime - level.lastDoorHint > 3) {
     level.lastDoorHint = visualTime;
-    showToast(`${fire.name} needs ${CONFIG.requiredGems - fire.collected} more fire diamond${CONFIG.requiredGems - fire.collected === 1 ? "" : "s"}`, 1800);
+    showToast(`Red door needs ${CONFIG.requiredGems - fire.collected} more red diamond${CONFIG.requiredGems - fire.collected === 1 ? "" : "s"}`, 1800);
   }
 
   if (atWaterDoor && water.collected < CONFIG.requiredGems && visualTime - level.lastDoorHint > 3) {
     level.lastDoorHint = visualTime;
-    showToast(`${water.name} needs ${CONFIG.requiredGems - water.collected} more water diamond${CONFIG.requiredGems - water.collected === 1 ? "" : "s"}`, 1800);
+    showToast(`Blue door needs ${CONFIG.requiredGems - water.collected} more blue diamond${CONFIG.requiredGems - water.collected === 1 ? "" : "s"}`, 1800);
   }
 
   if (
@@ -1288,6 +1371,7 @@ function drawLevel() {
   drawGround();
   level.platforms.forEach(drawPlatform);
   level.moving.forEach(drawPlatform);
+  level.launchPads.forEach(drawLaunchPad);
   level.pools.forEach(drawPool);
   level.spikes.forEach(drawSpikes);
   level.saws.forEach(drawSaw);
@@ -1373,11 +1457,53 @@ function drawPlatform(item) {
     ctx.lineWidth = 2;
     ctx.setLineDash([4, 5]);
     ctx.beginPath();
-    ctx.moveTo(item.baseX - item.range, y + item.h + 12);
-    ctx.lineTo(item.baseX + item.range, y + item.h + 12);
+    if (item.axis === "y") {
+      ctx.moveTo(item.baseX + item.w / 2, item.baseY - item.range);
+      ctx.lineTo(item.baseX + item.w / 2, item.baseY + item.range + item.h);
+    } else {
+      ctx.moveTo(item.baseX - item.range, y + item.h + 12);
+      ctx.lineTo(item.baseX + item.range, y + item.h + 12);
+    }
     ctx.stroke();
     ctx.setLineDash([]);
   }
+  ctx.restore();
+}
+
+function drawLaunchPad(pad) {
+  const pulse = 1 + Math.sin(visualTime * 5) * 0.05;
+  const centerX = pad.x + pad.w / 2;
+  ctx.save();
+  ctx.translate(centerX, pad.y);
+  const glow = ctx.createRadialGradient(0, -8, 2, 0, -8, pad.w * 0.9);
+  glow.addColorStop(0, "rgba(255,241,184,0.52)");
+  glow.addColorStop(0.45, "rgba(255,143,168,0.18)");
+  glow.addColorStop(1, "rgba(255,143,168,0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, -8, pad.w * 0.9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#6e6043";
+  roundedRectPath(ctx, -10, -5, 20, 13, 5);
+  ctx.fill();
+  ctx.save();
+  ctx.scale(pulse, pulse);
+  ctx.fillStyle = "#ff9a83";
+  ctx.beginPath();
+  ctx.ellipse(0, -7, pad.w / 2, 11, 0, Math.PI, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,241,184,0.78)";
+  for (let index = 0; index < 2; index += 1) {
+    const offsetY = -9 + index * 5;
+    ctx.beginPath();
+    ctx.moveTo(-7, offsetY + 3);
+    ctx.lineTo(0, offsetY - 2);
+    ctx.lineTo(7, offsetY + 3);
+    ctx.strokeStyle = "rgba(255,241,184,0.78)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+  ctx.restore();
   ctx.restore();
 }
 
@@ -1658,10 +1784,10 @@ function drawDoor(x, type) {
   }
 
   ctx.fillStyle = open ? "#ffffff" : "rgba(255,255,255,0.72)";
-  ctx.font = '800 14px "Baloo 2", sans-serif';
+  ctx.font = '800 12px "Baloo 2", sans-serif';
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(type === "fire" ? "SB" : "SGM", x + width / 2, y + 67);
+  ctx.fillText(type === "fire" ? "RED" : "BLUE", x + width / 2, y + 67);
   ctx.restore();
 }
 
@@ -1874,6 +2000,11 @@ function frame(timestamp) {
 }
 
 $("start-button").addEventListener("click", startAdventure);
+document.querySelectorAll('input[name="character-colour"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    if (input.checked) setIdentity(input.value);
+  });
+});
 $("next-button").addEventListener("click", () => {
   loadLevel(levelIndex + 1);
   setState("playing");
@@ -1900,9 +2031,12 @@ window.addEventListener("blur", () => {
   if (state === "playing") pauseGame();
 });
 window.addEventListener("pagehide", stopCelebrationSong);
+window.addEventListener("resize", resizeCanvas);
+window.visualViewport?.addEventListener("resize", resizeCanvas);
 bindTouchControls();
 
 setSoundEnabled(soundEnabled);
+setIdentity(identityType, false);
 if (finalPreview) {
   showFinalPreview();
 } else {
