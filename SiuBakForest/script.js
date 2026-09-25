@@ -16,6 +16,11 @@ const CONFIG = {
   }
 };
 
+const CHARACTER_ASSETS = Object.freeze({
+  "Siu Bak": "assets/SiuBak.png",
+  "Siu Gai Mo": "assets/SiuGaiMo.png"
+});
+
 const platform = (x, y, w, h = 22, kind = "stone") => ({ x, y, w, h, kind });
 const pool = (x, w, type) => ({ x, y: 642, w, h: 48, type });
 const moving = (x, y, w, h, axis, range, speed, phase) => ({ x, y, baseX: x, baseY: y, w, h, axis, range, speed, phase, dx: 0, dy: 0, kind: "moving" });
@@ -379,6 +384,14 @@ const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = (id) => document.getElementById(id);
 const canvas = $("game");
 const ctx = canvas.getContext("2d");
+const characterImages = Object.fromEntries(
+  Object.entries(CHARACTER_ASSETS).map(([name, source]) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = source;
+    return [name, image];
+  })
+);
 const screens = {
   intro: $("intro-screen"),
   pause: $("pause-screen"),
@@ -407,6 +420,14 @@ function resizeCanvas() {
 }
 
 resizeCanvas();
+
+function getCharacterAsset(name) {
+  return CHARACTER_ASSETS[name] || CHARACTER_ASSETS["Siu Bak"];
+}
+
+function getCharacterImage(name) {
+  return characterImages[name] || null;
+}
 
 let state = "intro";
 let levelIndex = 0;
@@ -636,6 +657,8 @@ function setIdentity(nextType, persist = true) {
 
   $("fire-hero-name").textContent = CONFIG.characters.fire;
   $("water-hero-name").textContent = CONFIG.characters.water;
+  $("fire-hero-asset").src = getCharacterAsset(CONFIG.characters.fire);
+  $("water-hero-asset").src = getCharacterAsset(CONFIG.characters.water);
   $("fire-rule-name").textContent = CONFIG.characters.fire;
   $("water-rule-name").textContent = CONFIG.characters.water;
   $("fire-key-name").textContent = CONFIG.characters.fire;
@@ -2295,99 +2318,113 @@ function drawPlayer(player) {
   ctx.ellipse(centerX, player.y + player.h + 4, 19, 5, 0, 0, Math.PI * 2);
   ctx.fill();
 
+  const characterImage = getCharacterImage(player.name);
+  const hasCharacterImage = Boolean(characterImage && characterImage.complete && characterImage.naturalWidth > 0);
+  const spriteHeight = 72;
+  const labelY = hasCharacterImage ? -91 : -76;
+  const readyY = hasCharacterImage ? -105 : -89;
+
   ctx.save();
   ctx.translate(centerX, bottom);
   ctx.scale(player.facing, 1);
 
-  ctx.strokeStyle = isFire ? "#a73827" : "#187c98";
-  ctx.lineWidth = 6;
-  ctx.lineCap = "round";
-  const step = player.grounded ? Math.sin(player.animation) * 4 : 2;
-  ctx.beginPath();
-  ctx.moveTo(-8, -8);
-  ctx.lineTo(-12, 0);
-  ctx.lineTo(-15 + step, 1);
-  ctx.moveTo(8, -8);
-  ctx.lineTo(12, 0);
-  ctx.lineTo(15 - step, 1);
-  ctx.stroke();
-
-  ctx.strokeStyle = isFire ? "#c84a2c" : "#259bb7";
-  ctx.beginPath();
-  ctx.moveTo(-9, -31);
-  ctx.lineTo(-18, -22);
-  ctx.moveTo(9, -31);
-  ctx.lineTo(18, -22);
-  ctx.stroke();
-
-  const bodyGradient = ctx.createLinearGradient(-17, -PLAYER_HEIGHT, 17, 0);
-  bodyGradient.addColorStop(0, light);
-  bodyGradient.addColorStop(0.48, body);
-  bodyGradient.addColorStop(1, isFire ? "#b83527" : "#147c9d");
-  ctx.fillStyle = bodyGradient;
-  ctx.beginPath();
-  ctx.moveTo(0, -PLAYER_HEIGHT);
-  ctx.bezierCurveTo(12, -PLAYER_HEIGHT + 3, 18, -37, 18, -23);
-  ctx.bezierCurveTo(19, -10, 13, 0, 0, 0);
-  ctx.bezierCurveTo(-13, 0, -19, -10, -18, -23);
-  ctx.bezierCurveTo(-18, -37, -12, -PLAYER_HEIGHT + 3, 0, -PLAYER_HEIGHT);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.beginPath();
-  ctx.ellipse(-7, -35, 4, 8, -0.4, 0, Math.PI * 2);
-  ctx.fill();
-
-  if (isFire) {
-    ctx.fillStyle = COLORS.fireLight;
-    ctx.beginPath();
-    ctx.moveTo(-12, -44);
-    ctx.quadraticCurveTo(-17, -54, -9, -60);
-    ctx.quadraticCurveTo(-8, -51, 0, -55);
-    ctx.quadraticCurveTo(1, -64, 7, -68);
-    ctx.quadraticCurveTo(5, -56, 14, -52);
-    ctx.quadraticCurveTo(8, -47, 9, -43);
-    ctx.closePath();
-    ctx.fill();
+  if (hasCharacterImage) {
+    const spriteWidth = spriteHeight * characterImage.naturalWidth / characterImage.naturalHeight;
+    ctx.shadowColor = isFire ? "rgba(255, 107, 61, 0.32)" : "rgba(69, 200, 223, 0.32)";
+    ctx.shadowBlur = 12;
+    ctx.drawImage(characterImage, -spriteWidth / 2, -spriteHeight, spriteWidth, spriteHeight);
+    ctx.shadowBlur = 0;
   } else {
-    ctx.fillStyle = light;
+    ctx.strokeStyle = isFire ? "#a73827" : "#187c98";
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+    const step = player.grounded ? Math.sin(player.animation) * 4 : 2;
     ctx.beginPath();
-    ctx.moveTo(-13, -44);
-    ctx.quadraticCurveTo(-20, -53, -8, -58);
-    ctx.quadraticCurveTo(0, -65, 9, -57);
-    ctx.quadraticCurveTo(17, -52, 11, -45);
+    ctx.moveTo(-8, -8);
+    ctx.lineTo(-12, 0);
+    ctx.lineTo(-15 + step, 1);
+    ctx.moveTo(8, -8);
+    ctx.lineTo(12, 0);
+    ctx.lineTo(15 - step, 1);
+    ctx.stroke();
+
+    ctx.strokeStyle = isFire ? "#c84a2c" : "#259bb7";
+    ctx.beginPath();
+    ctx.moveTo(-9, -31);
+    ctx.lineTo(-18, -22);
+    ctx.moveTo(9, -31);
+    ctx.lineTo(18, -22);
+    ctx.stroke();
+
+    const bodyGradient = ctx.createLinearGradient(-17, -PLAYER_HEIGHT, 17, 0);
+    bodyGradient.addColorStop(0, light);
+    bodyGradient.addColorStop(0.48, body);
+    bodyGradient.addColorStop(1, isFire ? "#b83527" : "#147c9d");
+    ctx.fillStyle = bodyGradient;
+    ctx.beginPath();
+    ctx.moveTo(0, -PLAYER_HEIGHT);
+    ctx.bezierCurveTo(12, -PLAYER_HEIGHT + 3, 18, -37, 18, -23);
+    ctx.bezierCurveTo(19, -10, 13, 0, 0, 0);
+    ctx.bezierCurveTo(-13, 0, -19, -10, -18, -23);
+    ctx.bezierCurveTo(-18, -37, -12, -PLAYER_HEIGHT + 3, 0, -PLAYER_HEIGHT);
     ctx.closePath();
     ctx.fill();
-  }
 
-  ctx.fillStyle = "#fff9e8";
-  ctx.beginPath();
-  ctx.ellipse(0, -27, 12, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#18302d";
-  ctx.beginPath();
-  ctx.arc(-4.5, -28, 1.5, 0, Math.PI * 2);
-  ctx.arc(4.5, -28, 1.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#a3474a";
-  ctx.lineWidth = 1.3;
-  ctx.beginPath();
-  ctx.arc(0, -24.5, 3, 0.12, Math.PI - 0.12);
-  ctx.stroke();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.beginPath();
+    ctx.ellipse(-7, -35, 4, 8, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (isFire) {
+      ctx.fillStyle = COLORS.fireLight;
+      ctx.beginPath();
+      ctx.moveTo(-12, -44);
+      ctx.quadraticCurveTo(-17, -54, -9, -60);
+      ctx.quadraticCurveTo(-8, -51, 0, -55);
+      ctx.quadraticCurveTo(1, -64, 7, -68);
+      ctx.quadraticCurveTo(5, -56, 14, -52);
+      ctx.quadraticCurveTo(8, -47, 9, -43);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.fillStyle = light;
+      ctx.beginPath();
+      ctx.moveTo(-13, -44);
+      ctx.quadraticCurveTo(-20, -53, -8, -58);
+      ctx.quadraticCurveTo(0, -65, 9, -57);
+      ctx.quadraticCurveTo(17, -52, 11, -45);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.fillStyle = "#fff9e8";
+    ctx.beginPath();
+    ctx.ellipse(0, -27, 12, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#18302d";
+    ctx.beginPath();
+    ctx.arc(-4.5, -28, 1.5, 0, Math.PI * 2);
+    ctx.arc(4.5, -28, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#a3474a";
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.arc(0, -24.5, 3, 0.12, Math.PI - 0.12);
+    ctx.stroke();
+  }
 
   ctx.scale(player.facing, 1);
   ctx.textAlign = "center";
   ctx.font = '800 9px "Baloo 2", sans-serif';
   ctx.lineWidth = 3;
   ctx.strokeStyle = "rgba(3,18,16,0.9)";
-  ctx.strokeText(player.name, 0, -76);
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(player.name, 0, -76);
+  ctx.strokeText(player.name, 0, labelY);
+  ctx.fillStyle = isFire ? COLORS.fire : COLORS.water;
+  ctx.fillText(player.name, 0, labelY);
   if (player.collected >= CONFIG.requiredGems) {
     ctx.fillStyle = isFire ? COLORS.fireLight : COLORS.waterLight;
     ctx.font = '800 9px "Baloo 2", sans-serif';
-    ctx.fillText("READY", 0, -89);
+    ctx.fillText("READY", 0, readyY);
   }
   ctx.restore();
   ctx.restore();

@@ -553,31 +553,22 @@ body[data-state="final"] .hud {
   text-align: left;
 }
 
-.hero-player__shape {
+.hero-player__portrait {
   display: block;
-  width: 1.8rem;
-  height: 2.3rem;
+  width: 2.4rem;
+  height: 3.3rem;
   flex: 0 0 auto;
-  border-radius: 70% 35% 60% 45%;
-  box-shadow: inset 0.5rem 0.45rem 0 rgba(255, 255, 255, 0.28), 0 0 20px currentColor;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 0.35rem 0.55rem rgba(0, 0, 0, 0.3));
 }
 
 .hero-player--fire {
   color: var(--fire);
 }
 
-.hero-player--fire .hero-player__shape {
-  background: linear-gradient(145deg, var(--fire-light), var(--fire));
-  transform: rotate(35deg);
-}
-
 .hero-player--water {
   color: var(--water);
-}
-
-.hero-player--water .hero-player__shape {
-  background: linear-gradient(145deg, var(--water-light), var(--water));
-  transform: rotate(-35deg);
 }
 
 .hero-player strong,
@@ -1523,7 +1514,7 @@ kbd {
     padding: 0.85rem 1rem;
   }
 
-  .hero-player__shape {
+  .hero-player__portrait {
     width: 2.2rem;
     height: 2.8rem;
   }
