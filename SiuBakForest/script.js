@@ -64,7 +64,7 @@ const LEVELS = [
       wish(940, 494),
       secretWish(515, 270)
     ],
-    checkpoints: [checkpoint(920, 520)],
+    checkpoints: [checkpoint(720, 465)],
     secretRoutes: [
       platform(330, 390, 100, 20, "secret-root"),
       platform(465, 315, 100, 20, "secret-root")
@@ -109,7 +109,7 @@ const LEVELS = [
       wish(1070, 474),
       secretWish(770, 165)
     ],
-    checkpoints: [checkpoint(1050, 500)],
+    checkpoints: [checkpoint(540, 385)],
     secretRoutes: [
       platform(520, 270, 100, 20, "secret-root"),
       platform(690, 210, 100, 20, "secret-root"),
@@ -157,7 +157,7 @@ const LEVELS = [
       wish(1080, 470),
       secretWish(585, 215)
     ],
-    checkpoints: [checkpoint(1060, 500)],
+    checkpoints: [checkpoint(780, 390)],
     secretRoutes: [
       platform(420, 340, 100, 20, "secret-root"),
       platform(570, 260, 100, 20, "secret-root"),
@@ -206,7 +206,7 @@ const LEVELS = [
       wish(1085, 400),
       secretWish(450, 230)
     ],
-    checkpoints: [checkpoint(1050, 450)],
+    checkpoints: [checkpoint(650, 455)],
     secretRoutes: [
       platform(300, 360, 100, 20, "secret-root"),
       platform(450, 280, 100, 20, "secret-root"),
@@ -262,7 +262,7 @@ const LEVELS = [
       wish(1115, 410),
       secretWish(780, 145)
     ],
-    checkpoints: [checkpoint(1070, 450)],
+    checkpoints: [checkpoint(670, 430)],
     secretRoutes: [
       platform(600, 280, 100, 20, "secret-root"),
       platform(760, 200, 100, 20, "secret-root"),
@@ -314,7 +314,7 @@ const SECRET_LEVEL = {
     { x: 940, y: 529, type: "water" }
   ],
   wishes: [],
-  checkpoints: [checkpoint(950, 555)],
+  checkpoints: [checkpoint(740, 465)],
   secretRoutes: [],
   moving: [
     moving(640, 350, 100, 20, "x", 70, 0.9, 0.2)
