@@ -7,6 +7,7 @@ const CONFIG = {
   identityKey: "siuBakForestIdentity",
   calmKey: "siuBakForestCalm",
   recordsKey: "siuBakForestRecords",
+  secretKey: "siuBakForestSecretCleared",
   wishKey: "siuBakForestWishes",
   celebrationVolume: 0.24,
   characters: {
@@ -24,6 +25,7 @@ const saw = (x, y, range, speed, phase, r = 22) => ({ x, y, baseX: x, range, spe
 const spikes = (x, y, w, h = 32) => ({ x, y, w, h });
 const checkpoint = (x, y) => ({ x, y, active: false });
 const wish = (x, y) => ({ x, y, taken: false });
+const secretWish = (x, y) => ({ x, y, taken: false, secret: true });
 
 const LEVELS = [
   {
@@ -59,9 +61,14 @@ const LEVELS = [
     wishes: [
       wish(435, 440),
       wish(700, 439),
-      wish(940, 494)
+      wish(940, 494),
+      secretWish(515, 270)
     ],
     checkpoints: [checkpoint(920, 520)],
+    secretRoutes: [
+      platform(330, 390, 100, 20, "secret-root"),
+      platform(465, 315, 100, 20, "secret-root")
+    ],
     moving: [],
     launchPads: [],
     spikes: [],
@@ -99,9 +106,15 @@ const LEVELS = [
     wishes: [
       wish(390, 439),
       wish(540, 359),
-      wish(1070, 474)
+      wish(1070, 474),
+      secretWish(770, 165)
     ],
     checkpoints: [checkpoint(1050, 500)],
+    secretRoutes: [
+      platform(520, 270, 100, 20, "secret-root"),
+      platform(690, 210, 100, 20, "secret-root"),
+      platform(850, 280, 100, 20, "secret-root")
+    ],
     moving: [
       moving(665, 385, 120, 20, "x", 85, 0.72, 3.1)
     ],
@@ -141,9 +154,15 @@ const LEVELS = [
     wishes: [
       wish(420, 430),
       wish(805, 350),
-      wish(1080, 470)
+      wish(1080, 470),
+      secretWish(585, 215)
     ],
     checkpoints: [checkpoint(1060, 500)],
+    secretRoutes: [
+      platform(420, 340, 100, 20, "secret-root"),
+      platform(570, 260, 100, 20, "secret-root"),
+      platform(700, 340, 100, 20, "secret-root")
+    ],
     moving: [
       moving(520, 500, 120, 20, "y", 80, 0.78, 0.3)
     ],
@@ -184,9 +203,15 @@ const LEVELS = [
     wishes: [
       wish(260, 500),
       wish(815, 190),
-      wish(1085, 400)
+      wish(1085, 400),
+      secretWish(450, 230)
     ],
     checkpoints: [checkpoint(1050, 450)],
+    secretRoutes: [
+      platform(300, 360, 100, 20, "secret-root"),
+      platform(450, 280, 100, 20, "secret-root"),
+      platform(610, 350, 100, 20, "secret-root")
+    ],
     moving: [
       moving(380, 500, 110, 20, "x", 80, 0.95, 4.3),
       moving(850, 330, 100, 20, "y", 80, 0.78, 0.82)
@@ -234,9 +259,15 @@ const LEVELS = [
     wishes: [
       wish(260, 500),
       wish(810, 180),
-      wish(1115, 410)
+      wish(1115, 410),
+      secretWish(780, 145)
     ],
     checkpoints: [checkpoint(1070, 450)],
+    secretRoutes: [
+      platform(600, 280, 100, 20, "secret-root"),
+      platform(760, 200, 100, 20, "secret-root"),
+      platform(900, 300, 100, 20, "secret-root")
+    ],
     moving: [
       moving(395, 500, 110, 20, "x", 85, 1, 4.21),
       moving(930, 285, 100, 20, "y", 100, 0.75, 1.04)
@@ -252,27 +283,78 @@ const LEVELS = [
   }
 ];
 
+const SECRET_LEVEL = {
+  name: "Moonlit Observatory",
+  subtitle: "The path behind the stars",
+  skyTop: "#11132f",
+  skyBottom: "#3a2850",
+  accent: "#e2c4ff",
+  platforms: [
+    platform(180, 555, 90, 95, "secret-pier"),
+    platform(330, 465, 100, 185, "secret-pier"),
+    platform(500, 375, 100, 275, "secret-pier"),
+    platform(700, 465, 100, 185, "secret-pier"),
+    platform(880, 555, 140, 95, "secret-pier"),
+    platform(790, 300, 100, 20, "secret-deck")
+  ],
+  pools: [
+    pool(250, 150, "fire"),
+    pool(430, 140, "water"),
+    pool(610, 150, "fire"),
+    pool(820, 130, "water")
+  ],
+  gems: [
+    { x: 235, y: 529, type: "fire" },
+    { x: 385, y: 439, type: "fire" },
+    { x: 555, y: 349, type: "fire" },
+    { x: 835, y: 274, type: "fire" },
+    { x: 280, y: 529, type: "water" },
+    { x: 435, y: 439, type: "water" },
+    { x: 605, y: 349, type: "water" },
+    { x: 940, y: 529, type: "water" }
+  ],
+  wishes: [],
+  checkpoints: [checkpoint(950, 555)],
+  secretRoutes: [],
+  moving: [
+    moving(640, 350, 100, 20, "x", 70, 0.9, 0.2)
+  ],
+  launchPads: [
+    launchPad(880, 555, 56, 980)
+  ],
+  heartGate: null,
+  spikes: [],
+  saws: [
+    saw(755, 280, 45, 0.8, 1.3, 18)
+  ]
+};
+
 const VALID_WISH_IDS = new Set(
   LEVELS.flatMap((level, levelIndex) => level.wishes.map((_, wishIndex) => `${levelIndex + 1}-${wishIndex + 1}`))
 );
 
-const MEMORIES = [
-  { title: "The first hello", text: "A first hello became my favourite beginning." },
-  { title: "Your kind of happy", text: "Your laugh makes ordinary days brighter." },
-  { title: "A soft place", text: "I still feel lucky that I found you." },
-  { title: "Mayday with you", text: "Three songs, one very good company." },
-  { title: "Our first trip", text: "Even the journey felt like a date with you." },
-  { title: "Little adventures", text: "You make every small plan feel like an occasion." },
-  { title: "Officially us", text: "The moment I asked you to be mine." },
-  { title: "Fireworks in Japan", text: "The fireworks were beautiful, but you beside me were the best part." },
-  { title: "Life, your way", text: "I love how fully you throw yourself into life." },
-  { title: "Growing softer", text: "Thank you for letting me see your softer side." },
-  { title: "A shared rhythm", text: "We found a way to make ordinary Tuesdays feel special." },
-  { title: "Together, moving", text: "Every new place feels better when I get to explore it with you." },
-  { title: "The next chapter", text: "I hope this year loves you back as much as you love everyone around you." },
-  { title: "Little sparks", text: "The small surprises you bring are some of my favourite parts." },
-  { title: "Forever yours", text: "I am still excited for every ordinary day with you." }
-];
+const MEMORIES = {
+  "1-1": { title: "The first hello", text: "A first hello became my favourite beginning." },
+  "1-2": { title: "Your kind of happy", text: "Your laugh makes ordinary days brighter." },
+  "1-3": { title: "A soft place", text: "I still feel lucky that I found you." },
+  "1-4": { title: "A secret above the ferns", text: "The best moments are the ones we almost missed." },
+  "2-1": { title: "Mayday with you", text: "Three songs, one very good company." },
+  "2-2": { title: "Our first trip", text: "Even the journey felt like a date with you." },
+  "2-3": { title: "Little adventures", text: "You make every small plan feel like an occasion." },
+  "2-4": { title: "The secret way home", text: "I would happily take the long way with you." },
+  "3-1": { title: "Officially us", text: "The moment I asked you to be mine." },
+  "3-2": { title: "Fireworks in Japan", text: "The fireworks were beautiful, but you beside me were the best part." },
+  "3-3": { title: "Life, your way", text: "I love how fully you throw yourself into life." },
+  "3-4": { title: "Growing softer", text: "Thank you for letting me see your softer side." },
+  "4-1": { title: "A shared rhythm", text: "We found a way to make ordinary Tuesdays feel special." },
+  "4-2": { title: "Together, moving", text: "Every new place feels better when I get to explore it with you." },
+  "4-3": { title: "The next chapter", text: "I hope this year loves you back as much as you love everyone around you." },
+  "4-4": { title: "Little sparks", text: "The small surprises you bring are some of my favourite parts." },
+  "5-1": { title: "The hidden heart", text: "Some things are worth taking the higher path for." },
+  "5-2": { title: "A view for two", text: "I would choose the scenic route with you every time." },
+  "5-3": { title: "Almost missed", text: "The memories we almost skipped are often the ones we keep." },
+  "5-4": { title: "Forever yours", text: "I am still excited for every ordinary day with you." }
+};
 
 const COLORS = {
   paper: "#fff1b8",
@@ -333,9 +415,10 @@ let players = [];
 let particles = [];
 let completedLevels = clamp(Math.floor(readNumber(CONFIG.progressKey, 0)), 0, LEVELS.length);
 let collectedWishKeys = new Set(readStringArray(CONFIG.wishKey).filter((key) => VALID_WISH_IDS.has(key)));
-let totalFireflies = Math.min(collectedWishKeys.size, LEVELS.length * 3);
+let totalFireflies = Math.min(collectedWishKeys.size, LEVELS.length * 4);
 let soundEnabled = readBoolean(CONFIG.soundKey, true);
 let calmMode = readBoolean(CONFIG.calmKey, false);
+let secretCleared = readBoolean(CONFIG.secretKey, false);
 let records = readRecords(CONFIG.recordsKey);
 const savedIdentity = readString(CONFIG.identityKey, "fire");
 let identityType = ["fire", "water"].includes(savedIdentity) ? savedIdentity : "fire";
@@ -354,14 +437,20 @@ let audioContext = null;
 let activePointerInputs = new Map();
 
 const query = new URLSearchParams(window.location.search);
+// Debug access: use ?secret=1, ?level=secret, or ?level=6 to jump straight to the observatory.
 const skipValue = (query.get("skip") || query.get("final") || "").toLowerCase();
-const levelValue = query.get("level") || (/^\d+$/.test(query.get("skip") || "") ? query.get("skip") : null);
-const parsedLevel = Number(levelValue);
-const hasRequestedLevel = levelValue !== null && Number.isFinite(parsedLevel);
+const rawLevelValue = query.get("level") || (/^\d+$/.test(query.get("skip") || "") ? query.get("skip") : null);
+const levelOption = (rawLevelValue || "").trim().toLowerCase();
+const secretOption = (query.get("secret") || "").trim().toLowerCase();
+const secretLevelRequested = ["1", "true", "yes", "secret", "moonlit", "observatory"].includes(secretOption)
+  || ["secret", "6", "moonlit", "observatory"].includes(levelOption);
+const numericLevelValue = /^\d+$/.test(rawLevelValue || "") ? rawLevelValue : null;
+const parsedLevel = Number(numericLevelValue);
+const hasRequestedLevel = !secretLevelRequested && numericLevelValue !== null && Number.isFinite(parsedLevel);
 const requestedLevel = clamp(Math.round(parsedLevel || 1) - 1, 0, LEVELS.length - 1);
-const finalPreview = ["1", "true", "yes", "final"].includes(skipValue);
+const finalPreview = !secretLevelRequested && ["1", "true", "yes", "final"].includes(skipValue);
 const fireflyPreview = query.has("fireflies")
-  ? clamp(Math.round(Number(query.get("fireflies")) || 0), 0, LEVELS.length * 3)
+  ? clamp(Math.round(Number(query.get("fireflies")) || 0), 0, LEVELS.length * 4)
   : null;
 
 const keys = new Set();
@@ -576,8 +665,10 @@ function setCalmMode(enabled) {
 }
 
 function loadLevel(index) {
-  levelIndex = index;
-  level = JSON.parse(JSON.stringify(LEVELS[index]));
+  const secret = index >= LEVELS.length;
+  levelIndex = secret ? LEVELS.length : index;
+  level = JSON.parse(JSON.stringify(secret ? SECRET_LEVEL : LEVELS[index]));
+  level.secret = secret;
   level.ground = {
     id: "ground",
     x: 0,
@@ -593,6 +684,8 @@ function loadLevel(index) {
   level.wishes = level.wishes || [];
   level.checkpoints = level.checkpoints || [];
   level.launchPads = level.launchPads || [];
+  level.secretRoutes = level.secretRoutes || [];
+  level.platforms.push(...level.secretRoutes);
   level.heartGate = level.heartGate || null;
   if (level.heartGate) {
     level.heartGate.open = false;
@@ -602,7 +695,7 @@ function loadLevel(index) {
   level.syncCount = 0;
   level.lastGemPickup = null;
   level.wishes.forEach((item, wishIndex) => {
-    const memory = MEMORIES[levelIndex * 3 + wishIndex];
+    const memory = MEMORIES[`${levelIndex + 1}-${wishIndex + 1}`];
     item.title = memory?.title || "A little memory";
     item.text = memory?.text || "A small moment worth keeping.";
     item.taken = false;
@@ -799,12 +892,12 @@ function collectWish(player) {
   level.wishes.forEach((memory, memoryIndex) => {
     if (memory.taken || Math.hypot(centerX - memory.x, centerY - memory.y) > 31) return;
     memory.taken = true;
-    level.fireflies = Math.min(3, level.fireflies + 1);
+    level.fireflies = Math.min(level.wishes.length, level.fireflies + 1);
     const wishKey = `${levelIndex + 1}-${memoryIndex + 1}`;
     const isNew = !collectedWishKeys.has(wishKey);
     if (isNew) {
       collectedWishKeys.add(wishKey);
-      totalFireflies = Math.min(LEVELS.length * 3, collectedWishKeys.size);
+      totalFireflies = Math.min(LEVELS.length * 4, collectedWishKeys.size);
       saveStringArray(CONFIG.wishKey, collectedWishKeys);
     }
     spawnBurst(memory.x, memory.y, COLORS.paper, isNew ? 24 : 12, isNew ? 190 : 110, "spark");
@@ -813,8 +906,8 @@ function collectWish(player) {
     playTone(isNew ? 1320 : 790, "sine", 0.18, 0.025, isNew ? 1760 : 990, 0.09);
     updateInterface();
     showToast(
-      level.fireflies === 3
-        ? "All three memories are glowing"
+      level.fireflies === level.wishes.length
+        ? "All four memories are glowing"
         : isNew
           ? `${memory.title} · memory found`
           : `${memory.title} · already glowing`,
@@ -1021,25 +1114,29 @@ function updateFinalCard(preview = false, count = totalFireflies) {
   $("final-context").textContent = preview
     ? "Final message preview · progress unchanged"
     : "You found the forest's little secret";
-  if (count >= LEVELS.length * 3) {
+  if (count >= LEVELS.length * 4) {
     $("final-firefly-copy").textContent = "You found every little firefly. That is every memory, glowing all at once.";
-  } else if (count >= 10) {
+  } else if (count >= 16) {
     $("final-firefly-copy").textContent = "So many memories found. The forest is practically glowing with us.";
   } else if (count === 0) {
     $("final-firefly-copy").textContent = "Even without every firefly, you still reached the heart of the forest.";
   } else {
     $("final-firefly-copy").textContent = "Each firefly is one small memory from our story. A few are still hiding among the trees.";
   }
+  updateSecretLevelButton();
 }
 
 function renderMemoryJournal() {
   const entries = LEVELS.flatMap((level, levelIndex) => level.wishes.map((_, wishIndex) => {
     const id = `${levelIndex + 1}-${wishIndex + 1}`;
-    const memory = MEMORIES[levelIndex * 3 + wishIndex];
-    const unlocked = collectedWishKeys.has(id);
-    return `<article class="memory-note${unlocked ? "" : " is-locked"}"><span class="memory-note__index">${String(levelIndex * 3 + wishIndex + 1).padStart(2, "0")}</span><div><h3>${unlocked ? memory.title : "A memory still hidden"}</h3><p>${unlocked ? memory.text : "Keep exploring the forest to find this little spark."}</p></div><span class="memory-note__status">${unlocked ? "Found" : "Hidden"}</span></article>`;
+    const memory = MEMORIES[`${levelIndex + 1}-${wishIndex + 1}`];
+    const globalIndex = levelIndex * 4 + wishIndex;
+    const previewUnlocked = finalPreview && fireflyPreview !== null && globalIndex < fireflyPreview;
+    const unlocked = collectedWishKeys.has(id) || previewUnlocked;
+    return `<article class="memory-note${unlocked ? "" : " is-locked"}"><span class="memory-note__index">${String(globalIndex + 1).padStart(2, "0")}</span><div><h3>${unlocked ? memory.title : "A memory still hidden"}</h3><p>${unlocked ? memory.text : "Keep exploring the forest to find this little spark."}</p></div><span class="memory-note__status">${unlocked ? (level.wishes[wishIndex].secret ? "Secret found" : "Found") : "Hidden"}</span></article>`;
   }));
-  $("memory-summary").textContent = `${collectedWishKeys.size} / ${LEVELS.length * 3} memories found`;
+  const previewCount = finalPreview && fireflyPreview !== null ? fireflyPreview : 0;
+  $("memory-summary").textContent = `${Math.max(collectedWishKeys.size, previewCount)} / ${LEVELS.length * 4} memories found`;
   $("memory-list").innerHTML = entries.join("");
 }
 
@@ -1050,6 +1147,34 @@ function openMemoryJournal() {
 
 function closeMemoryJournal() {
   setState("final");
+}
+
+function hasAllSecretMemories() {
+  const previewUnlocked = finalPreview && fireflyPreview !== null && fireflyPreview >= LEVELS.length * 4;
+  return previewUnlocked || Array.from({ length: LEVELS.length }, (_, index) => collectedWishKeys.has(`${index + 1}-4`)).every(Boolean);
+}
+
+function updateSecretLevelButton() {
+  const unlocked = hasAllSecretMemories();
+  const button = $("secret-level-button");
+  const hint = $("secret-hint");
+  button.hidden = !unlocked;
+  hint.hidden = unlocked;
+  $("secret-level-label").textContent = secretCleared ? "Replay the secret level" : "Enter the secret level";
+}
+
+function enterSecretLevel({ debug = false } = {}) {
+  if (!debug && !hasAllSecretMemories()) {
+    showToast("Find all five hidden fireflies first", 1900);
+    return;
+  }
+  loadLevel(LEVELS.length);
+  setState("playing");
+  showToast(debug ? "Debug mode · Moonlit Observatory" : "Secret level found · reach the observatory doors", 2300);
+}
+
+function showSecretLevel() {
+  enterSecretLevel();
 }
 
 function showFinalPreview(preview = true) {
@@ -1096,7 +1221,8 @@ function updateRecord(index, elapsedSeconds, retries, fireflies, syncCount) {
 
 function renderClearBadges(elapsed, retries) {
   const badges = ["Trailblazer"];
-  if (level.fireflies === 3) badges.push("Memory Keeper");
+  if (level.fireflies === level.wishes.length) badges.push("Memory Keeper");
+  if (level.wishes.some((memory) => memory.secret && memory.taken)) badges.push("Secret Finder");
   if (retries === 0) badges.push("Perfect Pair");
   if (elapsed <= 75) badges.push("Quick Step");
   if (level.syncCount >= 2) badges.push("Sync Spark");
@@ -1106,6 +1232,16 @@ function renderClearBadges(elapsed, retries) {
 function finishLevel() {
   if (state !== "playing") return;
   playFinishSound();
+  if (level.secret) {
+    secretCleared = true;
+    saveValue(CONFIG.secretKey, true);
+    updateFinalCard(false, totalFireflies);
+    $("final-context").textContent = "Secret level cleared · you found the path behind the stars";
+    stopCelebrationSong();
+    spawnCelebration();
+    setState("final");
+    return;
+  }
   if (levelIndex === LEVELS.length - 1) {
     completedLevels = LEVELS.length;
     saveValue(CONFIG.progressKey, completedLevels);
@@ -1117,12 +1253,12 @@ function finishLevel() {
   }
   completedLevels = Math.max(completedLevels, levelIndex + 1);
   saveValue(CONFIG.progressKey, completedLevels);
-  const memoryLine = level.fireflies === 3
+  const memoryLine = level.fireflies === level.wishes.length
     ? "Every memory on this path is glowing."
-    : `${level.fireflies} of 3 memories found on this path.`;
+    : `${level.fireflies} of ${level.wishes.length} memories found on this path.`;
   const elapsedSeconds = (performance.now() - levelStartedAt) / 1000;
   const elapsed = formatDuration(elapsedSeconds);
-  $("clear-copy").textContent = `Both doors are open. ${memoryLine} ${totalFireflies} / ${LEVELS.length * 3} fireflies discovered.`;
+  $("clear-copy").textContent = `Both doors are open. ${memoryLine} ${totalFireflies} / ${LEVELS.length * 4} fireflies discovered.`;
   $("clear-stats").textContent = `Time ${elapsed} · ${levelResets} ${levelResets === 1 ? "retry" : "retries"} · ${level.syncCount} perfect pairs`;
   const record = updateRecord(levelIndex, elapsedSeconds, levelResets, level.fireflies, level.syncCount);
   $("clear-best").textContent = record.best
@@ -1136,7 +1272,8 @@ function finishLevel() {
 
 function updateInterface() {
   if (!level || !players.length) return;
-  $("level-kicker").textContent = `Forest ${String(levelIndex + 1).padStart(2, "0")} / ${String(LEVELS.length).padStart(2, "0")}`;
+  const secret = Boolean(level.secret);
+  $("level-kicker").textContent = secret ? "Secret 01 / 01" : `Forest ${String(levelIndex + 1).padStart(2, "0")} / ${String(LEVELS.length).padStart(2, "0")}`;
   $("level-name").textContent = level.name;
   $("fire-gems").textContent = String(players.find((player) => player.type === "fire").collected);
   $("water-gems").textContent = String(players.find((player) => player.type === "water").collected);
@@ -1144,10 +1281,12 @@ function updateInterface() {
   announceStatus(`${level.name}. Red ${players.find((player) => player.type === "fire").collected} of ${CONFIG.requiredGems}, blue ${players.find((player) => player.type === "water").collected} of ${CONFIG.requiredGems}.`);
   const steps = document.querySelectorAll(".journey__step");
   steps.forEach((step, index) => {
-    step.classList.toggle("is-active", index === levelIndex);
-    step.classList.toggle("is-complete", index < levelIndex || completedLevels >= LEVELS.length);
+    step.classList.toggle("is-active", !secret && index === levelIndex);
+    step.classList.toggle("is-complete", !secret && (index < levelIndex || completedLevels >= LEVELS.length));
   });
-  if (levelIndex === LEVELS.length - 1) {
+  if (secret) {
+    $("next-label").textContent = "Return to the secret";
+  } else if (levelIndex === LEVELS.length - 1) {
     $("next-label").textContent = "Open the heart of the forest";
   } else {
     $("next-label").textContent = "Follow the fireflies";
@@ -1181,6 +1320,10 @@ function setState(nextState) {
 
 function startAdventure() {
   initAudio();
+  if (secretLevelRequested) {
+    enterSecretLevel({ debug: true });
+    return;
+  }
   if (!hasRequestedLevel && completedLevels >= LEVELS.length) {
     showFinalPreview(false);
     return;
@@ -1676,6 +1819,10 @@ function drawPlatform(item) {
     gradient.addColorStop(0, "#6c684d");
     gradient.addColorStop(0.24, "#514e3d");
     gradient.addColorStop(1, "#302f28");
+  } else if (item.kind === "secret-root") {
+    gradient.addColorStop(0, "#716044");
+    gradient.addColorStop(0.28, "#4a4036");
+    gradient.addColorStop(1, "#272a28");
   } else {
     gradient.addColorStop(0, "#4b6650");
     gradient.addColorStop(0.28, "#32473a");
@@ -1686,7 +1833,11 @@ function drawPlatform(item) {
   ctx.fill();
   ctx.shadowColor = "transparent";
 
-  ctx.fillStyle = item.kind === "moving" ? "rgba(220, 196, 111, 0.42)" : "rgba(111, 182, 107, 0.72)";
+  ctx.fillStyle = item.kind === "moving"
+    ? "rgba(220, 196, 111, 0.42)"
+    : item.kind === "secret-root"
+      ? "rgba(255, 214, 121, 0.62)"
+      : "rgba(111, 182, 107, 0.72)";
   roundedRectPath(ctx, item.x + 2, y - 2, item.w - 4, 7, 4);
   ctx.fill();
 
@@ -2319,6 +2470,7 @@ $("sound-button").addEventListener("click", () => setSoundEnabled(!soundEnabled,
 $("fullscreen-button").addEventListener("click", toggleFullscreen);
 $("song-button").addEventListener("click", toggleCelebrationSong);
 $("memory-button").addEventListener("click", openMemoryJournal);
+$("secret-level-button").addEventListener("click", showSecretLevel);
 $("memory-close").addEventListener("click", closeMemoryJournal);
 $("replay-button").addEventListener("click", () => {
   stopCelebrationSong();
@@ -2348,7 +2500,9 @@ setSoundEnabled(soundEnabled);
 updateFullscreenButton();
 setCalmMode(calmMode);
 setIdentity(identityType, false);
-if (finalPreview) {
+if (secretLevelRequested) {
+  startAdventure();
+} else if (finalPreview) {
   showFinalPreview();
 } else {
   loadLevel(0);

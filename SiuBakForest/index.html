@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=17">
 </head>
 <body>
   <div class="game-shell" id="game-shell">
@@ -31,7 +31,7 @@
           <div class="memory-meter" aria-label="Memory fireflies collected">
             <span aria-hidden="true">✦</span>
             <strong id="firefly-count">0</strong>
-            <small>/ 3</small>
+            <small>/ 4</small>
           </div>
         </div>
 
@@ -157,15 +157,17 @@
           <div class="memory-tally" aria-live="polite">
             <span class="memory-tally__mark" aria-hidden="true">✦</span>
             <div>
-              <strong><span id="final-firefly-count">0</span> / 15 fireflies found</strong>
+              <strong><span id="final-firefly-count">0</span> / 20 fireflies found</strong>
               <small id="final-firefly-copy">Every firefly is one small memory from our story.</small>
             </div>
           </div>
           <blockquote>To my dearest Siu Bak,<br>May this year love you back as much as you love everyone around you.</blockquote>
           <p class="final-card__sign">Forever yours,<br>Siu Gai Mo</p>
+          <p class="secret-hint" id="secret-hint">Find all five hidden fireflies to reveal one more path.</p>
           <div class="final-card__actions">
             <button class="primary-button primary-button--rose" id="song-button" type="button" aria-pressed="false"><span id="song-label">Play our song</span> <span aria-hidden="true">♪</span></button>
             <button class="text-button text-button--light" id="memory-button" type="button">Open memory notes</button>
+            <button class="primary-button primary-button--secret" id="secret-level-button" type="button" hidden><span id="secret-level-label">Enter the secret level</span> <span aria-hidden="true">✦</span></button>
             <button class="text-button text-button--light" id="replay-button" type="button">Play the quest again</button>
             <a class="final-card__link" href="../SiuBakChar/">Open your birthday scrapbook <span aria-hidden="true">→</span></a>
           </div>
@@ -182,7 +184,7 @@
             </div>
             <button class="icon-button" id="memory-close" type="button" aria-label="Close memory notes">×</button>
           </div>
-          <p class="memory-card__summary" id="memory-summary">0 / 15 memories found</p>
+          <p class="memory-card__summary" id="memory-summary">0 / 20 memories found</p>
           <div class="memory-list" id="memory-list"></div>
         </div>
       </section>
@@ -210,6 +212,6 @@
     </footer>
   </div>
 
-  <script src="script.js?v=19"></script>
+  <script src="script.js?v=27"></script>
 </body>
 </html>
