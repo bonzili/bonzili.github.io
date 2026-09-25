@@ -5,6 +5,8 @@ const CONFIG = {
   progressKey: "siuBakForestProgress",
   soundKey: "siuBakForestSound",
   identityKey: "siuBakForestIdentity",
+  calmKey: "siuBakForestCalm",
+  recordsKey: "siuBakForestRecords",
   wishKey: "siuBakForestWishes",
   celebrationVolume: 0.24,
   characters: {
@@ -17,6 +19,7 @@ const platform = (x, y, w, h = 22, kind = "stone") => ({ x, y, w, h, kind });
 const pool = (x, w, type) => ({ x, y: 642, w, h: 48, type });
 const moving = (x, y, w, h, axis, range, speed, phase) => ({ x, y, baseX: x, baseY: y, w, h, axis, range, speed, phase, dx: 0, dy: 0, kind: "moving" });
 const launchPad = (x, y, w, speed) => ({ x, y, w, h: 12, speed });
+const heartGate = (firstX, secondX) => ({ firstX, secondX, open: false });
 const saw = (x, y, range, speed, phase, r = 22) => ({ x, y, baseX: x, range, speed, phase, r, type: "spore" });
 const spikes = (x, y, w, h = 32) => ({ x, y, w, h });
 const checkpoint = (x, y) => ({ x, y, active: false });
@@ -241,11 +244,34 @@ const LEVELS = [
     launchPads: [
       launchPad(617, 430, 56, 840)
     ],
+    heartGate: heartGate(1080, 1115),
     spikes: [],
     saws: [
       saw(750, 300, 80, 0.82, 4.9, 20)
     ]
   }
+];
+
+const VALID_WISH_IDS = new Set(
+  LEVELS.flatMap((level, levelIndex) => level.wishes.map((_, wishIndex) => `${levelIndex + 1}-${wishIndex + 1}`))
+);
+
+const MEMORIES = [
+  { title: "The first hello", text: "A first hello became my favourite beginning." },
+  { title: "Your kind of happy", text: "Your laugh makes ordinary days brighter." },
+  { title: "A soft place", text: "I still feel lucky that I found you." },
+  { title: "Mayday with you", text: "Three songs, one very good company." },
+  { title: "Our first trip", text: "Even the journey felt like a date with you." },
+  { title: "Little adventures", text: "You make every small plan feel like an occasion." },
+  { title: "Officially us", text: "The moment I asked you to be mine." },
+  { title: "Fireworks in Japan", text: "The fireworks were beautiful, but you beside me were the best part." },
+  { title: "Life, your way", text: "I love how fully you throw yourself into life." },
+  { title: "Growing softer", text: "Thank you for letting me see your softer side." },
+  { title: "A shared rhythm", text: "We found a way to make ordinary Tuesdays feel special." },
+  { title: "Together, moving", text: "Every new place feels better when I get to explore it with you." },
+  { title: "The next chapter", text: "I hope this year loves you back as much as you love everyone around you." },
+  { title: "Little sparks", text: "The small surprises you bring are some of my favourite parts." },
+  { title: "Forever yours", text: "I am still excited for every ordinary day with you." }
 ];
 
 const COLORS = {
@@ -275,15 +301,19 @@ const screens = {
   intro: $("intro-screen"),
   pause: $("pause-screen"),
   clear: $("clear-screen"),
-  final: $("final-screen")
+  final: $("final-screen"),
+  memory: $("memory-screen")
 };
 
 let renderScale = 1;
 
 function resizeCanvas() {
-  const displayWidth = canvas.getBoundingClientRect().width || VIEW_WIDTH;
+  const bounds = canvas.getBoundingClientRect();
+  const displayWidth = bounds.width || VIEW_WIDTH;
+  const displayHeight = bounds.height || VIEW_HEIGHT;
   const pixelRatio = window.devicePixelRatio || 1;
-  renderScale = clamp((displayWidth / VIEW_WIDTH) * pixelRatio, 1, 3);
+  const coverScale = Math.max(displayWidth / VIEW_WIDTH, displayHeight / VIEW_HEIGHT);
+  renderScale = clamp(coverScale * pixelRatio, 1, 3);
   const width = Math.round(VIEW_WIDTH * renderScale);
   const height = Math.round(VIEW_HEIGHT * renderScale);
   if (canvas.width !== width || canvas.height !== height) {
@@ -301,14 +331,20 @@ let levelIndex = 0;
 let level = null;
 let players = [];
 let particles = [];
-let completedLevels = Math.min(Math.max(readNumber(CONFIG.progressKey, 0), 0), LEVELS.length);
-let collectedWishKeys = new Set(readStringArray(CONFIG.wishKey));
+let completedLevels = clamp(Math.floor(readNumber(CONFIG.progressKey, 0)), 0, LEVELS.length);
+let collectedWishKeys = new Set(readStringArray(CONFIG.wishKey).filter((key) => VALID_WISH_IDS.has(key)));
 let totalFireflies = Math.min(collectedWishKeys.size, LEVELS.length * 3);
 let soundEnabled = readBoolean(CONFIG.soundKey, true);
+let calmMode = readBoolean(CONFIG.calmKey, false);
+let records = readRecords(CONFIG.recordsKey);
 const savedIdentity = readString(CONFIG.identityKey, "fire");
 let identityType = ["fire", "water"].includes(savedIdentity) ? savedIdentity : "fire";
 let levelTime = 0;
+let levelStartedAt = performance.now();
+let levelResets = 0;
+let previousFocus = null;
 let visualTime = 0;
+let renderClock = 0;
 let lastFrame = performance.now();
 let toastTimer = 0;
 let cameraShake = 0;
@@ -436,6 +472,15 @@ function readBoolean(key, fallback) {
   }
 }
 
+function readRecords(key) {
+  try {
+    const value = JSON.parse(window.localStorage.getItem(key) || "{}");
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  } catch {
+    return {};
+  }
+}
+
 function saveValue(key, value) {
   try {
     window.localStorage.setItem(key, String(value));
@@ -446,7 +491,9 @@ function saveValue(key, value) {
 
 function saveStringArray(key, values) {
   try {
-    window.localStorage.setItem(key, JSON.stringify([...values]));
+    const merged = new Set(readStringArray(key).filter((item) => VALID_WISH_IDS.has(item)));
+    values.forEach((item) => merged.add(item));
+    window.localStorage.setItem(key, JSON.stringify([...merged]));
   } catch {
     return;
   }
@@ -483,7 +530,7 @@ function createPlayer(type, x) {
     invulnerable: 0,
     collected: 0,
     animation: 0,
-    jumpQueued: false,
+    jumpBuffer: 0,
     spawn: { x, y: 575 }
   };
 }
@@ -520,6 +567,14 @@ function setIdentity(nextType, persist = true) {
   });
 }
 
+function setCalmMode(enabled) {
+  calmMode = Boolean(enabled);
+  saveValue(CONFIG.calmKey, calmMode);
+  $("calm-mode").checked = calmMode;
+  document.body.dataset.calmMode = String(calmMode);
+  announceStatus(calmMode ? "Calm Mode enabled. Hazards move more gently." : "Standard Mode enabled.");
+}
+
 function loadLevel(index) {
   levelIndex = index;
   level = JSON.parse(JSON.stringify(LEVELS[index]));
@@ -538,8 +593,18 @@ function loadLevel(index) {
   level.wishes = level.wishes || [];
   level.checkpoints = level.checkpoints || [];
   level.launchPads = level.launchPads || [];
+  level.heartGate = level.heartGate || null;
+  if (level.heartGate) {
+    level.heartGate.open = false;
+    level.heartGate.lastHint = -Infinity;
+  }
   level.fireflies = 0;
-  level.wishes.forEach((item) => {
+  level.syncCount = 0;
+  level.lastGemPickup = null;
+  level.wishes.forEach((item, wishIndex) => {
+    const memory = MEMORIES[levelIndex * 3 + wishIndex];
+    item.title = memory?.title || "A little memory";
+    item.text = memory?.text || "A small moment worth keeping.";
     item.taken = false;
   });
   level.checkpoints.forEach((item) => {
@@ -553,8 +618,14 @@ function loadLevel(index) {
   });
   level.moving.forEach((item, itemIndex) => {
     item.id = `moving-${itemIndex}`;
+    const offset = Math.sin(item.phase) * item.range;
+    item.x = item.baseX + (item.axis === "x" ? offset : 0);
+    item.y = item.baseY + (item.axis === "y" ? offset : 0);
     item.prevX = item.x;
     item.prevY = item.y;
+  });
+  level.saws.forEach((item) => {
+    item.x = item.baseX + Math.sin(item.phase) * item.range;
   });
   level.gems.forEach((item) => {
     item.taken = false;
@@ -562,6 +633,8 @@ function loadLevel(index) {
   players = [createPlayer("fire", 82), createPlayer("water", 168)];
   cameraOffset = getCameraTarget();
   levelTime = 0;
+  levelStartedAt = performance.now();
+  levelResets = 0;
   cameraShake = 0;
   flash = 0;
   particles = [];
@@ -577,7 +650,7 @@ function updateMovingPlatforms() {
   level.moving.forEach((item) => {
     item.prevX = item.x;
     item.prevY = item.y;
-    const offset = Math.sin(levelTime * item.speed + item.phase) * item.range;
+    const offset = Math.sin(levelTime * (calmMode ? 0.65 : 1) * item.speed + item.phase) * item.range;
     item.x = item.baseX + (item.axis === "x" ? offset : 0);
     item.y = item.baseY + (item.axis === "y" ? offset : 0);
     item.dx = item.x - item.prevX;
@@ -587,7 +660,7 @@ function updateMovingPlatforms() {
 
 function updateSaws() {
   level.saws.forEach((item) => {
-    item.x = item.baseX + Math.sin(levelTime * item.speed + item.phase) * item.range;
+    item.x = item.baseX + Math.sin(levelTime * (calmMode ? 0.65 : 1) * item.speed + item.phase) * item.range;
   });
 }
 
@@ -612,16 +685,15 @@ function updatePlayer(player, delta) {
     player.coyote = Math.max(0, player.coyote - delta);
   }
 
-  if (player.jumpQueued) {
-    player.jumpQueued = false;
-    if (wasGrounded || player.coyote > 0) {
-      player.vy = -JUMP_SPEED;
-      player.grounded = false;
-      player.groundId = null;
-      player.coyote = 0;
-      spawnBurst(player.x + player.w / 2, player.y + player.h, player.type === "fire" ? COLORS.fire : COLORS.water, 7, 90, "dot");
-      playTone(player.type === "fire" ? 300 : 390, "sine", 0.11, 0.035, player.type === "fire" ? 450 : 590, 0);
-    }
+  player.jumpBuffer = Math.max(0, player.jumpBuffer - delta);
+  if (player.jumpBuffer > 0 && (wasGrounded || player.coyote > 0)) {
+    player.jumpBuffer = 0;
+    player.vy = -JUMP_SPEED;
+    player.grounded = false;
+    player.groundId = null;
+    player.coyote = 0;
+    spawnBurst(player.x + player.w / 2, player.y + player.h, player.type === "fire" ? COLORS.fire : COLORS.water, 7, 90, "dot");
+    playTone(player.type === "fire" ? 300 : 390, "sine", 0.11, 0.035, player.type === "fire" ? 450 : 590, 0);
   }
 
   if (support && wasGrounded) {
@@ -706,6 +778,13 @@ function collectGems(player) {
     spawnBurst(gem.x, gem.y, color, 18, 175, "spark");
     cameraShake = Math.max(cameraShake, 2.2);
     playTone(gem.type === "fire" ? 610 : 720, "triangle", 0.15, 0.045, gem.type === "fire" ? 920 : 1080, 0.045);
+    const now = performance.now();
+    if (level.lastGemPickup && level.lastGemPickup.type !== gem.type && now - level.lastGemPickup.time < 900) {
+      level.syncCount += 1;
+      spawnBurst((gem.x + level.lastGemPickup.x) / 2, gem.y, COLORS.paper, 14, 120, "spark");
+      showToast("Perfect pair · keep moving together", 1400);
+    }
+    level.lastGemPickup = { type: gem.type, x: gem.x, time: now };
     updateInterface();
     if (player.collected === CONFIG.requiredGems) {
       showToast(`${player.type === "fire" ? "Red" : "Blue"} door is glowing`, 1800);
@@ -737,20 +816,22 @@ function collectWish(player) {
       level.fireflies === 3
         ? "All three memories are glowing"
         : isNew
-          ? `Memory ${totalFireflies} / ${LEVELS.length * 3} found`
-          : "A lovely memory returns",
-      1800
+          ? `${memory.title} · memory found`
+          : `${memory.title} · already glowing`,
+      1900
     );
   });
 }
 
 function checkCheckpoints() {
+  const horizontalRange = calmMode ? 96 : 72;
+  const verticalRange = calmMode ? 48 : 34;
   level.checkpoints.forEach((lantern) => {
     if (lantern.active) return;
     const together = players.every((player) => {
       const centerX = player.x + player.w / 2;
       const bottom = player.y + player.h;
-      return Math.abs(centerX - lantern.x) < 72 && Math.abs(bottom - lantern.y) < 34;
+      return Math.abs(centerX - lantern.x) < horizontalRange && Math.abs(bottom - lantern.y) < verticalRange;
     });
     if (!together) return;
     lantern.active = true;
@@ -759,6 +840,28 @@ function checkCheckpoints() {
     playTone(520, "triangle", 0.2, 0.04, 780, 0);
     playTone(780, "triangle", 0.3, 0.04, 1040, 0.12);
   });
+}
+
+function checkHeartGate() {
+  const gate = level.heartGate;
+  if (!gate || gate.open) return;
+  const fire = players.find((player) => player.type === "fire");
+  const water = players.find((player) => player.type === "water");
+  const near = (player, x) => Math.abs(player.x + player.w / 2 - x) < 32 && player.y + player.h > 620;
+  const fireNear = near(fire, gate.firstX);
+  const waterNear = near(water, gate.secondX);
+  if (fireNear && waterNear) {
+    gate.open = true;
+    spawnBurst((gate.firstX + gate.secondX) / 2, 550, "#ff8fa8", 42, 180, "spark");
+    showToast("Heart gate open — reach the RED and BLUE doors together", 2200);
+    playTone(520, "triangle", 0.25, 0.045, 780, 0);
+    playTone(780, "triangle", 0.35, 0.04, 1040, 0.12);
+    return;
+  }
+  if ((fireNear || waterNear) && visualTime - gate.lastHint > 3) {
+    gate.lastHint = visualTime;
+    showToast("Stand on both heart pads together", 1700);
+  }
 }
 
 function checkHazards(player) {
@@ -797,7 +900,8 @@ function respawnPlayer(player, reason) {
   player.grounded = false;
   player.groundId = null;
   player.invulnerable = 1.05;
-  player.jumpQueued = false;
+  player.jumpBuffer = 0;
+  levelResets += 1;
   cameraShake = Math.max(cameraShake, 7);
   flash = 0.18;
   showToast(`${player.name} ${reason} — trying again`, 1700);
@@ -817,6 +921,12 @@ function checkDoors() {
   const waterDoor = { x: 1150, w: 42 };
   const atFireDoor = nearDoor(fire, fireDoor);
   const atWaterDoor = nearDoor(water, waterDoor);
+  const gateReady = !level.heartGate || level.heartGate.open;
+
+  if ((atFireDoor || atWaterDoor) && !gateReady && visualTime - level.lastDoorHint > 3) {
+    level.lastDoorHint = visualTime;
+    showToast("Light the shared heart gate first", 1800);
+  }
 
   if (atFireDoor && fire.collected < CONFIG.requiredGems && visualTime - level.lastDoorHint > 3) {
     level.lastDoorHint = visualTime;
@@ -831,6 +941,7 @@ function checkDoors() {
   if (
     atFireDoor &&
     atWaterDoor &&
+    gateReady &&
     fire.collected >= CONFIG.requiredGems &&
     water.collected >= CONFIG.requiredGems
   ) {
@@ -894,6 +1005,17 @@ function spawnCelebration() {
   }
 }
 
+function formatDuration(seconds) {
+  const totalSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainder = String(totalSeconds % 60).padStart(2, "0");
+  return `${minutes}:${remainder}`;
+}
+
+function announceStatus(message) {
+  $("game-status").textContent = message;
+}
+
 function updateFinalCard(preview = false, count = totalFireflies) {
   $("final-firefly-count").textContent = String(count);
   $("final-context").textContent = preview
@@ -910,7 +1032,27 @@ function updateFinalCard(preview = false, count = totalFireflies) {
   }
 }
 
-function showFinalPreview() {
+function renderMemoryJournal() {
+  const entries = LEVELS.flatMap((level, levelIndex) => level.wishes.map((_, wishIndex) => {
+    const id = `${levelIndex + 1}-${wishIndex + 1}`;
+    const memory = MEMORIES[levelIndex * 3 + wishIndex];
+    const unlocked = collectedWishKeys.has(id);
+    return `<article class="memory-note${unlocked ? "" : " is-locked"}"><span class="memory-note__index">${String(levelIndex * 3 + wishIndex + 1).padStart(2, "0")}</span><div><h3>${unlocked ? memory.title : "A memory still hidden"}</h3><p>${unlocked ? memory.text : "Keep exploring the forest to find this little spark."}</p></div><span class="memory-note__status">${unlocked ? "Found" : "Hidden"}</span></article>`;
+  }));
+  $("memory-summary").textContent = `${collectedWishKeys.size} / ${LEVELS.length * 3} memories found`;
+  $("memory-list").innerHTML = entries.join("");
+}
+
+function openMemoryJournal() {
+  renderMemoryJournal();
+  setState("memory");
+}
+
+function closeMemoryJournal() {
+  setState("final");
+}
+
+function showFinalPreview(preview = true) {
   loadLevel(LEVELS.length - 1);
   level.gems.forEach((gem) => {
     gem.taken = true;
@@ -927,10 +1069,38 @@ function showFinalPreview() {
   players.find((player) => player.type === "fire").x = 1200;
   cameraOffset = getCameraTarget();
   updateInterface();
-  updateFinalCard(true, fireflyPreview ?? totalFireflies);
+  updateFinalCard(preview, preview ? fireflyPreview ?? totalFireflies : totalFireflies);
   stopCelebrationSong();
   spawnCelebration();
   setState("final");
+}
+
+function updateRecord(index, elapsedSeconds, retries, fireflies, syncCount) {
+  const saved = records[index];
+  const previous = saved && Number.isFinite(Number(saved.time)) && Number.isFinite(Number(saved.retries))
+    ? { time: Number(saved.time), retries: Number(saved.retries), fireflies: Number(saved.fireflies) || 0, sync: Number(saved.sync) || 0 }
+    : null;
+  const current = {
+    time: elapsedSeconds,
+    retries,
+    fireflies,
+    sync: syncCount
+  };
+  const isBetter = !previous || current.time < previous.time || (current.time === previous.time && current.retries < previous.retries);
+  if (isBetter) {
+    records[index] = current;
+    saveValue(CONFIG.recordsKey, JSON.stringify(records));
+  }
+  return { best: isBetter ? current : previous, isNew: isBetter };
+}
+
+function renderClearBadges(elapsed, retries) {
+  const badges = ["Trailblazer"];
+  if (level.fireflies === 3) badges.push("Memory Keeper");
+  if (retries === 0) badges.push("Perfect Pair");
+  if (elapsed <= 75) badges.push("Quick Step");
+  if (level.syncCount >= 2) badges.push("Sync Spark");
+  $("clear-badges").innerHTML = badges.map((badge) => `<span class="clear-badge">${badge}</span>`).join("");
 }
 
 function finishLevel() {
@@ -950,7 +1120,16 @@ function finishLevel() {
   const memoryLine = level.fireflies === 3
     ? "Every memory on this path is glowing."
     : `${level.fireflies} of 3 memories found on this path.`;
+  const elapsedSeconds = (performance.now() - levelStartedAt) / 1000;
+  const elapsed = formatDuration(elapsedSeconds);
   $("clear-copy").textContent = `Both doors are open. ${memoryLine} ${totalFireflies} / ${LEVELS.length * 3} fireflies discovered.`;
+  $("clear-stats").textContent = `Time ${elapsed} · ${levelResets} ${levelResets === 1 ? "retry" : "retries"} · ${level.syncCount} perfect pairs`;
+  const record = updateRecord(levelIndex, elapsedSeconds, levelResets, level.fireflies, level.syncCount);
+  $("clear-best").textContent = record.best
+    ? `${record.isNew ? "New best" : "Best"} · ${formatDuration(record.best.time)} · ${record.best.retries} retries`
+    : "First run";
+  renderClearBadges(elapsedSeconds, levelResets);
+  announceStatus(`${level.name} cleared in ${elapsed} with ${levelResets} retries.`);
   spawnBurst(640, 390, COLORS.paper, 64, 280, "spark");
   setState("clear");
 }
@@ -962,6 +1141,7 @@ function updateInterface() {
   $("fire-gems").textContent = String(players.find((player) => player.type === "fire").collected);
   $("water-gems").textContent = String(players.find((player) => player.type === "water").collected);
   $("firefly-count").textContent = String(level.fireflies || 0);
+  announceStatus(`${level.name}. Red ${players.find((player) => player.type === "fire").collected} of ${CONFIG.requiredGems}, blue ${players.find((player) => player.type === "water").collected} of ${CONFIG.requiredGems}.`);
   const steps = document.querySelectorAll(".journey__step");
   steps.forEach((step, index) => {
     step.classList.toggle("is-active", index === levelIndex);
@@ -975,16 +1155,36 @@ function updateInterface() {
 }
 
 function setState(nextState) {
+  if (state !== nextState && document.activeElement instanceof HTMLElement) previousFocus = document.activeElement;
   state = nextState;
   document.body.dataset.state = nextState;
   Object.entries(screens).forEach(([name, screen]) => {
     screen.hidden = name !== nextState;
   });
+  $("hud").inert = nextState !== "playing";
+  $("touch-controls").inert = nextState !== "playing";
   if (nextState !== "playing") resetInput();
+
+  if (nextState === "pause") {
+    window.setTimeout(() => $("resume-button").focus(), 0);
+  } else if (nextState === "clear") {
+    window.setTimeout(() => $("next-button").focus(), 0);
+  } else if (nextState === "final") {
+    window.setTimeout(() => $("song-button").focus(), 0);
+  } else if (nextState === "memory") {
+    window.setTimeout(() => $("memory-close").focus(), 0);
+  } else if (nextState === "playing" && previousFocus && document.contains(previousFocus) && previousFocus.offsetParent !== null) {
+    previousFocus.focus();
+    previousFocus = null;
+  }
 }
 
 function startAdventure() {
   initAudio();
+  if (!hasRequestedLevel && completedLevels >= LEVELS.length) {
+    showFinalPreview(false);
+    return;
+  }
   const startIndex = hasRequestedLevel
     ? requestedLevel
     : Math.min(completedLevels, LEVELS.length - 1);
@@ -994,7 +1194,7 @@ function startAdventure() {
 }
 
 function restartLevel() {
-  if (!level) return;
+  if (!level || !["playing", "pause"].includes(state)) return;
   loadLevel(levelIndex);
   setState("playing");
   showToast("A fresh path through the trees", 1300);
@@ -1053,19 +1253,24 @@ function playFinishSound() {
   playTone(784, "triangle", 0.42, 0.045, 1047, 0.22);
 }
 
-function setSoundEnabled(enabled) {
+function setSoundEnabled(enabled, initialize = false) {
   soundEnabled = enabled;
   saveValue(CONFIG.soundKey, enabled);
   const button = $("sound-button");
   button.setAttribute("aria-pressed", String(!enabled));
   button.setAttribute("aria-label", enabled ? "Mute sound" : "Enable sound");
   $("celebration-audio").volume = enabled ? CONFIG.celebrationVolume : 0;
-  if (enabled) initAudio();
+  if (!enabled && !$("celebration-audio").paused) stopCelebrationSong();
+  if (enabled && initialize) initAudio();
 }
 
 async function toggleCelebrationSong() {
   const audio = $("celebration-audio");
   const button = $("song-button");
+  if (!soundEnabled) {
+    showToast("Enable sound to play our song", 1900);
+    return;
+  }
   if (!audio.paused) {
     audio.pause();
     button.setAttribute("aria-pressed", "false");
@@ -1089,6 +1294,25 @@ function stopCelebrationSong() {
   $("song-label").textContent = "Play our song";
 }
 
+function updateFullscreenButton() {
+  const button = $("fullscreen-button");
+  const active = Boolean(document.fullscreenElement);
+  button.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
+}
+
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen?.();
+    } else {
+      await document.documentElement.requestFullscreen?.();
+    }
+    updateFullscreenButton();
+  } catch {
+    showToast("Fullscreen is not available in this browser", 1900);
+  }
+}
+
 function resetInput() {
   keys.clear();
   touch.fire.left = false;
@@ -1098,7 +1322,7 @@ function resetInput() {
   touch.water.right = false;
   touch.water.jump = false;
   players.forEach((player) => {
-    player.jumpQueued = false;
+    player.jumpBuffer = 0;
   });
   activePointerInputs.clear();
   document.querySelectorAll(".touch-controls button").forEach((button) => {
@@ -1108,7 +1332,25 @@ function resetInput() {
 
 function queueJump(type) {
   const player = players.find((item) => item.type === type);
-  if (player) player.jumpQueued = true;
+  if (player) {
+    player.jumpBuffer = 0.15;
+  }
+}
+
+function trapDialogFocus(event) {
+  const screen = screens[state];
+  if (!screen) return;
+  const focusable = [...screen.querySelectorAll("button, input, a, [tabindex]:not([tabindex='-1'])")].filter((element) => !element.disabled);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function handleKeyDown(event) {
@@ -1121,11 +1363,14 @@ function handleKeyDown(event) {
     "KeyD",
     "KeyW"
   ];
-  if (controlledCodes.includes(event.code)) event.preventDefault();
-  if (event.repeat) return;
+  const interactive = event.target instanceof HTMLElement && Boolean(event.target.closest("button, input, select, textarea, a, [contenteditable]"));
 
-  if (event.code === "Enter" && state === "intro") {
-    startAdventure();
+  if (event.code === "Tab" && screens[state]) {
+    trapDialogFocus(event);
+    return;
+  }
+  if (event.code === "Escape" && state === "memory") {
+    closeMemoryJournal();
     return;
   }
   if (event.code === "KeyP" || event.code === "Escape") {
@@ -1133,10 +1378,19 @@ function handleKeyDown(event) {
     else if (state === "pause") resumeGame();
     return;
   }
-  if (event.code === "KeyR" && state === "playing") {
+  if (interactive) return;
+  if (state === "playing" && controlledCodes.includes(event.code)) event.preventDefault();
+  if (event.repeat) return;
+
+  if (event.code === "Enter" && state === "intro" && !interactive) {
+    startAdventure();
+    return;
+  }
+  if (event.code === "KeyR" && state === "playing" && !interactive) {
     restartLevel();
     return;
   }
+  if (state !== "playing") return;
 
   keys.add(event.code);
   if (bindings.fire.jump.includes(event.code)) queueJump("fire");
@@ -1152,15 +1406,16 @@ function bindTouchControls() {
     const type = button.dataset.player;
     const action = button.dataset.action;
     const release = (event) => {
-      touch[type][action] = false;
-      button.classList.remove("is-pressed");
       activePointerInputs.delete(event.pointerId);
+      const stillHeld = [...activePointerInputs.values()].some((input) => input.type === type && input.action === action);
+      touch[type][action] = stillHeld;
+      button.classList.toggle("is-pressed", stillHeld);
     };
     button.addEventListener("pointerdown", (event) => {
       event.preventDefault();
       initAudio();
       button.setPointerCapture(event.pointerId);
-      activePointerInputs.set(event.pointerId, { type, action, button });
+      activePointerInputs.set(event.pointerId, { type, action, button, pointerId: event.pointerId });
       touch[type][action] = true;
       button.classList.add("is-pressed");
       if (action === "jump") queueJump(type);
@@ -1172,7 +1427,7 @@ function bindTouchControls() {
 }
 
 function getCameraTarget() {
-  const portrait = window.innerWidth <= 720 && window.innerHeight > window.innerWidth;
+  const portrait = window.innerHeight > window.innerWidth;
   if (!portrait || !players.length) return 0;
   const centers = players.map((player) => player.x + player.w / 2);
   const midpoint = (Math.min(...centers) + Math.max(...centers)) / 2;
@@ -1381,6 +1636,7 @@ function drawLevel() {
   drawDoor(1150, "water");
   drawDoor(1200, "fire");
   drawFinalHeart();
+  drawHeartGate();
   players.forEach(drawPlayer);
 }
 
@@ -1796,7 +2052,7 @@ function drawFinalHeart() {
   const ready = players.every((player) => player.collected >= CONFIG.requiredGems);
   const pulse = 1 + Math.sin(visualTime * 4) * 0.05;
   const x = 1196;
-  const y = 525;
+  const y = 500;
   ctx.save();
   ctx.globalAlpha = ready ? 0.95 : 0.42;
   ctx.strokeStyle = ready ? COLORS.waterLight : COLORS.water;
@@ -1824,6 +2080,46 @@ function drawFinalHeart() {
   ctx.moveTo(0, 17);
   ctx.bezierCurveTo(-25, 1, -17, -18, 0, -8);
   ctx.bezierCurveTo(17, -18, 25, 1, 0, 17);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawHeartGate() {
+  const gate = level.heartGate;
+  if (!gate) return;
+  const centerX = (gate.firstX + gate.secondX) / 2;
+  const pulse = 1 + Math.sin(visualTime * 4) * 0.06;
+  ctx.save();
+  ctx.globalAlpha = gate.open ? 0.95 : 0.48;
+  ctx.strokeStyle = gate.open ? "#ffb6c8" : "rgba(255,255,255,0.35)";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 5]);
+  ctx.beginPath();
+  ctx.moveTo(gate.firstX, FLOOR_Y - 4);
+  ctx.quadraticCurveTo(centerX, 560, gate.secondX, FLOOR_Y - 4);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  [gate.firstX, gate.secondX].forEach((x, index) => {
+    ctx.fillStyle = gate.open ? (index === 0 ? COLORS.fire : COLORS.water) : "rgba(255,255,255,0.28)";
+    ctx.beginPath();
+    ctx.ellipse(x, FLOOR_Y - 5, 18, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.translate(centerX, 550);
+  ctx.scale(pulse, pulse);
+  const glow = ctx.createRadialGradient(0, 0, 1, 0, 0, 32);
+  glow.addColorStop(0, gate.open ? "rgba(255,241,184,0.7)" : "rgba(255,143,168,0.18)");
+  glow.addColorStop(1, "rgba(255,143,168,0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, 32, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = gate.open ? "#fff1b8" : "#ff8fa8";
+  ctx.beginPath();
+  ctx.moveTo(0, 14);
+  ctx.bezierCurveTo(-20, 1, -13, -14, 0, -6);
+  ctx.bezierCurveTo(13, -14, 20, 1, 0, 14);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
@@ -1990,12 +2286,17 @@ function frame(timestamp) {
     updateSaws();
     players.forEach((player) => updatePlayer(player, delta));
     checkCheckpoints();
+    checkHeartGate();
     if (state === "playing") checkDoors();
   }
 
   updateCamera(delta);
   updateEffects(delta);
-  draw();
+  renderClock += delta;
+  if (state === "playing" || particles.length > 0 || renderClock >= 1 / 30) {
+    draw();
+    renderClock = 0;
+  }
   requestAnimationFrame(frame);
 }
 
@@ -2005,6 +2306,7 @@ document.querySelectorAll('input[name="character-colour"]').forEach((input) => {
     if (input.checked) setIdentity(input.value);
   });
 });
+$("calm-mode").addEventListener("change", (event) => setCalmMode(event.target.checked));
 $("next-button").addEventListener("click", () => {
   loadLevel(levelIndex + 1);
   setState("playing");
@@ -2013,8 +2315,11 @@ $("resume-button").addEventListener("click", resumeGame);
 $("pause-button").addEventListener("click", pauseGame);
 $("restart-button").addEventListener("click", restartLevel);
 $("pause-restart-button").addEventListener("click", restartLevel);
-$("sound-button").addEventListener("click", () => setSoundEnabled(!soundEnabled));
+$("sound-button").addEventListener("click", () => setSoundEnabled(!soundEnabled, !soundEnabled));
+$("fullscreen-button").addEventListener("click", toggleFullscreen);
 $("song-button").addEventListener("click", toggleCelebrationSong);
+$("memory-button").addEventListener("click", openMemoryJournal);
+$("memory-close").addEventListener("click", closeMemoryJournal);
 $("replay-button").addEventListener("click", () => {
   stopCelebrationSong();
   loadLevel(0);
@@ -2030,12 +2335,18 @@ window.addEventListener("keyup", handleKeyUp);
 window.addEventListener("blur", () => {
   if (state === "playing") pauseGame();
 });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && state === "playing") pauseGame();
+});
 window.addEventListener("pagehide", stopCelebrationSong);
+document.addEventListener("fullscreenchange", updateFullscreenButton);
 window.addEventListener("resize", resizeCanvas);
 window.visualViewport?.addEventListener("resize", resizeCanvas);
 bindTouchControls();
 
 setSoundEnabled(soundEnabled);
+updateFullscreenButton();
+setCalmMode(calmMode);
 setIdentity(identityType, false);
 if (finalPreview) {
   showFinalPreview();
@@ -2044,10 +2355,12 @@ if (finalPreview) {
   setState("intro");
 
   if (hasRequestedLevel) {
-    $("start-button").firstElementChild.textContent = `Enter Forest ${String(requestedLevel + 1).padStart(2, "0")}`;
+    $("start-label").textContent = `Enter Forest ${String(requestedLevel + 1).padStart(2, "0")}`;
+  } else if (completedLevels >= LEVELS.length) {
+    $("start-label").textContent = "View final message";
   } else if (completedLevels > 0) {
     const continueIndex = Math.min(completedLevels, LEVELS.length - 1);
-    $("start-button").firstElementChild.textContent = `Continue at ${LEVELS[continueIndex].name}`;
+    $("start-label").textContent = `Continue at ${LEVELS[continueIndex].name}`;
   }
 }
 
