@@ -44,7 +44,8 @@ const CONTENT = {
   /* Optional Chinese version of the letter — fill this in later and it appears automatically */
   letterZh: "",
 
-  /* Love-story timeline — add / remove / edit freely */
+  /* Love-story timeline — add / remove / edit freely.
+     Optional `photos: ["assets/xxx.jpg"]` drops a tappable photo into the card. */
   timeline: [
     {
       when: "20 Mar 2026",
@@ -59,6 +60,7 @@ const CONTENT = {
       zhTitle: "",
       text: "I planned the day a hundred times in my head, and it still went nothing like I imagined — it was better.",
       zhText: "",
+      photos: ["assets/first-date.jpg"],
     },
     {
       when: "19 Apr 2026",
@@ -71,8 +73,9 @@ const CONTENT = {
       when: "8 Jul 2026",
       title: "Our first trip together",
       zhTitle: "",
-      text: "陪我一睇就睇左三場五月天",
+      text: "I'm really really greatful to have you pui ngo tai jor 3 cheng Mayday<3.",
       zhText: "",
+      photos: ["assets/mayday.jpg"],
     },
     {
       when: "26 Aug 2026",
@@ -80,6 +83,7 @@ const CONTENT = {
       zhTitle: "",
       text: "煙火幾靚都好，都不及有你係身邊賦予一切意義",
       zhText: "",
+      photos: ["assets/hanabi.jpg", "assets/disney.jpg"],
     },
     {
       when: "Today, and every day after",
@@ -182,6 +186,13 @@ const ENV_COLORS = ["#aed9f5", "#ffc2dc", "#c9b8f5", "#a9e8d4", "#ffe39a", "#aed
 
 const $ = (id) => document.getElementById(id);
 
+/* look up a caption for a photo path from whichever list already knows about it */
+function capFor(src) {
+  const pools = [].concat(CONTENT.gallery || [], CONTENT.carousel || []);
+  for (const p of pools) if (p.src === src) return p.cap || "";
+  return "";
+}
+
 /* ---------------- rendering ---------------- */
 function renderTimeline() {
   $("timeline-list").innerHTML = CONTENT.timeline
@@ -194,6 +205,16 @@ function renderTimeline() {
           <h3 class="card__title">${item.title}${item.zhTitle ? `<span class="card__zh">${item.zhTitle}</span>` : ""}</h3>
           <p class="card__text">${item.text}</p>
           ${item.zhText ? `<p class="card__text">${item.zhText}</p>` : ""}
+          ${
+            item.photos && item.photos.length
+              ? `<div class="card__photos">${item.photos
+                  .map(
+                    (src, i) =>
+                      `<button class="card__photo" type="button" data-list="tl:${item.when}" data-i="${i}" aria-label="See the photo from ${item.when} bigger"><img src="${src}" alt="${capFor(src)}" loading="lazy" decoding="async"></button>`
+                  )
+                  .join("")}</div>`
+              : ""
+          }
         </div>
       </li>`
     )
@@ -206,7 +227,11 @@ function renderGallery() {
       const grad = GRADS[i % GRADS.length];
       const tilt = (i % 2 ? 1 : -1) * (2 + (i % 3));
       const media = g.src
-        ? `<img class="polaroid__photo" src="${g.src}" alt="${g.cap}" loading="lazy">`
+        ? `<button class="polaroid__open" type="button" data-list="wall" data-i="${i}" aria-label="See ${g.cap} bigger">
+             <img class="polaroid__photo" src="${g.src}" alt="${g.cap}" loading="lazy" decoding="async"${
+               g.pos ? ` style="object-position:${g.pos}"` : ""
+             }>
+           </button>`
         : `<div class="photo-ph" style="--g1:${grad[0]};--g2:${grad[1]}">${String(i + 1).padStart(2, "0")}</div>`;
       return `
         <figure class="polaroid reveal" style="--tilt:${tilt}deg">
@@ -216,6 +241,9 @@ function renderGallery() {
         </figure>`;
     })
     .join("");
+
+  const btn = $("slideshow-btn");
+  if (btn) btn.textContent = `▶ Play all ${CONTENT.gallery.filter((g) => g.src).length}`;
 }
 
 function renderCarousel() {
@@ -224,9 +252,12 @@ function renderCarousel() {
   track.innerHTML = CONTENT.carousel
     .map((c, i) => {
       const grad = GRADS[(i + 3) % GRADS.length];
-      const style = c.pos ? ` style="object-position:${c.pos}"` : "";
       const media = c.src
-        ? `<img class="slide__img" src="${c.src}" alt="${c.cap}" loading="lazy"${style}>`
+        ? `<button class="slide__open" type="button" data-list="carousel" data-i="${i}" aria-label="See ${c.cap} bigger">
+             <img class="slide__img" src="${c.src}" alt="${c.cap}" loading="lazy" decoding="async"${
+               c.pos ? ` style="object-position:${c.pos}"` : ""
+             }>
+           </button>`
         : `<div class="slide__ph" style="--g1:${grad[0]};--g2:${grad[1]}" aria-hidden="true">✦</div>`;
       return `
         <figure class="slide">
@@ -239,15 +270,94 @@ function renderCarousel() {
 
 function initCarousel() {
   const track = $("carousel-track");
+  const wrap = $("carousel");
   if (!track) return;
+
+  const slides = () => [...track.querySelectorAll(".slide")];
   const step = () => {
     const first = track.querySelector(".slide");
     return first ? first.getBoundingClientRect().width + 16 : 260;
   };
+
+  /* dots: how many photos there are, and which one she's looking at.
+     Not focusable — the track itself is keyboard-scrollable with arrow keys. */
+  const dotsBox = $("carousel-dots");
+  if (dotsBox) {
+    dotsBox.innerHTML = CONTENT.carousel
+      .map(
+        (_, i) =>
+          `<button class="carousel__dot" type="button" tabindex="-1" data-i="${i}" aria-label="Photo ${i + 1}"></button>`
+      )
+      .join("");
+    dotsBox.addEventListener("click", (e) => {
+      const dot = e.target.closest(".carousel__dot");
+      if (dot) scrollToSlide(Number(dot.dataset.i));
+    });
+  }
+
+  function scrollToSlide(i) {
+    const s = slides()[i];
+    if (!s) return;
+    const left = s.offsetLeft - (track.clientWidth - s.offsetWidth) / 2;
+    track.scrollTo({ left: Math.max(0, left), behavior: REDUCED ? "auto" : "smooth" });
+  }
+
+  let pending = 0;
+  function sync() {
+    pending = 0;
+    const list = slides();
+    if (!list.length) return;
+    const mid = track.scrollLeft + track.clientWidth / 2;
+    let best = 0;
+    let bestD = Infinity;
+    list.forEach((s, i) => {
+      const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid);
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    });
+    if (dotsBox) {
+      [...dotsBox.children].forEach((d, i) => d.classList.toggle("is-on", i === best));
+    }
+    const max = track.scrollWidth - track.clientWidth;
+    const x = track.scrollLeft;
+    const prev = $("carousel-prev");
+    const next = $("carousel-next");
+    if (prev) prev.disabled = x <= 2;
+    if (next) next.disabled = x >= max - 2;
+    if (wrap) {
+      wrap.classList.toggle("fade-l", x > 2);
+      wrap.classList.toggle("fade-r", x < max - 2);
+    }
+  }
+  track.addEventListener(
+    "scroll",
+    () => {
+      if (!pending) pending = requestAnimationFrame(sync);
+    },
+    { passive: true }
+  );
+  window.addEventListener("resize", sync);
+
   const prev = $("carousel-prev");
   const next = $("carousel-next");
-  if (prev) prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
-  if (next) next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+  if (prev) prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: REDUCED ? "auto" : "smooth" }));
+  if (next) next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: REDUCED ? "auto" : "smooth" }));
+  track.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      track.scrollBy({ left: step(), behavior: REDUCED ? "auto" : "smooth" });
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      track.scrollBy({ left: -step(), behavior: REDUCED ? "auto" : "smooth" });
+    }
+  });
+
+  sync();
+  /* images finish loading after first paint — re-measure once they do */
+  window.addEventListener("load", sync);
+  track.querySelectorAll("img").forEach((img) => img.addEventListener("load", sync, { once: true }));
 }
 
 function renderEnvelopes() {
@@ -272,6 +382,17 @@ function renderFooter() {
 }
 
 /* ---------------- countdown & unlock ---------------- */
+function renderHeroDate() {
+  const el = $("hero-date");
+  if (!el) return;
+  const stamp = new Date(CONFIG.birthday);
+  if (Number.isNaN(stamp.getTime())) return;
+  /* read it in Hong Kong time so it always matches the countdown */
+  const hk = new Date(stamp.getTime() + 8 * 3600 * 1000);
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  el.textContent = `${hk.getUTCDate()} ${months[hk.getUTCMonth()]} ${hk.getUTCFullYear()}`;
+}
+
 function setCountdown(d, h, m, s) {
   $("cd-days").textContent = d;
   $("cd-hours").textContent = String(h).padStart(2, "0");
@@ -316,28 +437,64 @@ function fullLetter() {
   return CONTENT.letterZh ? `${CONTENT.letter}\n\n${CONTENT.letterZh}` : CONTENT.letter;
 }
 
+let skipTyping = null;
+
 function startTypewriter() {
   const el = $("typed-letter");
   if (!el) return;
+  if (skipTyping) skipTyping(); /* never leave a stale run behind */
+
+  const text = fullLetter();
+  const sr = $("letter-full");
+  const hint = $("letter-hint");
+
+  const settle = () => {
+    el.textContent = text;
+    el.classList.remove("is-typing", "is-skippable");
+    el.removeAttribute("aria-hidden");
+    if (sr) sr.textContent = text;
+    if (hint) hint.hidden = true;
+  };
+
   if (REDUCED) {
-    el.textContent = fullLetter();
+    settle();
     return;
   }
-  setTimeout(() => typeWriter(el, fullLetter(), 24), 800);
-}
 
-function typeWriter(el, text, speed) {
+  /* ~15s of typing on a phone is a long wait — let her tap to finish it */
   el.textContent = "";
-  el.classList.add("is-typing");
+  el.classList.add("is-typing", "is-skippable");
+  el.setAttribute("aria-hidden", "true");
+  if (hint) hint.hidden = false;
+
   let i = 0;
+  let timer = null;
+  const finish = () => {
+    if (!skipTyping) return;
+    skipTyping();
+    settle();
+  };
+  const onKey = (e) => {
+    if (e.key === "Enter" || e.key === " " || e.key === "Escape") finish();
+  };
+  skipTyping = () => {
+    clearTimeout(timer);
+    el.removeEventListener("click", finish);
+    el.removeEventListener("keydown", onKey);
+    skipTyping = null;
+  };
+  el.addEventListener("click", finish);
+  el.addEventListener("keydown", onKey);
+
   (function step() {
+    if (!skipTyping) return;
     if (i >= text.length) {
-      el.classList.remove("is-typing");
+      finish();
       return;
     }
     const ch = text[i++];
     el.textContent += ch;
-    setTimeout(step, ch === "\n" ? speed * 7 : speed);
+    timer = setTimeout(step, ch === "\n" ? 170 : 24);
   })();
 }
 
@@ -357,7 +514,9 @@ function observeReveals() {
         }
       });
     },
-    { threshold: 0.14, rootMargin: "0px 0px -40px 0px" }
+    /* threshold 0 — anything even slightly on screen counts, so a tall card
+       can never get stuck invisible */
+    { threshold: 0, rootMargin: "0px 0px -6% 0px" }
   );
   els.forEach((e) => io.observe(e));
 }
@@ -541,59 +700,170 @@ function closeLetter() {
   if (lastFocused) lastFocused.focus();
 }
 
-/* ---------------- slideshow ---------------- */
-let slideshowEl = null;
-let slideTimer = null;
-let slideIndex = 0;
+/* ---------------- photo lightbox ----------------
+   Every photo on the celebration page opens here, full size:
+   the polaroid wall, the carousel, and the little timeline memories. */
+const LB = { el: null, img: null, cap: null, count: null, playBtn: null, list: [], i: 0, timer: null, auto: false, open: false };
+let lbLastFocus = null;
 
-function buildSlideshow() {
-  slideshowEl = document.createElement("div");
-  slideshowEl.className = "slideshow";
-  slideshowEl.hidden = true;
-  slideshowEl.innerHTML = `
-    <div class="slideshow__frame">
-      <button class="slideshow__close" type="button" aria-label="Close slideshow">✕</button>
-      <div class="slideshow__photo" id="slide-photo"></div>
-      <p class="slideshow__cap" id="slide-cap"></p>
-    </div>`;
-  document.body.appendChild(slideshowEl);
-  slideshowEl.querySelector(".slideshow__close").addEventListener("click", closeSlideshow);
-  slideshowEl.addEventListener("click", (e) => {
-    if (e.target === slideshowEl) closeSlideshow();
+function buildLightbox() {
+  const el = document.createElement("div");
+  el.className = "lightbox";
+  el.id = "lightbox";
+  el.hidden = true;
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-modal", "true");
+  el.setAttribute("aria-label", "Photo viewer");
+  el.innerHTML = `
+    <div class="lightbox__backdrop" data-lb-close></div>
+    <figure class="lightbox__stage">
+      <div class="lightbox__imgwrap">
+        <img class="lightbox__img" id="lb-img" alt="">
+        <button class="lightbox__btn lightbox__prev" id="lb-prev" type="button" aria-label="Previous photo">‹</button>
+        <button class="lightbox__btn lightbox__next" id="lb-next" type="button" aria-label="Next photo">›</button>
+      </div>
+      <figcaption class="lightbox__cap">
+        <span class="lightbox__title" id="lb-cap"></span>
+        <span class="lightbox__count" id="lb-count"></span>
+      </figcaption>
+    </figure>
+    <button class="lightbox__btn lightbox__close" id="lb-close" type="button" aria-label="Close">✕</button>
+    <button class="lightbox__play" id="lb-play" type="button" aria-label="Pause">❙❙</button>`;
+  document.body.appendChild(el);
+
+  LB.el = el;
+  LB.img = $("lb-img");
+  LB.cap = $("lb-cap");
+  LB.count = $("lb-count");
+  LB.playBtn = $("lb-play");
+
+  el.querySelectorAll("[data-lb-close]").forEach((n) => n.addEventListener("click", closeLightbox));
+  $("lb-close").addEventListener("click", closeLightbox);
+  $("lb-prev").addEventListener("click", () => lbStep(-1));
+  $("lb-next").addEventListener("click", () => lbStep(1));
+  LB.playBtn.addEventListener("click", () => (LB.auto ? lbStopAuto() : lbStartAuto()));
+
+  /* swipe between photos */
+  let x0 = null;
+  let y0 = null;
+  el.addEventListener(
+    "touchstart",
+    (e) => {
+      x0 = e.touches[0].clientX;
+      y0 = e.touches[0].clientY;
+    },
+    { passive: true }
+  );
+  el.addEventListener(
+    "touchend",
+    (e) => {
+      if (x0 == null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      const dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) lbStep(dx < 0 ? 1 : -1);
+    },
+    { passive: true }
+  );
+
+  /* keep tab focus inside the viewer while it's open */
+  el.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const f = [...el.querySelectorAll("button:not([disabled])")].filter((n) => n.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0];
+    const last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
   });
 }
 
-function showSlide(i) {
-  const g = CONTENT.gallery[i];
-  const grad = GRADS[i % GRADS.length];
-  const ph = $("slide-photo");
-  if (g.src) {
-    ph.style.background = `#eaf6ff url('${g.src}') center/cover`;
-    ph.textContent = "";
-  } else {
-    ph.style.background = `linear-gradient(140deg,${grad[0]},${grad[1]})`;
-    ph.textContent = String(i + 1).padStart(2, "0");
+function lbShow(i) {
+  const n = LB.list.length;
+  if (!n) return;
+  LB.i = (i + n) % n;
+  const p = LB.list[LB.i];
+  LB.img.src = p.src;
+  LB.img.alt = p.cap || "";
+  LB.cap.textContent = p.cap || "";
+  LB.count.textContent = n > 1 ? `${LB.i + 1} / ${n}` : "";
+  LB.el.classList.toggle("lightbox--single", n < 2);
+  /* warm the neighbours so swiping feels instant */
+  [LB.i + 1, LB.i - 1].forEach((k) => {
+    const q = LB.list[(k + n) % n];
+    if (q && q !== p) new Image().src = q.src;
+  });
+}
+
+function lbStep(d) {
+  lbShow(LB.i + d);
+  if (LB.auto) lbStartAuto();
+}
+
+function lbStartAuto() {
+  lbStopAuto();
+  LB.auto = true;
+  LB.playBtn.textContent = "❙❙ Pause";
+  LB.playBtn.setAttribute("aria-label", "Pause the slideshow");
+  LB.timer = setInterval(() => lbShow(LB.i + 1), 2600);
+}
+
+function lbStopAuto() {
+  LB.auto = false;
+  clearInterval(LB.timer);
+  LB.timer = null;
+  if (LB.playBtn) {
+    LB.playBtn.textContent = "▶ Play";
+    LB.playBtn.setAttribute("aria-label", "Play the slideshow");
   }
-  $("slide-cap").innerHTML = `<b>${g.cap}</b> · ${g.zh}`;
 }
 
-function openSlideshow() {
-  if (!slideshowEl) buildSlideshow();
-  slideshowEl.hidden = false;
+function openLightbox(list, i, autoplay) {
+  const usable = (list || []).filter((p) => p && p.src);
+  if (!usable.length) return;
+  if (!LB.el) buildLightbox();
+  const first = list.indexOf(usable[0]);
+  LB.list = usable;
+  lbLastFocus = document.activeElement;
+  LB.el.hidden = false;
+  LB.open = true;
   document.body.style.overflow = "hidden";
-  slideIndex = 0;
-  showSlide(0);
-  clearInterval(slideTimer);
-  slideTimer = setInterval(() => {
-    slideIndex = (slideIndex + 1) % CONTENT.gallery.length;
-    showSlide(slideIndex);
-  }, 2200);
+  lbShow(i != null ? i : Math.max(0, first));
+  if (autoplay && LB.list.length > 1) lbStartAuto();
+  else lbStopAuto();
+  $("lb-close").focus();
 }
 
-function closeSlideshow() {
-  if (slideshowEl) slideshowEl.hidden = true;
-  clearInterval(slideTimer);
+function closeLightbox() {
+  if (!LB.el || LB.el.hidden) return;
+  lbStopAuto();
+  LB.el.hidden = true;
+  LB.open = false;
+  LB.img.removeAttribute("src");
   document.body.style.overflow = "";
+  if (lbLastFocusedTarget()) lbLastFocusedTarget().focus();
+}
+
+function lbLastFocusedTarget() {
+  return lbLastFocus && lbLastFocus.isConnected ? lbLastFocus : null;
+}
+
+/* which photo list a [data-list] button belongs to */
+function listFor(key) {
+  if (key === "wall") return CONTENT.gallery;
+  if (key === "carousel") return CONTENT.carousel;
+  if (key && key.indexOf("tl:") === 0) {
+    const when = key.slice(3);
+    const item = CONTENT.timeline.find((t) => t.when === when);
+    if (!item || !item.photos) return [];
+    return item.photos.map((src) => ({ src, cap: capFor(src) }));
+  }
+  return [];
 }
 
 /* ---------------- toast ---------------- */
@@ -684,7 +954,17 @@ function confettiTick(now) {
 }
 
 /* ---------------- background music ---------------- */
-const BGM = { el: null, wrap: null, btn: null, icon: null, vol: null, current: "cover", started: false, wantPlay: true };
+const BGM = {
+  el: null,
+  wrap: null,
+  btn: null,
+  heroBtn: null,
+  heroLabel: null,
+  vol: null,
+  current: "cover",
+  started: false,
+  wantPlay: true,
+};
 const VOL_KEY = "bgmVolume";
 
 function musicAvailable() {
@@ -716,12 +996,15 @@ function tryPlay() {
 function updateMusicUI() {
   if (!BGM.btn) return;
   const on = BGM.started && !BGM.el.paused && !BGM.el.muted;
-  BGM.icon.textContent = on ? "🎵" : "🔇";
   BGM.btn.classList.toggle("is-playing", on);
   BGM.btn.setAttribute("aria-pressed", String(on));
   const label = !BGM.started ? "Play music" : on ? "Mute music" : "Unmute music";
   BGM.btn.setAttribute("aria-label", label);
   BGM.btn.title = label;
+  if (BGM.heroBtn) {
+    BGM.heroBtn.setAttribute("aria-pressed", String(on));
+    if (BGM.heroLabel) BGM.heroLabel.textContent = on ? "Pause our song" : "Play our song";
+  }
 }
 
 function applyVolume(v) {
@@ -775,7 +1058,8 @@ function initMusic() {
   BGM.el = $("bgm");
   BGM.wrap = $("music");
   BGM.btn = $("music-btn");
-  BGM.icon = $("music-icon");
+  BGM.heroBtn = $("song-btn");
+  BGM.heroLabel = $("song-btn-label");
   BGM.vol = $("music-vol");
   BGM.handle = $("music-handle");
   BGM.panel = $("music-panel");
@@ -846,6 +1130,34 @@ function initMusic() {
   updateMusicUI();
 
   BGM.btn.addEventListener("click", onMusicButton);
+  if (BGM.heroBtn) BGM.heroBtn.addEventListener("click", onMusicButton);
+}
+
+/* ---------------- reading progress + back to top ---------------- */
+function initScrollUi() {
+  const bar = $("progress-bar");
+  const top = $("totop");
+  let pending = 0;
+
+  const update = () => {
+    pending = 0;
+    const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    if (bar) bar.style.transform = `scaleX(${Math.min(1, Math.max(0, y / max))})`;
+    if (top) top.classList.toggle("is-shown", y > window.innerHeight * 1.1);
+  };
+  const onScroll = () => {
+    if (!pending) pending = requestAnimationFrame(update);
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  update();
+
+  if (top)
+    top.addEventListener("click", () =>
+      window.scrollTo({ top: 0, behavior: REDUCED ? "auto" : "smooth" })
+    );
 }
 
 /* ---------------- init ---------------- */
@@ -855,14 +1167,23 @@ function init() {
   renderCarousel();
   renderEnvelopes();
   renderFooter();
+  renderHeroDate();
   $("year").textContent = new Date().getFullYear();
 
   observeReveals();
   setInterval(refreshEnvelopeStates, 30000);
 
-  $("slideshow-btn").addEventListener("click", openSlideshow);
+  $("slideshow-btn").addEventListener("click", () => openLightbox(CONTENT.gallery, 0, true));
 
   initCarousel();
+  initScrollUi();
+
+  /* any tappable photo anywhere opens the viewer */
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-list]");
+    if (!btn) return;
+    openLightbox(listFor(btn.dataset.list), Number(btn.dataset.i), false);
+  });
 
   const envelopeList = $("envelope-list");
   if (envelopeList) {
@@ -888,9 +1209,14 @@ function init() {
 
   document.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeLetter));
   document.addEventListener("keydown", (e) => {
+    if (LB.open) {
+      if (e.key === "Escape") closeLightbox();
+      else if (e.key === "ArrowRight") lbStep(1);
+      else if (e.key === "ArrowLeft") lbStep(-1);
+      return;
+    }
     if (e.key !== "Escape") return;
     if (!$("modal").hidden) closeLetter();
-    else if (slideshowEl && !slideshowEl.hidden) closeSlideshow();
     else if ($("lock").classList.contains("is-letters")) $("lock").classList.remove("is-letters");
   });
 

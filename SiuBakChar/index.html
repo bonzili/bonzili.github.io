@@ -6,12 +6,17 @@
 <title>Siu Bak Char💙</title>
 <meta name="description" content="A little corner of the sky, made just for you.">
 <meta name="theme-color" content="#bfe3fb">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Happy Birthday, Siu Bak Char 💙">
+<meta property="og:description" content="A little corner of the sky, made just for you.">
+<meta property="og:image" content="https://bonzili.me/SiuBakChar/assets/sunset.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/gif" href="assets/favicon.gif">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=13">
+<link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body class="is-locked">
 
@@ -29,6 +34,9 @@
   <span class="star star--4"></span>
   <span class="star star--5"></span>
 </div>
+
+<!-- reading progress (celebration page only) -->
+<div class="progress" aria-hidden="true"><span class="progress__bar" id="progress-bar"></span></div>
 
 <!-- ============ 1. COUNTDOWN LOCK ============ -->
 <section class="lock" id="lock" aria-label="Countdown">
@@ -102,15 +110,28 @@
   <!-- hero + letter -->
   <section class="hero" aria-label="Birthday greeting">
     <div class="hero__inner">
-      <img class="hero__gif" src="assets/birthday.gif" alt="A little Maltese celebrating">
+      <img class="hero__gif" src="assets/birthday.gif" alt="A little Maltese celebrating" decoding="async">
       <p class="kicker kicker--dark">Happy Birthday<br>saang1 yat6 faai3 lok6</p>
-      <h1 class="hero__name">Siu Bak Char <span class="zh"></span></h1>
+      <h1 class="hero__name">Siu Bak Char <span class="zh">小白Char</span></h1>
+      <p class="hero__date" id="hero-date"></p>
       <p class="hero__from">from <strong>Siu Gai Mo</strong> BB:D</p>
 
       <div class="letter-card">
         <span class="washi washi--tl" aria-hidden="true"></span>
-        <p class="letter" id="typed-letter" aria-live="polite"></p>
-        <a class="btn" href="#timeline">Let's look back <span aria-hidden="true">↓</span></a>
+        <p class="letter" id="typed-letter" aria-hidden="true"></p>
+        <p class="letter__sr" id="letter-full"></p>
+        <p class="letter__hint" id="letter-hint" hidden>tap the letter to skip 💙</p>
+        <div class="hero__actions">
+          <button class="btn btn--song" id="song-btn" type="button" aria-pressed="false">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M9.7 17.6V6.2l9-2v11"/>
+              <circle cx="7" cy="17.6" r="2.7"/>
+              <circle cx="16" cy="15.2" r="2.7"/>
+            </svg>
+            <span id="song-btn-label">Play our song</span>
+          </button>
+          <a class="btn btn--ghost" href="#timeline">Let's look back <span aria-hidden="true">↓</span></a>
+        </div>
       </div>
     </div>
   </section>
@@ -137,7 +158,8 @@
     <header class="section__head">
       <p class="kicker kicker--dark">Little windows into us</p>
       <h2 class="section__title" id="gallery-title">Polaroid Wall <em></em></h2>
-      <button class="btn btn--ghost" id="slideshow-btn" type="button">▶ Play the slideshow</button>
+      <button class="btn btn--ghost" id="slideshow-btn" type="button">▶ Play them all</button>
+      <p class="section__hint">Tap any photo to see it big</p>
     </header>
     <div class="gallery" id="gallery-grid"></div>
     <p class="wall__lyric">「我們曾走過無數地方和無盡歲月」<cite>— 五月天《任意門》</cite></p>
@@ -150,11 +172,12 @@
       <h2 class="section__title" id="more-title">More and more incoming…</h2>
       <p class="section__lede">The everyday ones — added as they happen.</p>
     </header>
-    <div class="carousel">
-      <button class="carousel__nav carousel__nav--prev" id="carousel-prev" type="button" aria-label="Previous">‹</button>
-      <div class="carousel__track" id="carousel-track"></div>
-      <button class="carousel__nav carousel__nav--next" id="carousel-next" type="button" aria-label="Next">›</button>
+    <div class="carousel" id="carousel">
+      <button class="carousel__nav carousel__nav--prev" id="carousel-prev" type="button" aria-label="Previous photo">‹</button>
+      <div class="carousel__track" id="carousel-track" tabindex="0" role="group" aria-label="Everyday photos — swipe sideways, or use the arrow keys"></div>
+      <button class="carousel__nav carousel__nav--next" id="carousel-next" type="button" aria-label="Next photo">›</button>
     </div>
+    <div class="carousel__dots" id="carousel-dots" aria-hidden="true"></div>
   </section>
 
   <footer class="footer">
@@ -169,6 +192,8 @@
     <button class="moon" id="moon" type="button" aria-label="A hidden little something">🌹</button>
   </footer>
 </main>
+
+<button class="totop" id="totop" type="button" aria-label="Back to the top">↑</button>
 
 <!-- envelope reader -->
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
@@ -189,7 +214,11 @@
 <audio id="bgm" loop preload="none" playsinline muted></audio>
 <div class="music" id="music" hidden>
   <button class="music__btn" id="music-btn" type="button" aria-label="Play music" aria-pressed="false">
-    <span class="music__icon" id="music-icon" aria-hidden="true">🔇</span>
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M9.7 17.6V6.2l9-2v11"/>
+      <circle cx="7" cy="17.6" r="2.7"/>
+      <circle cx="16" cy="15.2" r="2.7"/>
+    </svg>
   </button>
   <div class="music__panel" id="music-panel">
     <input class="music__vol" id="music-vol" type="range" min="0" max="1" step="0.01" value="0.2" aria-label="Music volume">
@@ -197,6 +226,6 @@
   <button class="music__handle" id="music-handle" type="button" aria-label="Volume" aria-expanded="false">‹</button>
 </div>
 
-<script src="script.js?v=13"></script>
+<script src="script.js?v=14"></script>
 </body>
 </html>
