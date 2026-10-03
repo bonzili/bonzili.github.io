@@ -667,6 +667,8 @@ function setIdentity(nextType, persist = true) {
   $("water-touch-name").textContent = CONFIG.characters.water;
   $("fire-legend-name").textContent = CONFIG.characters.fire;
   $("water-legend-name").textContent = CONFIG.characters.water;
+  $("pause-fire-name").textContent = CONFIG.characters.fire;
+  $("pause-water-name").textContent = CONFIG.characters.water;
 
   document.querySelectorAll(".touch-controls button[data-player]").forEach((button) => {
     const name = CONFIG.characters[button.dataset.player];
@@ -1298,10 +1300,19 @@ function updateInterface() {
   const secret = Boolean(level.secret);
   $("level-kicker").textContent = secret ? "Secret 01 / 01" : `Forest ${String(levelIndex + 1).padStart(2, "0")} / ${String(LEVELS.length).padStart(2, "0")}`;
   $("level-name").textContent = level.name;
-  $("fire-gems").textContent = String(players.find((player) => player.type === "fire").collected);
-  $("water-gems").textContent = String(players.find((player) => player.type === "water").collected);
+  const firePlayer = players.find((player) => player.type === "fire");
+  const waterPlayer = players.find((player) => player.type === "water");
+  const fireRemaining = Math.max(0, CONFIG.requiredGems - firePlayer.collected);
+  const waterRemaining = Math.max(0, CONFIG.requiredGems - waterPlayer.collected);
+  const doorsReady = fireRemaining === 0 && waterRemaining === 0;
+  $("fire-gems").textContent = String(firePlayer.collected);
+  $("water-gems").textContent = String(waterPlayer.collected);
   $("firefly-count").textContent = String(level.fireflies || 0);
-  announceStatus(`${level.name}. Red ${players.find((player) => player.type === "fire").collected} of ${CONFIG.requiredGems}, blue ${players.find((player) => player.type === "water").collected} of ${CONFIG.requiredGems}.`);
+  $("hud-objective-text").textContent = doorsReady
+    ? "Doors ready · reach both together"
+    : `Match diamonds · ${fireRemaining} red + ${waterRemaining} blue left`;
+  $("hud-objective").classList.toggle("is-ready", doorsReady);
+  announceStatus(`${level.name}. Red ${firePlayer.collected} of ${CONFIG.requiredGems}, blue ${waterPlayer.collected} of ${CONFIG.requiredGems}.`);
   const steps = document.querySelectorAll(".journey__step");
   steps.forEach((step, index) => {
     step.classList.toggle("is-active", !secret && index === levelIndex);

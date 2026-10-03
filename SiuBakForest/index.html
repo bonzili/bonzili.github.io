@@ -12,7 +12,7 @@
   <link rel="preload" as="image" href="assets/SiuBak.png">
   <link rel="preload" as="image" href="assets/SiuGaiMo.png">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=18">
+  <link rel="stylesheet" href="styles.css?v=19">
 </head>
 <body>
   <div class="game-shell" id="game-shell">
@@ -46,6 +46,10 @@
             <span class="gem-card__mark" aria-hidden="true"></span>
             <span><strong id="water-gems">0</strong><small>/ 4</small></span>
           </div>
+          <p class="hud__objective" id="hud-objective" aria-live="polite">
+            <span class="hud__objective-mark" aria-hidden="true">✦</span>
+            <span id="hud-objective-text">Match diamonds, then reach both doors</span>
+          </p>
         </div>
 
         <div class="hud__actions">
@@ -131,6 +135,11 @@
           <p class="eyebrow eyebrow--light">The forest is waiting</p>
           <h2 id="pause-title">Paused</h2>
           <p>Take a breath. Your two adventurers will stay right here.</p>
+          <p class="small-card__mission">Match the diamonds, light the lantern, then reach both doors together.</p>
+          <div class="pause-controls" aria-label="Controls">
+            <p><span class="legend-mark legend-mark--fire" aria-hidden="true"></span><strong id="pause-fire-name">Siu Bak</strong> <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd></p>
+            <p><span class="legend-mark legend-mark--water" aria-hidden="true"></span><strong id="pause-water-name">Siu Gai Mo</strong> <kbd>A</kbd><kbd>D</kbd><kbd>W</kbd></p>
+          </div>
           <button class="primary-button" id="resume-button" type="button">Continue the quest <span aria-hidden="true">→</span></button>
           <button class="text-button" id="pause-restart-button" type="button">Restart this forest</button>
         </div>
@@ -214,6 +223,6 @@
     </footer>
   </div>
 
-  <script src="script.js?v=29"></script>
+  <script src="script.js?v=30"></script>
 </body>
 </html>
