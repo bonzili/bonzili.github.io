@@ -36,9 +36,9 @@ const CONFIG = {
 const CONTENT = {
   /* The letter typed out under the title */
   letter:
-    "To my dearest Siu Bak Char,\n\n" +
-    "Thank you for walking into my most ordinary days and turning them into the ones I want to keep forever. You are my favourite hello, my softest place to land, and the reason a plain Tuesday can suddenly feel like a celebration.\n\n" +
-    "Happy birthday, my love. May this year love you back as much as you love everyone around you.\n\n" +
+    "To my beloved Siu Bak BB,\n\n" +
+    "實體信 is way better so let me take out the real one:D\n\n" +
+    "生生生生生生日日日日日日快快快快快快樂樂樂樂樂樂\n\n" +
     "Forever yours,\nSiu Gai Mo",
 
   /* Optional Chinese version of the letter — fill this in later and it appears automatically */
@@ -51,14 +51,14 @@ const CONTENT = {
       when: "20 Mar 2026",
       title: "First day matched:D",
       zhTitle: "",
-      text: "Im glad I didnt just answer ",
+      text: "喺茫茫人海裡面match到你係我最大嘅幸運<3 好彩當時opening嗰陣你問weekend最想做乜我冇剩係答到訓到自然醒:D",
       zhText: "",
     },
     {
       when: "12 Apr 2026",
       title: "Our first date",
       zhTitle: "",
-      text: "I planned the day a hundred times in my head, and it still went nothing like I imagined — it was better.",
+      text: "好好好緊張嘅第一次Date:D 嗰陣同你傾計知你中意狗點知轉頭就比我係IG 見到依間狗狗cafe:D 就係咁啱啱好<3",
       zhText: "",
       photos: ["assets/first-date.jpg"],
     },
@@ -66,14 +66,14 @@ const CONTENT = {
       when: "19 Apr 2026",
       title: "Officially us",
       zhTitle: "",
-      text: "I still vividly rmb how nervous I was that day but I'm really really glad that I asked the question under the ICC 擁抱時機·活出精彩:D",
+      text: "其實成晚都好想揾機會同你表白但又唔知點開口好。由灣仔周圍行行到海旁，雖然都係好好好緊張唔知自己要做乜好但係ICC嗰個擁抱時機·活出精彩嘅Banner鼓勵左我:D 我們的故事從此正式開啟💙",
       zhText: "",
     },
     {
       when: "8 Jul 2026",
       title: "Our first trip together",
       zhTitle: "",
-      text: "I'm really really greatful to have you pui ngo tai jor 3 cheng Mayday<3.",
+      text: "嗰三場演唱會係我睇過最好睇嘅演唱會:D 多謝有你一入坑就陪我睇左三場<3 有你陪我慶祝生日，就算中間打風最後冇得去阿里山成個Trip我都好好好開心!",
       zhText: "",
       photos: ["assets/mayday.jpg"],
     },
@@ -81,7 +81,7 @@ const CONTENT = {
       when: "26 Aug 2026",
       title: "Our second trip to Japan",
       zhTitle: "",
-      text: "煙火幾靚都好，都不及有你係身邊賦予一切意義",
+      text: "成日都覺得自己頭幾日係日本根本唔知做緊乜:0)到你到左日本之後先開始真正嘅日本之旅<3 不過無論煙花幾靚都好都唔及有你係我身邊一齊睇💙",
       zhText: "",
       photos: ["assets/hanabi.jpg", "assets/disney.jpg"],
     },
@@ -97,8 +97,8 @@ const CONTENT = {
   /* Polaroid wall — drop real files into assets/ and set src, e.g. src:"assets/photo-01.jpg" */
   gallery: [
     { cap: "Our first date", zh: "", src: "assets/first-date.jpg" },
-    { cap: "Mayday, together", zh: "", src: "assets/mayday.jpg" },
-    { cap: "Hanabi night", zh: "", src: "assets/hanabi.jpg" },
+    { cap: "Mayday", zh: "", src: "assets/mayday.jpg" },
+    { cap: "Hanabi", zh: "", src: "assets/hanabi.jpg" },
     { cap: "Kai Tak", zh: "", src: "assets/kaitak.jpg" },
     { cap: "Disneyland", zh: "", src: "assets/disney.jpg" },
     { cap: "Camping", zh: "", src: "assets/camping.jpg" },
@@ -112,6 +112,7 @@ const CONTENT = {
     { cap: "Tokyo Disneyland~", zh: "", src: "assets/carousell/carousel-3.jpg", pos: "50% 45%" },
     { cap: "Picnic:D", zh: "", src: "assets/carousell/carousel-4.jpg", pos: "50% 30%" },
     { cap: "Mid Autumn!", zh: "", src: "assets/carousell/carousel-5.jpg", pos: "50% 55%" },
+    { cap: "Lantern fair~", zh: "", src: "assets/carousell/mid-autumn.jpg", pos: "50% 30%" },
     { cap: "Happy Day 100<3", zh: "", src: "assets/carousell/carousel-6.jpg", pos: "50% 45%" },
     { cap: "HKUST", zh: "", src: "assets/carousell/carousel-7.jpg", pos: "50% 90%" },
     { cap: ":0", zh: "", src: "assets/carousell/carousel-8.jpg", pos: "32% 45%" },
