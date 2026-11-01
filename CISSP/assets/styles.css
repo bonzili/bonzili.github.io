@@ -38,6 +38,7 @@
 html {
   min-width: 320px;
   color-scheme: light;
+  overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
   background: var(--paper);
   color: var(--ink);
@@ -47,6 +48,7 @@ html {
 
 body {
   margin: 0;
+  overscroll-behavior-y: none;
   font-family: var(--sans);
   font-size: 15.5px;
   line-height: 1.62;
