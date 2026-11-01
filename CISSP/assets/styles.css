@@ -37,6 +37,7 @@
 
 html {
   min-width: 320px;
+  color-scheme: light;
   -webkit-tap-highlight-color: transparent;
   background: var(--paper);
   color: var(--ink);
@@ -1713,4 +1714,44 @@ h1, h2, h3, .display { font-family: var(--serif); font-weight: 500; letter-spaci
   .plan-day { border-left: 0; border-top: 1px solid var(--line); }
   .plan-day:first-child { border-top: 0; }
   .plan-exam { padding: 22px; }
+}
+
+/* ---------- iOS safe areas ----------
+   The page paints edge to edge (viewport-fit=cover), so the chrome is padded
+   back out of the Dynamic Island and the home-indicator zone. On desktop the
+   env() values are 0 and nothing changes. */
+
+@supports (padding: env(safe-area-inset-top)) {
+  .topbar {
+    padding-top: env(safe-area-inset-top, 0px);
+    min-height: calc(62px + env(safe-area-inset-top, 0px));
+  }
+  .spine { padding-top: env(safe-area-inset-top, 0px); }
+  .exam-bar { top: calc(62px + env(safe-area-inset-top, 0px)); }
+  .study-nav, .session__rail { top: calc(86px + env(safe-area-inset-top, 0px)); }
+}
+
+@media (max-width: 1024px) {
+  @supports (padding: env(safe-area-inset-bottom)) {
+    .tabbar { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px); }
+    .site-foot { padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+    .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 90px); }
+    .spine__foot { padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+  }
+}
+
+@media (max-width: 720px) {
+  @supports (padding: env(safe-area-inset-top)) {
+    .topbar { min-height: calc(56px + env(safe-area-inset-top, 0px)); }
+    .exam-bar { top: calc(56px + env(safe-area-inset-top, 0px)); }
+  }
+}
+
+/* Touch controls should respond immediately and not select like prose. */
+button, a, [role="button"] { touch-action: manipulation; }
+.btn, .option, .tabbar a, .spine__nav a, .domain-link, .domain-card, .mode,
+.plan-step, .brief__item, .deck-row, .flag-button, .palette-grid button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }

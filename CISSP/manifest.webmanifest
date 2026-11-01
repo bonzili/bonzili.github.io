@@ -1,0 +1,31 @@
+{
+  "name": "CISSP Field Manual",
+  "short_name": "CISSP Manual",
+  "description": "Condensed notes, original practice questions, flashcards, and a timed mock exam for the CISSP.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#e9ede6",
+  "theme_color": "#e9ede6",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

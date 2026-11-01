@@ -85,6 +85,10 @@ The default target date is **30 November 2026** (`META.examDate` in `assets/data
 - The mock here is a **fixed-form 125-question midpoint**. It cannot reproduce the adaptive stopping rule or the “no review” behaviour of the real CAT, but it reproduces the domain mix and time pressure.
 - The estimated scaled score is a study aid: it maps 70% raw to 700 and is **not** an ISC2 score. Readiness is a weighted practice estimate, not a prediction.
 
+## iPhone and installable app
+
+The page uses `viewport-fit=cover` and the `env(safe-area-inset-*)` values so the top bar clears the Dynamic Island and the bottom tab bar clears the home indicator. Safari's own bottom toolbar sits outside the page; for a true full-screen study app, open the site on the iPhone, tap **Share → Add to Home Screen**, and launch it from the icon. The web app manifest and 180/192/512 px icons are included in this folder.
+
 ## Privacy
 
 No accounts, analytics, cookies, or network calls beyond the Google Fonts stylesheet. Study progress is stored only in the browser’s `localStorage`. “Reset data” on the Progress page clears it.
