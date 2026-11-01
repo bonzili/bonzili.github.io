@@ -56,6 +56,7 @@
 
   var STORAGE_KEY = "cissp.fieldmanual.v1";
   var ACTIVE_EXAM_KEY = "cissp.fieldmanual.exam.v1";
+  var ACTIVE_PRACTICE_KEY = "cissp.fieldmanual.practice.v1";
   var PALETTE = {
     1: { name: "Security and Risk Management", short: "Risk & Governance", weight: 16 },
     2: { name: "Asset Security", short: "Asset Security", weight: 10 },
@@ -255,6 +256,184 @@
     } catch (err) {
       /* Storage may be unavailable or full; the session still works in memory. */
     }
+  }
+
+  function safeNumber(value, min, max, fallback) {
+    var n = Number(value);
+    if (!isFinite(n)) return fallback;
+    return clamp(n, min, max);
+  }
+
+  function isDateKey(value) {
+    return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+  }
+
+  function sanitizeImportedState(raw) {
+    var source = raw && raw.app === "cissp-field-manual" ? raw.state : raw;
+    if (!source || typeof source !== "object") throw new Error("Invalid progress file");
+    var next = defaultState();
+
+    if (source.attempts && typeof source.attempts === "object") {
+      Object.keys(source.attempts).forEach(function (id) {
+        if (!QID[id]) return;
+        var a = source.attempts[id];
+        if (!a || typeof a !== "object") return;
+        var c = safeNumber(a.c, 0, 9999, 0);
+        var w = safeNumber(a.w, 0, 9999, 0);
+        next.attempts[id] = {
+          c: c,
+          w: w,
+          last: safeNumber(a.last, 0, Date.now() + 86400000, Date.now()),
+          box: safeNumber(a.box, 0, 4, 0),
+          lastResult: typeof a.lastResult === "boolean" ? a.lastResult : (w > 0 ? false : true)
+        };
+      });
+    }
+
+    if (Array.isArray(source.bookmarks)) {
+      source.bookmarks.forEach(function (id) { if (QID[id] && next.bookmarks.indexOf(id) === -1) next.bookmarks.push(id); });
+    }
+
+    if (source.cards && typeof source.cards === "object") {
+      Object.keys(source.cards).forEach(function (id) {
+        if (!CARDID[id]) return;
+        var c = source.cards[id];
+        if (!c || typeof c !== "object") return;
+        next.cards[id] = {
+          box: safeNumber(c.box, 0, 4, 0),
+          due: isDateKey(c.due) ? c.due : todayKey(),
+          seen: safeNumber(c.seen, 0, 9999, 0),
+          lapses: safeNumber(c.lapses, 0, 9999, 0)
+        };
+      });
+    }
+
+    if (Array.isArray(source.exams)) {
+      source.exams.slice(-20).forEach(function (e) {
+        if (!e || typeof e !== "object") return;
+        var total = safeNumber(e.total, 0, 300, 0);
+        if (!total) return;
+        var correct = safeNumber(e.correct, 0, total, 0);
+        var byDomain = {};
+        Object.keys(e.byDomain || {}).forEach(function (id) {
+          if (!/^[1-8]$/.test(id)) return;
+          var row = e.byDomain[id];
+          if (!row || typeof row !== "object") return;
+          var rowTotal = safeNumber(row.total, 0, 300, 0);
+          if (!rowTotal) return;
+          byDomain[id] = { total: rowTotal, correct: safeNumber(row.correct, 0, rowTotal, 0) };
+        });
+        var review = [];
+        (Array.isArray(e.review) ? e.review : []).slice(0, 200).forEach(function (r) {
+          if (!r || !QID[r.id]) return;
+          review.push({
+            id: r.id,
+            picked: typeof r.picked === "number" ? safeNumber(r.picked, 0, 3, null) : null,
+            correct: !!r.correct
+          });
+        });
+        next.exams.push({
+          dateKey: isDateKey(e.dateKey) ? e.dateKey : todayKey(),
+          date: typeof e.date === "string" ? e.date : new Date().toISOString(),
+          total: total,
+          correct: correct,
+          pct: correct / total,
+          scaled: safeNumber(e.scaled, 300, 1000, Math.round(300 + (correct / total) * 700)),
+          seconds: safeNumber(e.seconds, 0, 10800, 0),
+          byDomain: byDomain,
+          review: review
+        });
+      });
+    }
+
+    if (source.activity && typeof source.activity === "object") {
+      Object.keys(source.activity).sort().slice(-400).forEach(function (key) {
+        if (!isDateKey(key)) return;
+        var day = source.activity[key];
+        if (!day || typeof day !== "object") return;
+        next.activity[key] = {
+          a: safeNumber(day.a, 0, 100000, 0),
+          c: safeNumber(day.c, 0, 100000, 0),
+          cards: safeNumber(day.cards, 0, 100000, 0)
+        };
+      });
+    }
+
+    if (source.settings && isDateKey(source.settings.examDate)) next.settings.examDate = source.settings.examDate;
+
+    if (source.daily && isDateKey(source.daily.date)) {
+      next.daily = {
+        date: source.daily.date,
+        drill: !!source.daily.drill,
+        review: !!source.daily.review,
+        cards: !!source.daily.cards
+      };
+    }
+
+    if (source.streak && isDateKey(source.streak.last)) {
+      next.streak = { last: source.streak.last, count: safeNumber(source.streak.count, 0, 100000, 0) };
+    }
+
+    if (source.visits && typeof source.visits === "object") {
+      Object.keys(source.visits).forEach(function (id) {
+        if (!/^[1-8]$/.test(id)) return;
+        next.visits[id] = safeNumber(source.visits[id], 0, Date.now() + 86400000, 0);
+      });
+    }
+
+    next.lastSummary = null;
+    return next;
+  }
+
+  function exportProgress() {
+    var payload = {
+      app: "cissp-field-manual",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      state: state
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "cissp-progress-" + todayKey() + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1200);
+    toast("Progress exported. Keep the file somewhere safe.");
+  }
+
+  function importProgressFile(file) {
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { toast("That file is too large for a progress backup."); return; }
+    file.text().then(function (text) {
+      var parsed;
+      try { parsed = JSON.parse(text); } catch (err) { toast("That file is not valid JSON."); return; }
+      var next;
+      try { next = sanitizeImportedState(parsed); } catch (err) { toast("That file is not a CISSP progress export."); return; }
+      var answered = Object.keys(next.attempts).length;
+      var seenCards = Object.keys(next.cards).length;
+      var dialog = openDialog({
+        title: "Replace this browser’s progress?",
+        body: "<p>The file contains <strong>" + answered + " answered questions</strong>, <strong>" + seenCards + " cards</strong>, and <strong>" + next.exams.length + " mock exams</strong>.</p><p>Importing replaces the progress currently stored in this browser. Export your current progress first if you want a copy.</p>",
+        actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Keep current progress</button><button type="button" class="btn btn--small" data-confirm-import>Replace and import</button>'
+      });
+      dialog.querySelector("[data-confirm-import]").addEventListener("click", function () {
+        dialog.close();
+        state = next;
+        lastPracticeSummary = null;
+        lastExamResult = null;
+        practiceSession = null;
+        cardSession = null;
+        examSession = null;
+        clearPracticeState();
+        clearActiveExam();
+        save();
+        render();
+        toast("Progress imported.");
+      });
+    }).catch(function () { toast("The file could not be read."); });
   }
 
   function ensureDaily() {
@@ -596,7 +775,7 @@
   function renderCrumbs(route) {
     var crumbs = document.getElementById("crumbs");
     var items = [{ label: "Field manual", href: "#/" }];
-    if (route.section === "mindset") items.push({ label: "Manager's lens" });
+    if (route.section === "mindset") items.push({ label: "Mindset" });
     if (route.section === "plan") items.push({ label: "Study plan" });
     if (route.section === "study") {
       items.push({ label: "Domain notes", href: "#/study" });
@@ -632,13 +811,17 @@
     scrim.hidden = false;
     menuButton.setAttribute("aria-expanded", "true");
     document.body.style.overflow = "hidden";
+    var closeButton = document.getElementById("spine-close");
+    if (closeButton) closeButton.focus({ preventScroll: true });
   }
 
   function closeSpine() {
+    var wasOpen = spine.classList.contains("is-open");
     spine.classList.remove("is-open");
     scrim.hidden = true;
     menuButton.setAttribute("aria-expanded", "false");
     document.body.style.overflow = "";
+    if (wasOpen) menuButton.focus({ preventScroll: true });
   }
 
   function motionBehavior() {
@@ -755,7 +938,7 @@
             '<div class="brief"><div class="brief__head"><h2>Four moves</h2><span class="label">' + (state.daily.drill && (state.daily.cards || due === 0) && (state.daily.review || wrong === 0) && visitedToday(focus.id) ? "Brief complete" : "In progress") + "</span></div>" +
               '<div class="brief__list">' + brief + "</div>" +
             "</div>" +
-            '<aside class="lens-card">' +
+            '<div class="lens-card">' +
               '<p class="label">The manager’s lens</p>' +
               '<h2 class="display-m">Answer the role, not the tool.</h2>' +
               '<p>Most missed questions are not missed facts. They are answers given by an engineer when the question asked for a manager.</p>' +
@@ -765,7 +948,7 @@
                 "<li><span>03</span>Risk is accepted by the business, never the analyst.</li>" +
               "</ul>" +
               '<a class="link-arrow" href="#/mindset">Open the full primer ' + icon("arrow") + "</a>" +
-            "</aside>" +
+            "</div>" +
           "</div>" +
         "</section>" +
 
@@ -808,6 +991,11 @@
       return "<tr><td>" + esc(v.verb) + "</td><td>" + esc(v.meaning) + "</td></tr>";
     }).join("");
 
+    var technical = (MINDSET.technical || []).map(function (item, index) {
+      return '<article class="tech-item"><span class="tech-item__no">' + pad(index + 1) + "</span>" +
+        "<h3>" + esc(item.title) + "</h3><p>" + esc(item.body) + "</p></article>";
+    }).join("");
+
     var worked = MINDSET.worked || { options: [] };
     var options = (worked.options || []).map(function (o) {
       var isCorrect = /^B$/.test(o.letter);
@@ -830,6 +1018,10 @@
 
         '<section class="section--tight"><div class="section-head"><div><h2>Ten rules for ambiguous answers</h2><p>Use them when two options both look defensible.</p></div></div>' +
         '<div class="rules">' + rules + "</div></section>" +
+
+        '<section class="section"><div class="section-head"><div><h2>If you come from a technical role</h2><p>Your depth is an advantage in the technical domains. These are the reflexes that cost technical candidates marks.</p></div>' +
+        '<a class="link-arrow" href="#/practice" data-start="manager">Take the manager’s cut ' + icon("arrow") + "</a></div>" +
+        '<div class="tech-grid">' + technical + "</div></section>" +
 
         '<section class="section"><div class="section-head"><div><h2>Read the operative word</h2><p>The same scenario has a different answer for FIRST and BEST.</p></div></div>' +
         '<table class="verb-table"><tbody>' + verbs + "</tbody></table></section>" +
@@ -1084,6 +1276,12 @@
     var bookmarked = state.bookmarks.filter(function (id) { return QID[id]; }).length;
     var focus = weakestDomain();
     var isNew = stats.attempts === 0;
+    var activeDrill = (practiceSession && !practiceSession.completed) ? practiceSession : loadPracticeState();
+    var resumeDrill = activeDrill
+      ? '<div class="exam-warning" style="border-color:#a9c6b4;background:var(--ok-soft)"><p style="color:#1b4a37"><strong>A drill is paused.</strong> Question ' +
+        (activeDrill.index + 1) + " of " + activeDrill.items.length + " in “" + esc(activeDrill.title) + "”. " +
+        '<a href="#/practice/session" style="color:#1b4a37">Resume</a> · <button type="button" data-practice-discard style="border:0;background:none;padding:0;text-decoration:underline;color:#1b4a37;font:inherit">discard</button></p></div>'
+      : "";
 
     var modes = "";
     modes += '<a class="mode ' + (isNew ? "mode--primary" : "") + '" href="#/practice" data-start="diagnostic">' +
@@ -1095,6 +1293,11 @@
       '<div class="mode__top"><span class="label">Daily drill</span><span class="chip">10 questions</span></div>' +
       "<h3>Quick ten</h3><p>A short interleaved set from across the register. The best use of a coffee break.</p>" +
       '<div class="mode__foot"><span>~ 8 minutes</span><span>Mixed</span></div></a>';
+
+    modes += '<a class="mode" href="#/practice" data-start="manager">' +
+      '<div class="mode__top"><span class="label">For technical candidates</span><span class="chip">20 questions</span></div>' +
+      "<h3>Manager’s cut</h3><p>Five questions each from risk, assets, assessment, and operations — the four domains technical candidates most often underweight.</p>" +
+      '<div class="mode__foot"><span>~ 15 minutes</span><span>Management-weighted</span></div></a>';
 
     modes += '<a class="mode" href="#/practice" data-start="weak">' +
       '<div class="mode__top"><span class="label">Adaptive</span><span class="chip">20 questions</span></div>' +
@@ -1133,12 +1336,15 @@
         '<div class="page-head__aside"><span class="chip">' + stats.attempts + " answered</span>" +
         '<span class="chip ' + (stats.accuracy != null && stats.accuracy >= 0.7 ? "chip--ok" : "") + '">' + (stats.accuracy == null ? "No accuracy yet" : pct(stats.accuracy) + " correct") + "</span></div></header>" +
 
+        resumeDrill +
         '<h2 class="sr-only">Practice modes</h2>' +
         '<div class="mode-grid">' + modes + "</div>" +
 
         '<section class="section"><div class="section-head"><div><h2>Drill one domain</h2><p>Fifteen questions from a single domain, in a random order.</p></div>' +
         '<span class="label">Weakest: ' + pad(focus.id) + " · " + esc(focus.short) + "</span></div>" +
         '<div class="domain-picker">' + picker + "</div></section>" +
+
+        '<div class="callout" style="margin-top:18px"><p class="callout__label">How close is this bank?</p><p>These are original questions written to the outline. They are deliberately shorter and more direct than the real CAT. Use them for daily retrieval and explanation practice; use the official practice tests for your score benchmark.</p></div>' +
 
         '<section class="section"><div class="split"><div class="callout" style="margin:0"><p class="callout__label">How to review a miss</p><p>Name the property under attack, the role in the question, and the operative verb. If the explanation surprises you, bookmark the question and revisit it in three days — not in three minutes.</p></div>' +
         '<div class="callout callout--mnemonic" style="margin:0"><p class="callout__label">Estimated readiness</p><p>' + (readiness() == null ? "Answer at least eight questions and your answer sheet will start to fill." : readiness() + " / 100 — " + readinessLabel(readiness()) + ". This is a practice estimate, not an ISC2 score.") + "</p></div></div></section>"
@@ -1167,6 +1373,13 @@
       pool = shuffle(questionsFor(domain.id)).slice(0, 15);
       title = "Domain " + pad(domain.id);
       kicker = domain.name;
+    } else if (kind === "manager") {
+      [1, 2, 6, 7].forEach(function (domainId) {
+        pool = pool.concat(shuffle(questionsFor(domainId)).slice(0, 5));
+      });
+      pool = shuffle(pool);
+      title = "Manager’s cut";
+      kicker = "Risk · assets · assessment · operations";
     } else if (kind === "weak") {
       var weighted = [];
       DOMAINS.forEach(function (d) {
@@ -1221,6 +1434,7 @@
     if (!session) return;
     practiceSession = session;
     lastPracticeSummary = null;
+    savePracticeState();
     if (location.hash !== "#/practice/session") location.hash = "#/practice/session";
     else render();
   }
@@ -1229,7 +1443,71 @@
     return practiceSession ? practiceSession.items[practiceSession.index] : null;
   }
 
+  function savePracticeState() {
+    try {
+      if (!practiceSession || practiceSession.completed) {
+        localStorage.removeItem(ACTIVE_PRACTICE_KEY);
+        return;
+      }
+      localStorage.setItem(ACTIVE_PRACTICE_KEY, JSON.stringify({
+        v: 1,
+        kind: practiceSession.kind,
+        domainId: practiceSession.domainId,
+        title: practiceSession.title,
+        kicker: practiceSession.kicker,
+        index: practiceSession.index,
+        startedAt: practiceSession.startedAt,
+        correct: practiceSession.correct,
+        items: practiceSession.items.map(function (item) {
+          return { id: item.q.id, picked: item.picked, submitted: item.submitted, correct: item.correct };
+        })
+      }));
+    } catch (err) { /* storage may be unavailable; the session still works in memory */ }
+  }
+
+  function clearPracticeState() {
+    try { localStorage.removeItem(ACTIVE_PRACTICE_KEY); } catch (err) { /* ignore */ }
+  }
+
+  function loadPracticeState() {
+    try {
+      var raw = localStorage.getItem(ACTIVE_PRACTICE_KEY);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (!data || data.v !== 1 || !Array.isArray(data.items) || !data.items.length) return null;
+      var items = [];
+      for (var i = 0; i < data.items.length; i++) {
+        var rawItem = data.items[i];
+        var q = rawItem && QID[rawItem.id];
+        if (!q) return null;
+        var picked = typeof rawItem.picked === "number" && rawItem.picked >= 0 && rawItem.picked < 4 ? rawItem.picked : null;
+        items.push({ q: q, picked: picked, submitted: !!rawItem.submitted, correct: !!rawItem.correct });
+      }
+      var index = clamp(Number(data.index) || 0, 0, items.length - 1);
+      return {
+        kind: data.kind || "quick",
+        domainId: data.domainId || null,
+        title: data.title || "Practice drill",
+        kicker: data.kicker || "Resumed drill",
+        items: items,
+        index: index,
+        startedAt: Number(data.startedAt) || Date.now(),
+        completed: false,
+        correct: items.filter(function (item) { return item.submitted && item.correct; }).length
+      };
+    } catch (err) {
+      return null;
+    }
+  }
+
   function viewPracticeSession() {
+    if (!practiceSession) {
+      var resumed = loadPracticeState();
+      if (resumed) {
+        practiceSession = resumed;
+        toast("Your drill resumed.");
+      }
+    }
     if (!practiceSession) {
       return {
         title: "Practice",
@@ -1239,6 +1517,7 @@
     var item = practiceItem();
     if (!item) {
       practiceSession = null;
+      clearPracticeState();
       return {
         title: "Practice",
         html: '<section class="empty"><h1>That drill has ended.</h1><p>Open the summary to see what stuck.</p><a class="btn" href="#/practice">Choose another drill</a></section>'
@@ -1288,7 +1567,7 @@
         '<span class="verdict-note">' + (item.correct ? "One more piece of evidence. Move on." : "The best answer is " + "ABCD"[q.answer] + ". Read the lens before the next one.") + "</span>" +
       "</div>";
       explanation = '<div class="explain">' +
-        "<h4>Why</h4><p>" + esc(q.whyText || q.explain || "") + "</p>" +
+        '<h2 class="explain__heading">Why</h2><p>' + esc(q.whyText || q.explain || "") + "</p>" +
         (q.lens ? '<div class="lens"><p class="lens__label">' + icon("compass") + "Manager’s lens</p><p>" + esc(q.lens) + "</p></div>" : "") +
       "</div>";
     }
@@ -1345,6 +1624,7 @@
     if (item.correct) practiceSession.correct += 1;
     recordAnswer(q, item.correct);
     save();
+    savePracticeState();
     repaintPractice();
     focusSoon("[data-next]");
     var feedback = document.querySelector(".verdict-row");
@@ -1393,6 +1673,7 @@
     };
     state.lastSummary = lastPracticeSummary;
     save();
+    clearPracticeState();
     location.hash = "#/practice/summary";
   }
 
@@ -1531,7 +1812,7 @@
         html: '<section class="empty"><h1>No card session is open.</h1><p>Pick a deck and the first card will appear here.</p><a class="btn" href="#/flashcards">Choose a deck</a></section>'
       };
     }
-    return { title: "Card review", html: '<h1 class="sr-only">Flashcard review</h1>' + cardsHTML(), mount: function () { bindCardKeys(); } };
+    return { title: "Card review", html: cardsHTML(), mount: function () { bindCardKeys(); } };
   }
 
   function cardsHTML() {
@@ -1540,7 +1821,8 @@
 
     if (!card) {
       var total = s.again + s.good;
-      return '<div class="card-stage">' +
+      return '<h1 class="sr-only">Flashcard review</h1>' +
+        '<div class="card-stage">' +
         '<div class="score-band" style="width:100%;max-width:720px"><div class="score-band__score"><strong>' + s.good + "<small>/" + total + "</small></strong><span>recalled</span></div>" +
         '<div class="score-band__copy"><h2>Deck complete.</h2><p>' + (s.again ? s.again + " cards went back to tomorrow. That is the system working, not failing." : "Every card was recalled. The intervals will stretch.") + "</p></div></div>" +
         '<div class="card-controls"><a class="btn btn--ghost" href="#/flashcards">Back to decks</a><a class="btn" href="#/flashcards/session" data-restart-cards>Review again ' + icon("refresh") + "</a></div>" +
@@ -1556,7 +1838,8 @@
       ? "Term: " + card.term + ". Definition: " + card.definition + ". Press to hide."
       : "Term: " + card.term + ". Press to reveal the definition.";
 
-    return '<div class="card-stage">' +
+    return '<h1 class="sr-only">Flashcard review</h1>' +
+      '<div class="card-stage">' +
       '<div class="card-meta"><span class="card-meta__count">Card ' + pad(s.index + 1) + " of " + pad(s.queue.length) + "</span>" +
         '<span class="chip">Domain ' + pad(card.d) + " · " + esc(domain ? domain.short : "") + "</span>" +
         '<span class="card-meta__count">' + (isNew ? "New" : "Box " + box) + "</span></div>" +
@@ -1644,6 +1927,8 @@
   }
 
   function startExam() {
+    var strictEl = document.getElementById("strict-mode");
+    var strict = !!(strictEl && strictEl.checked);
     var active = peekActiveExam();
     if (active) {
       var dialog = openDialog({
@@ -1655,14 +1940,14 @@
         dialog.close();
         examSession = null;
         clearActiveExam();
-        launchExam();
+        launchExam(strict);
       });
       return;
     }
-    launchExam();
+    launchExam(strict);
   }
 
-  function launchExam() {
+  function launchExam(strict) {
     var qs = buildExam();
     if (qs.length < META.examQuestions) {
       toast("The question bank is still being written. Only " + qs.length + " questions are available.");
@@ -1675,7 +1960,8 @@
       index: 0,
       startedAt: Date.now(),
       endsAt: Date.now() + (META.examMinutes || 180) * 60000,
-      submitted: false
+      submitted: false,
+      strict: !!strict
     };
     saveActiveExam();
     if (location.hash !== "#/exam/run") location.hash = "#/exam/run";
@@ -1751,11 +2037,13 @@
             '<ol class="rules-list">' +
               '<li><span class="n">01</span><span><strong>125 questions, 180 minutes.</strong> The timer starts immediately and keeps running if you leave the page.</span></li>' +
               '<li><span class="n">02</span><span><strong>Every question is weighted by domain.</strong> The allocation follows the official exam percentages, not an even split.</span></li>' +
-              '<li><span class="n">03</span><span><strong>You may flag and revisit</strong> inside this simulation. The real adaptive exam does not permit review, so answer as if you cannot come back.</span></li>' +
+              '<li><span class="n">03</span><span><strong>You may flag and revisit</strong> inside this simulation. The real adaptive exam does not permit review, so answer as if you cannot come back — or switch on CAT-style pacing below.</span></li>' +
               '<li><span class="n">04</span><span><strong>No feedback until submission.</strong> Choose the best answer, not the most technical one.</span></li>' +
               '<li><span class="n">05</span><span><strong>Unanswered counts as wrong.</strong> There is no penalty for guessing, so never leave a blank if time is short.</span></li>' +
               '<li><span class="n">06</span><span><strong>The score is an estimate.</strong> It is mapped from raw practice performance, not generated by ISC2. Use it as a trend, not a prediction.</span></li>' +
             "</ol>" +
+            '<label class="strict-option" for="strict-mode"><input type="checkbox" id="strict-mode">' +
+              "<span><strong>CAT-style pacing</strong><em>No previous question, no flag, no map. The next question is final — closer to the real adaptive test.</em></span></label>" +
             '<div class="q-actions"><button type="button" class="btn btn--signal" data-exam-start>Begin the mock exam ' + icon("arrow") + "</button>" +
             (active ? '<a class="btn btn--ghost" href="#/exam/run">Resume in progress</a>' : "") + "</div>" +
           "</div>" +
@@ -1789,6 +2077,7 @@
 
   function examHTML() {
     var s = examSession;
+    var strict = !!s.strict;
     var q = QID[s.questions[s.index]];
     if (!q) return '<section class="empty"><h1>Question not found.</h1><p>This attempt may be corrupted.</p></section>';
     var picked = s.answers[q.id];
@@ -1805,11 +2094,11 @@
 
     return '<div class="exam-shell">' +
       '<div class="exam-bar">' +
-        '<div class="exam-bar__title">Mock exam<strong>Fixed-form simulation</strong></div>' +
+        '<div class="exam-bar__title">Mock exam<strong>' + (strict ? "CAT-style · answers are final" : "Fixed-form simulation") + "</strong></div>" +
         '<div class="exam-bar__right">' +
           '<span class="timer" id="exam-timer">' + formatClock(examRemaining() / 1000) + "</span>" +
           '<span class="exam-count"><strong>' + (s.index + 1) + " / " + s.questions.length + "</strong>" + answered + " answered</span>" +
-          '<button type="button" class="palette-toggle" data-exam-palette>' + icon("grid") + " Map</button>" +
+          (strict ? "" : '<button type="button" class="palette-toggle" data-exam-palette>' + icon("grid") + " Map</button>") +
         "</div>" +
       "</div>" +
       '<div class="exam-q">' +
@@ -1817,17 +2106,17 @@
           '<span class="q-head__no">Question <strong>' + pad(s.index + 1) + "</strong></span>" +
           '<span class="chip">Domain ' + pad(q.d) + "</span>" +
           '<span class="chip chip--blue">' + esc(q.topic || "Scenario") + "</span>" +
-          '<button type="button" class="flag-button ' + (flagged ? "is-on" : "") + '" data-exam-flag style="margin-left:auto">' + icon("flag") + (flagged ? "Flagged" : "Flag for review") + "</button>" +
+          (strict ? "" : '<button type="button" class="flag-button ' + (flagged ? "is-on" : "") + '" data-exam-flag style="margin-left:auto">' + icon("flag") + (flagged ? "Flagged" : "Flag for review") + "</button>") +
         "</div>" +
         '<h1 class="q-stem">' + esc(q.stem) + "</h1>" +
         '<div class="options" role="group" aria-label="Answer choices">' + options + "</div>" +
         '<div class="exam-nav">' +
-          '<button type="button" class="btn btn--ghost btn--small" data-exam-prev' + (s.index === 0 ? " disabled" : "") + ">" + icon("arrowLeft") + " Previous</button>" +
-          '<span class="exam-nav__spacer"></span>' +
-          '<button type="button" class="btn btn--ghost btn--small" data-exam-submit>Review & submit</button>' +
+          (strict ? '<span class="exam-nav__spacer"></span>' : '<button type="button" class="btn btn--ghost btn--small" data-exam-prev' + (s.index === 0 ? " disabled" : "") + ">" + icon("arrowLeft") + " Previous</button>" +
+          '<span class="exam-nav__spacer"></span>') +
+          '<button type="button" class="btn btn--ghost btn--small" data-exam-submit>' + (strict ? "Submit exam" : "Review & submit") + "</button>" +
           '<button type="button" class="btn btn--small" data-exam-next' + (s.index === s.questions.length - 1 ? " disabled" : "") + ">Next " + icon("arrow") + "</button>" +
         "</div>" +
-        '<p class="kbd-hint" style="margin-top:16px;text-align:center"><span class="kbd">1–4</span> answer · <span class="kbd">←</span> <span class="kbd">→</span> navigate · <span class="kbd">F</span> flag</p>' +
+        '<p class="kbd-hint" style="margin-top:16px;text-align:center"><span class="kbd">1–4</span> answer · ' + (strict ? '<span class="kbd">→</span> next' : '<span class="kbd">←</span> <span class="kbd">→</span> navigate · <span class="kbd">F</span> flag') + "</p>" +
       "</div>" +
     "</div>";
   }
@@ -1854,7 +2143,7 @@
   }
 
   function openPalette() {
-    if (!examSession) return;
+    if (!examSession || examSession.strict) return;
     var s = examSession;
     var cells = s.questions.map(function (id, i) {
       var answered = s.answers[id] != null;
@@ -1949,6 +2238,7 @@
       pct: pctRaw,
       scaled: scaled,
       seconds: clamp(seconds, 1, META.examMinutes * 60),
+      strict: !!s.strict,
       byDomain: byDomain,
       review: review
     };
@@ -2013,7 +2303,8 @@
           '<h1 class="display-l">' + (pass ? "Above the line." : "Below the line.") + "<br>" + result.correct + " of " + result.total + " correct.</h1>" +
           '<p class="lede">' + (pass ? "The estimate says you are close. The domain table says where the next hour should go." : "This is a fixed-form estimate, not an ISC2 result. The useful signal is the domain breakdown, not the number.") + "</p></div>" +
           '<div class="page-head__aside"><span class="chip ' + (pass ? "chip--ok" : "chip--signal") + '">Estimated scaled ' + result.scaled + "</span>" +
-          '<span class="chip">' + formatDuration(result.seconds) + " used</span></div></header>" +
+          '<span class="chip">' + formatDuration(result.seconds) + " used</span>" +
+          (result.strict ? '<span class="chip">CAT-style · no review</span>' : "") + "</div></header>" +
 
         '<div class="score-band">' +
           '<div class="score-band__score"><strong>' + result.scaled + "<small>/1000</small></strong><span>estimated scaled score</span></div>" +
@@ -2095,7 +2386,9 @@
         '<header class="page-head"><div class="page-head__copy"><p class="eyebrow">Candidate record</p>' +
           '<h1 class="display-l">' + (r == null ? (stats.attempts ? "Not enough evidence yet." : "The sheet is still blank.") : r + " / 100 readiness.") + "</h1>" +
           '<p class="lede">' + (r == null ? "Answer at least eight questions to establish a baseline. Until then, every number below is an empty container." : readinessLabel(r) + ". Readiness is a weighted practice estimate — useful for direction, not a prediction of your ISC2 score.") + "</p></div>" +
-          '<div class="page-head__aside"><button type="button" class="btn btn--ghost btn--small" data-set-exam-date>Exam date</button>' +
+          '<div class="page-head__aside"><button type="button" class="btn btn--ghost btn--small" data-export-progress>Export</button>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-import-progress>Import</button>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-set-exam-date>Exam date</button>' +
           '<button type="button" class="btn btn--ghost btn--small" data-reset>Reset data</button></div></header>' +
 
         '<div class="stat-grid">' +
@@ -2117,7 +2410,10 @@
 
         '<section class="section"><div class="section-head"><div><h2>Recent answers</h2><p>Your last ten question attempts, newest first.</p></div></div>' +
         (recentList ? '<table class="history"><thead><tr><th scope="col">Domain</th><th scope="col">Topic</th><th scope="col">Result</th><th scope="col">Record</th></tr></thead><tbody>' + recentList + "</tbody></table>" : '<div class="empty"><h3>No answers recorded.</h3><p>Start with the diagnostic and the log will fill itself.</p><a class="btn" href="#/practice" data-start="diagnostic">Start the diagnostic</a></div>') +
-        "</section>"
+        "</section>" +
+
+        '<section class="section"><div class="callout"><p class="callout__label">Your data</p><p>Progress is stored only in this browser. Before clearing Safari data, switching devices, or resetting the site, use <strong>Export</strong> to save a JSON backup. <strong>Import</strong> restores it on another browser.</p></div></section>' +
+        '<input type="file" id="progress-import" accept=".json,application/json" hidden>'
     };
   }
 
@@ -2184,7 +2480,11 @@
       examSession = null;
       lastExamResult = null;
       lastPracticeSummary = null;
-      try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(ACTIVE_EXAM_KEY); } catch (err) { /* ignore */ }
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(ACTIVE_EXAM_KEY);
+        localStorage.removeItem(ACTIVE_PRACTICE_KEY);
+      } catch (err) { /* ignore */ }
       save();
       dialog.close();
       render();
@@ -2217,11 +2517,13 @@
         if (["1", "2", "3", "4"].indexOf(key) !== -1) {
           event.preventDefault();
           item.picked = Number(key) - 1;
+          savePracticeState();
           repaintPractice();
           focusSoon(".option.is-selected");
         } else if (["a", "b", "c", "d"].indexOf(key) !== -1) {
           event.preventDefault();
           item.picked = "abcd".indexOf(key);
+          savePracticeState();
           repaintPractice();
           focusSoon(".option.is-selected");
         } else if (event.key === "Enter") {
@@ -2267,7 +2569,7 @@
           repaintExam();
           focusSoon(".option.is-selected");
         }
-      } else if (event.key === "ArrowLeft" && examSession.index > 0) {
+      } else if (event.key === "ArrowLeft" && !examSession.strict && examSession.index > 0) {
         event.preventDefault();
         examSession.index -= 1;
         saveActiveExam();
@@ -2281,7 +2583,7 @@
         repaintExam();
         window.scrollTo(0, 0);
         focusSoon(".option");
-      } else if (ek === "f") {
+      } else if (ek === "f" && !examSession.strict) {
         event.preventDefault();
         var cq = QID[examSession.questions[examSession.index]];
         if (cq) {
@@ -2313,6 +2615,7 @@
       finishPractice();
     } else {
       practiceSession.index += 1;
+      savePracticeState();
       repaintPractice();
       window.scrollTo(0, 0);
       focusSoon(".option");
@@ -2343,6 +2646,19 @@
       return;
     }
 
+    if (event.target.closest("[data-export-progress]")) {
+      event.preventDefault();
+      exportProgress();
+      return;
+    }
+
+    if (event.target.closest("[data-import-progress]")) {
+      event.preventDefault();
+      var importInput = document.getElementById("progress-import");
+      if (importInput) importInput.click();
+      return;
+    }
+
     if (event.target.closest("[data-set-exam-date]")) {
       event.preventDefault();
       openExamDate();
@@ -2357,6 +2673,15 @@
 
     if (event.target.closest("[data-quit]")) {
       practiceSession = null;
+      clearPracticeState();
+      return;
+    }
+
+    if (event.target.closest("[data-practice-discard]")) {
+      practiceSession = null;
+      clearPracticeState();
+      render();
+      toast("Paused drill discarded.");
       return;
     }
 
@@ -2365,6 +2690,7 @@
       var item = practiceItem();
       if (!item || item.submitted) return;
       item.picked = Number(option.getAttribute("data-option"));
+      savePracticeState();
       repaintPractice();
       focusSoon(".option.is-selected");
       return;
@@ -2483,6 +2809,13 @@
 
   /* --------------------------------------------------------------- lifecycle */
 
+  document.addEventListener("change", function (event) {
+    if (!event.target || event.target.id !== "progress-import") return;
+    var file = event.target.files && event.target.files[0];
+    event.target.value = "";
+    if (file) importProgressFile(file);
+  });
+
   function handleHashChange() {
     closeSpine();
     render();
@@ -2502,6 +2835,20 @@
   });
   document.getElementById("spine-close").addEventListener("click", closeSpine);
   scrim.addEventListener("click", closeSpine);
+  spine.addEventListener("keydown", function (event) {
+    if (event.key !== "Tab" || !spine.classList.contains("is-open")) return;
+    var focusable = Array.prototype.slice.call(spine.querySelectorAll('a[href], button:not([disabled])'));
+    if (!focusable.length) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape" && spine.classList.contains("is-open")) closeSpine();
   });

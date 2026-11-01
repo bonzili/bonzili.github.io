@@ -1083,6 +1083,24 @@ CISSP.mindset = {
     { verb: "LEAST", meaning: "The option that is least appropriate or least likely. Read it twice; candidates often answer MOST by habit." },
     { verb: "NEXT", meaning: "The immediate following step in an established process." }
   ],
+  technical: [
+    {
+      title: "You see the vulnerability. The exam sees a risk decision.",
+      body: "Your instinct is to patch, block, or exploit. The exam first asks who owns the asset, what the business impact is, and who accepts the residual risk. When the question says FIRST, assessment or escalation usually beats remediation."
+    },
+    {
+      title: "You know the fix. The exam asks who decides.",
+      body: "A security engineer can recommend, design, and implement. A data owner or senior manager accepts risk. If an option has a technician accepting residual risk, eliminate it even when the technical action is correct."
+    },
+    {
+      title: "You choose the tool. The exam wants the programme.",
+      body: "When all four options would work, the most complete governance answer often wins: policy, training, risk assessment, architecture review, or a management programme. A specific product is usually a distractor unless the question asks for a control at that layer."
+    },
+    {
+      title: "You answer like a red teamer. The exam wants a blue-team manager.",
+      body: "Do not hack back, do not go heroically around change control, and do not trade a person's safety for an asset. Detect, contain, report, recover, and improve. The best answer is defensible, proportionate, and boring."
+    }
+  ],
   worked: {
     stem: "A developer deploys an application that stores customer records without encryption. The security manager discovers the issue after go-live. What should the security manager do FIRST?",
     options: [

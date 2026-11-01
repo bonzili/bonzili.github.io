@@ -13,6 +13,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 | `assets/data.js` | Domain notes, exam metadata, and the manager-mindset primer |
 | `assets/questions-d1.js` … `d8.js` | 20 original practice questions per domain (160 total) |
 | `assets/flashcards.js` | 150 key-term cards with spaced repetition |
+| `manifest.webmanifest`, `assets/icon-*.png` | Installable Home Screen metadata and icons |
 | `assets/app.js` | Hash router, practice engine, flashcard scheduler, mock exam, progress storage |
 
 ## Features
@@ -20,9 +21,11 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **A date-aware four-week study plan** (defaults to the 30 November 2026 exam; change it in the sidebar) with weekly milestones and a daily hour.
 - **Condensed notes** for all eight domains, with key terms, traps, and mnemonics.
 - **160 original scenario questions** with immediate explanations and a “manager’s lens” note.
-- **Practice modes**: diagnostic, quick ten, domain drill, adaptive weak areas, review mistakes, bookmarks.
+- **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, domain drill, adaptive weak areas, review mistakes, bookmarks. Active drills survive a refresh.
 - **150 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
-- **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown.
+- **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final.
+- **A manager’s-lens primer** with a section written for technical candidates moving into management.
+- **Progress export/import**: download a JSON backup and restore it on another browser or device.
 - **Progress that stays local**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`.
 - **Exam date countdown** and a daily four-move study brief.
 - Responsive down to 360 px, keyboard shortcuts, reduced-motion support, and print styles for the notes.
@@ -73,6 +76,10 @@ Append to `assets/flashcards.js`:
 ### Editing domain notes
 
 Each entry in `CISSP.domains` (`assets/data.js`) has `sections` with `points` and `terms`, plus `traps` and a `mnemonic`. `points` may contain the small amount of inline HTML used for emphasis (`<strong>`, `<em>`).
+
+## Progress portability
+
+The Progress page can export the entire local state (attempts, cards, exams, settings) as a JSON file and import it on another browser. Import validation only accepts known question/card IDs and numeric fields, and it replaces the current local state after confirmation. This is the intended way to move progress between a laptop and an iPhone.
 
 ## Study plan and exam date
 
