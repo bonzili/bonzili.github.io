@@ -119,7 +119,7 @@
   },
   {
     id: "d8q14", d: 8, topic: "Inference", diff: 2,
-    stem: "A user is not authorized to see individual salary records, but can deduce a colleague's salary by combining permitted aggregate reports. Which risk is this?",
+    stem: "A user is not authorized to see individual salary records, but can deduce a colleague's salary from the totals in several permitted aggregate reports. Which risk is this?",
     options: ["Aggregation", "Inference", "Polyinstantiation", "Normalization"],
     answer: 1,
     whyText: "Inference derives restricted information from authorized results. Aggregation combines data sources; inference reasons from the results. Both are disclosure risks.",

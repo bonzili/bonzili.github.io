@@ -2,12 +2,12 @@
 (window.CISSP = window.CISSP || {}).questions = (window.CISSP.questions || []).concat([
   {
     id: "d1q1", d: 1, topic: "Risk treatment", diff: 1,
-    stem: "A retailer identifies that a river flood could destroy its primary data centre. It moves backups to a cloud region on higher ground and buys business-interruption insurance. Which risk treatment has the retailer primarily applied?",
+    stem: "A retailer buys business-interruption insurance to cover flood losses at its primary data centre. Which risk treatment has the retailer applied?",
     options: ["Avoidance", "Mitigation", "Transference", "Acceptance"],
     answer: 2,
-    whyText: "Insurance transfers the financial consequence of the risk to a third party. The cloud backup also reduces impact, but the question asks what the combination primarily accomplishes: the retailer still operates in the flood zone and has shifted part of the loss to an insurer.",
+    whyText: "Insurance transfers the financial consequence of the risk to a third party. The retailer still operates in the flood zone; it has shifted part of the loss to an insurer rather than reducing the likelihood or impact itself.",
     lens: "Name the treatment by what happens to the risk, not by which control is most visible. Avoidance removes the activity; mitigation reduces likelihood or impact; transfer moves the financial consequence.",
-    why: { 0: "Avoidance would mean moving the data centre out of the flood plain or ending the activity.", 1: "Backups mitigate impact, but the insurance is the transference element and the question asks for the primary treatment.", 3: "Acceptance would mean acknowledging the risk with no new treatment." }
+    why: { 0: "Avoidance would mean moving the data centre out of the flood plain or ending the activity.", 1: "Insurance does not reduce the likelihood or impact; it shifts the financial consequence.", 3: "Acceptance would mean acknowledging the risk with no new treatment." }
   },
   {
     id: "d1q2", d: 1, topic: "Quantitative risk analysis", diff: 2,

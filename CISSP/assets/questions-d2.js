@@ -21,7 +21,7 @@
   {
     id: "d2q3", d: 2, topic: "Classification levels", diff: 1,
     stem: "Which sequence correctly orders these classifications from most restrictive to least restrictive?",
-    options: ["Confidential, secret, top secret, unclassified", "Top secret, secret, confidential, unclassified", "Unclassified, confidential, secret, top secret", "Secret, top secret, confidential, unclassified"],
+    options: ["Confidential, secret, top secret, sensitive but unclassified, unclassified", "Top secret, secret, confidential, sensitive but unclassified, unclassified", "Unclassified, sensitive but unclassified, confidential, secret, top secret", "Secret, top secret, confidential, sensitive but unclassified, unclassified"],
     answer: 1,
     whyText: "The military-style order is top secret, secret, confidential, sensitive but unclassified, then unclassified. Sensitivity decreases from left to right in the correct option.",
     lens: "Remember the hierarchy, not the label names in isolation. Top secret is the highest; unclassified is the lowest.",

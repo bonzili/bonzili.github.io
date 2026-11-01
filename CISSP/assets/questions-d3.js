@@ -2,7 +2,7 @@
 (window.CISSP = window.CISSP || {}).questions = (window.CISSP.questions || []).concat([
   {
     id: "d3q1", d: 3, topic: "Bell-LaPadula", diff: 2,
-    stem: "A user with a secret clearance is working on a top-secret document and also wants to write a summary to an unclassified system. Under the Bell-LaPadula model, which actions are permitted?",
+    stem: "A user with secret clearance wants to read a top-secret document and write a summary to an unclassified system. Under the Bell-LaPadula model, which actions are permitted?",
     options: ["Read the top-secret document and write to the unclassified system", "Read the top-secret document, but not write to the unclassified system", "Neither read the top-secret document nor write to the unclassified system", "Write to the unclassified system, but not read the top-secret document"],
     answer: 2,
     whyText: "Bell-LaPadula protects confidentiality with two rules: no read up and no write down. A secret subject cannot read top secret, and cannot write down to unclassified. Both actions are denied.",
