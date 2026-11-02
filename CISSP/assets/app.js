@@ -458,7 +458,7 @@
 
     if (source.attempts && typeof source.attempts === "object") {
       Object.keys(source.attempts).forEach(function (id) {
-        if (!QID[id]) return;
+        if (!QID[id] && !PACK_QID[id]) return;
         var a = source.attempts[id];
         if (!a || typeof a !== "object") return;
         var c = safeNumber(a.c, 0, 9999, 0);
@@ -835,7 +835,7 @@
   }
 
   function wrongQuestions() {
-    return QUESTIONS.filter(function (q) {
+    return QUESTIONS.concat(PACK_QUESTIONS).filter(function (q) {
       var a = state.attempts[q.id];
       return a && a.lastResult === false;
     });
@@ -3152,11 +3152,11 @@
 
     var recent = Object.keys(state.attempts).map(function (id) {
       var a = state.attempts[id];
-      return { q: QID[id], a: a };
+      return { q: findQuestion(id), a: a };
     }).filter(function (item) { return item.q; }).sort(function (x, y) { return (y.a.last || 0) - (x.a.last || 0); }).slice(0, 10);
 
     var recentList = recent.map(function (item) {
-      return "<tr><td>" + pad(item.q.d) + "</td><td>" + esc(item.q.topic || "Scenario") + "</td>" +
+      return "<tr><td>" + (item.q.pack ? "Official" : pad(item.q.d)) + "</td><td>" + esc(item.q.topic || "Scenario") + "</td>" +
         '<td><span class="chip ' + (item.a.lastResult ? "chip--ok" : "chip--signal") + '">' + (item.a.lastResult ? "Correct" : "Missed") + "</span></td>" +
         '<td class="num">' + (item.a.c || 0) + " / " + ((item.a.c || 0) + (item.a.w || 0)) + "</td></tr>";
     }).join("");
