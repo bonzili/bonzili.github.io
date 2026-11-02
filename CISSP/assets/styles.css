@@ -2158,3 +2158,6 @@ html[data-reading] .verb-table td { font-size: 0.88em; }
 html[data-reading] .worked__option { font-size: 0.84em; }
 html[data-reading] .pack-card p { font-size: 0.8em; }
 html[data-reading] .site-foot { font-size: 0.76em; }
+
+.pack-domains { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.pack-domains .label { display: block; margin-bottom: 8px; }

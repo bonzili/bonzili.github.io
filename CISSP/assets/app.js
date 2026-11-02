@@ -59,7 +59,7 @@
 
   function normalizePack(raw) {
     if (!raw || !Array.isArray(raw.questions) || !raw.questions.length) throw new Error("No questions in pack");
-    if (raw.questions.length > 500) throw new Error("Pack is too large");
+    if (raw.questions.length > 1500) throw new Error("Pack is too large");
     var questions = [];
     var seen = {};
     var seenStems = {};
@@ -76,9 +76,11 @@
       if (QID[id] || seen[id]) id = "pack-" + (index + 1);
       if (seen[id]) return;
       seen[id] = true;
+      var domainId = Number(q.d);
+      if (!(domainId >= 1 && domainId <= 8)) domainId = 0;
       questions.push({
         id: id,
-        d: 0,
+        d: domainId,
         topic: q.topic || "Official practice",
         diff: 2,
         stem: String(q.stem).trim(),
@@ -166,10 +168,11 @@
     try { localStorage.removeItem(PACK_SEEN_KEY); } catch (err) { /* ignore */ }
   }
 
-  function pickPack(count) {
+  function pickPack(count, domainId) {
     var unseen = [];
     var seen = [];
-    PACK_QUESTIONS.forEach(function (q) {
+    var source = domainId ? PACK_QUESTIONS.filter(function (q) { return q.d === Number(domainId); }) : PACK_QUESTIONS;
+    source.forEach(function (q) {
       var last = packSeen[q.id];
       if (!last) unseen.push(q);
       else seen.push({ q: q, last: last });
@@ -1663,7 +1666,15 @@
         "<p>" + esc(packMeta && packMeta.source ? packMeta.source : "Answer key supplied by the imported file.") + "</p></div>" +
         '<div class="q-actions"><a class="btn btn--small" href="#/practice" data-start="pack">Start 20</a>' +
         '<a class="btn btn--ghost btn--small" href="#/practice" data-start="packFull">125-question set</a>' +
-        '<button type="button" class="btn btn--ghost btn--small" data-pack-remove>Remove</button></div></div>';
+        '<button type="button" class="btn btn--ghost btn--small" data-pack-remove>Remove</button></div></div>' +
+        (function () {
+          var buttons = DOMAINS.map(function (d) {
+            var count = PACK_QUESTIONS.filter(function (q) { return q.d === d.id; }).length;
+            if (!count) return "";
+            return '<button type="button" data-start="packDomain" data-domain="' + d.id + '">' + pad(d.id) + " · " + esc(d.short) + " · " + count + "</button>";
+          }).join("");
+          return buttons ? '<div class="pack-domains"><p class="label">Official domain drills</p><div class="domain-picker">' + buttons + "</div></div>" : "";
+        })();
     } else {
       packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Load a JSON pack built from your own book. The questions stay in this browser; nothing is committed or uploaded.</p></div></div>' +
         '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank remains the original 160-question practice set. A local pack is optional and separate from domain readiness.</p>' +
@@ -1721,11 +1732,19 @@
       pool = pickQuestions(questionsFor(domain.id), 15);
       title = "Domain " + pad(domain.id);
       kicker = domain.name;
-    } else if (kind === "pack" || kind === "packFull") {
+    } else if (kind === "pack" || kind === "packFull" || kind === "packDomain") {
       if (!PACK_QUESTIONS.length) return null;
-      pool = kind === "packFull" ? pickPack(125) : pickPack(20);
-      title = kind === "packFull" ? "Official pack · 125" : "Official pack";
-      kicker = packMeta ? packMeta.title : "Imported pack";
+      if (kind === "packDomain") {
+        var packDomain = Number(domainId);
+        if (!packDomain || !PACK_QUESTIONS.some(function (q) { return q.d === packDomain; })) return null;
+        pool = pickPack(20, packDomain);
+        title = "Official pack · Domain " + pad(packDomain);
+        kicker = domainName(packDomain) + " · official domain questions";
+      } else {
+        pool = kind === "packFull" ? pickPack(125) : pickPack(20);
+        title = kind === "packFull" ? "Official pack · 125" : "Official pack";
+        kicker = packMeta ? packMeta.title : "Imported pack";
+      }
     } else if (kind === "manager") {
       [1, 2, 6, 7].forEach(function (domainId) {
         pool = pool.concat(pickQuestions(questionsFor(domainId), 5));
@@ -1933,7 +1952,7 @@
       '<div class="session__main">' +
         '<div class="q-head">' +
           '<span class="q-head__no">Question <strong>' + pad(s.index + 1) + "</strong> / " + pad(s.items.length) + "</span>" +
-          '<span class="chip">' + (q.pack ? "Official pack" : "Domain " + pad(q.d)) + "</span>" +
+          '<span class="chip">' + (q.pack ? (q.d ? "Domain " + pad(q.d) : "Official pack") : "Domain " + pad(q.d)) + "</span>" +
           '<span class="chip chip--blue">' + esc(q.topic || "Scenario") + "</span>" +
           (q.diff === 3 ? '<span class="chip chip--signal">Hard</span>' : "") +
           (q.pack ? "" : '<button type="button" class="flag-button" data-bookmark aria-pressed="' + bookmarked + '" style="margin-left:auto">' +
@@ -2084,7 +2103,7 @@
           "<p>" + (summary.pack ? "These official pack results are separate from domain readiness. Use them to calibrate the source, not to inflate the answer sheet." : "Your answer sheet has been updated. Accuracy is only half the signal — coverage tells you whether the sample was fair.") + "</p></div>" +
         "</div>" +
 
-        '<section><div class="section-head"><div><h2>' + (summary.pack ? "By section" : "By domain") + '</h2><p>Where the marks came from.</p></div></div>' +
+        '<section><div class="section-head"><div><h2>' + (summary.pack && !summary.domainId ? "By section" : "By domain") + '</h2><p>Where the marks came from.</p></div></div>' +
         '<table class="summary-table"><thead><tr><th scope="col">Domain</th><th scope="col">Score</th><th scope="col">Rate</th></tr></thead><tbody>' + domainRows + "</tbody></table></section>" +
 
         (summary.missed.length
@@ -2484,7 +2503,7 @@
       '<div class="exam-q">' +
         '<div class="q-head">' +
           '<span class="q-head__no">Question <strong>' + pad(s.index + 1) + "</strong></span>" +
-          '<span class="chip">' + (q.pack ? "Official pack" : "Domain " + pad(q.d)) + "</span>" +
+          '<span class="chip">' + (q.pack ? (q.d ? "Domain " + pad(q.d) : "Official pack") : "Domain " + pad(q.d)) + "</span>" +
           '<span class="chip chip--blue">' + esc(q.topic || "Scenario") + "</span>" +
           (strict ? "" : '<button type="button" class="flag-button ' + (flagged ? "is-on" : "") + '" data-exam-flag style="margin-left:auto">' + icon("flag") + (flagged ? "Flagged" : "Flag for review") + "</button>") +
         "</div>" +

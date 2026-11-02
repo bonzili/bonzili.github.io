@@ -28,7 +28,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final. When a local pack is loaded, the exam desk also offers a **125-question mixed pack mock** drawn from the official items.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
 - **Progress export/import**: download a JSON backup and restore it on another browser or device.
-- **Local question packs**: import a JSON pack of your own official practice questions. The pack stays in the browser and is never committed, uploaded, or included in sync. Pack drills and the pack mock prefer unseen questions, then least recently seen; duplicate stems and figure-dependent items are skipped on import.
+- **Local question packs**: import a JSON pack of your own official practice questions. The pack stays in the browser and is never committed, uploaded, or included in sync. Pack drills and the pack mock prefer unseen questions, then least recently seen; duplicate stems and figure-dependent items are skipped on import. If the pack tags questions with `d` 1–8, Practice also lists **Official domain drills** so you can drill one domain at a time.
 - **Optional encrypted cross-device sync**: create a 128-bit sync code, enter it on your phone, and each device syncs its own encrypted snapshot through a small Cloudflare Worker. No accounts, email, or analytics; the Worker stores ciphertext only. See `sync-worker/README.md` for deployment.
 - **Local-first progress**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`. Sync is additive and per-device, so one device cannot overwrite another.
 - **A− / A+ reading-size control** in the top bar: 90–130% in 10% steps, remembered per browser.
@@ -89,6 +89,7 @@ The public site does not ship official practice-test questions. The Practice pag
 1. A pack is a JSON object with `title`, `source`, and a `questions` array.
 2. Each question needs `id`, `stem`, four `options`, an `answer` index from 0–3, and optional `topic` / `whyText`.
 3. Import it from **Practice → Local question pack → Load question pack**.
+4. If questions include `d` values from 1–8, use the **Official domain drills** row to run a 20-question set from that domain.
 
 ```json
 {
@@ -97,6 +98,7 @@ The public site does not ship official practice-test questions. The Practice pag
   "questions": [
     {
       "id": "local-1",
+      "d": 1,
       "topic": "Risk",
       "stem": "Scenario…",
       "options": ["A", "B", "C", "D"],
