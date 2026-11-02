@@ -50,6 +50,90 @@
 
   QUESTIONS.forEach(function (q) { QID[q.id] = q; });
 
+  var PACK_QUESTIONS = [];
+  var PACK_QID = {};
+  var packMeta = null;
+  var PACK_KEY = "cissp.fieldmanual.pack.v1";
+
+  function normalizePack(raw) {
+    if (!raw || !Array.isArray(raw.questions) || !raw.questions.length) throw new Error("No questions in pack");
+    if (raw.questions.length > 500) throw new Error("Pack is too large");
+    var questions = [];
+    var seen = {};
+    raw.questions.forEach(function (q, index) {
+      if (!q || typeof q.stem !== "string" || !Array.isArray(q.options) || q.options.length !== 4) return;
+      if (typeof q.answer !== "number" || q.answer < 0 || q.answer > 3) return;
+      var options = q.options.map(function (o) { return String(o).trim(); });
+      if (options.some(function (o) { return !o; })) return;
+      var id = String(q.id || ("pack-" + (index + 1)));
+      if (QID[id] || seen[id]) id = "pack-" + (index + 1);
+      if (seen[id]) return;
+      seen[id] = true;
+      questions.push({
+        id: id,
+        d: 0,
+        topic: q.topic || "Official practice",
+        diff: 2,
+        stem: String(q.stem).trim(),
+        options: options,
+        answer: q.answer,
+        whyText: String(q.whyText || q.explain || "").trim(),
+        lens: "",
+        pack: true,
+        source: q.source || raw.source || ""
+      });
+    });
+    if (!questions.length) throw new Error("No usable questions in pack");
+    return {
+      title: String(raw.title || "Local question pack"),
+      source: String(raw.source || ""),
+      importedAt: Number(raw.importedAt) || Date.now(),
+      questions: questions
+    };
+  }
+
+  function loadPack() {
+    try {
+      var raw = localStorage.getItem(PACK_KEY);
+      if (!raw) return;
+      var pack = normalizePack(JSON.parse(raw));
+      PACK_QUESTIONS = pack.questions;
+      PACK_QID = {};
+      PACK_QUESTIONS.forEach(function (q) { PACK_QID[q.id] = q; });
+      packMeta = { title: pack.title, source: pack.source, importedAt: pack.importedAt };
+    } catch (err) {
+      PACK_QUESTIONS = [];
+      PACK_QID = {};
+      packMeta = null;
+    }
+  }
+
+  function findQuestion(id) {
+    return QID[id] || PACK_QID[id] || null;
+  }
+
+  function savePack(pack) {
+    localStorage.setItem(PACK_KEY, JSON.stringify({
+      title: pack.title,
+      source: pack.source,
+      importedAt: pack.importedAt,
+      questions: pack.questions
+    }));
+    PACK_QUESTIONS = pack.questions;
+    PACK_QID = {};
+    PACK_QUESTIONS.forEach(function (q) { PACK_QID[q.id] = q; });
+    packMeta = { title: pack.title, source: pack.source, importedAt: pack.importedAt };
+  }
+
+  function clearPack() {
+    try { localStorage.removeItem(PACK_KEY); } catch (err) { /* ignore */ }
+    PACK_QUESTIONS = [];
+    PACK_QID = {};
+    packMeta = null;
+  }
+
+  loadPack();
+
   var CARDS = ((window.CISSP && CISSP.cards) || []).slice();
   var CARDID = {};
   CARDS.forEach(function (c) { CARDID[c.id] = c; });
@@ -186,11 +270,13 @@
   }
 
   function domainName(id) {
+    if (Number(id) === 0) return "Official practice pack";
     var d = domainById(id);
     return d ? d.name : (PALETTE[id] ? PALETTE[id].name : "Domain " + id);
   }
 
   function domainShort(id) {
+    if (Number(id) === 0) return "Official pack";
     var d = domainById(id);
     return d ? d.short : (PALETTE[id] ? PALETTE[id].short : "Domain " + id);
   }
@@ -515,6 +601,51 @@
     }).catch(function () { toast("The file could not be read."); });
   }
 
+  function importPackFile(file) {
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { toast("That pack is too large."); return; }
+    file.text().then(function (text) {
+      var parsed;
+      try { parsed = JSON.parse(text); } catch (err) { toast("That file is not valid JSON."); return; }
+      var pack;
+      try { pack = normalizePack(parsed); } catch (err) { toast("That file is not a valid question pack."); return; }
+      var dialog = openDialog({
+        title: "Load this question pack?",
+        body: "<p><strong>" + esc(pack.title) + "</strong></p><p>" + pack.questions.length + " questions. " + esc(pack.source || "Local source") + "</p><p>The pack stays in this browser. It is not uploaded or included in cross-device sync.</p>",
+        actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button type="button" class="btn btn--small" data-confirm-pack>Load pack</button>'
+      });
+      dialog.querySelector("[data-confirm-pack]").addEventListener("click", function () {
+        dialog.close();
+        try {
+          pack.importedAt = Date.now();
+          savePack(pack);
+          practiceSession = null;
+          clearPracticeState();
+          render();
+          toast("Question pack loaded locally.");
+        } catch (err) {
+          toast("The pack could not be stored in this browser.");
+        }
+      });
+    }).catch(function () { toast("The file could not be read."); });
+  }
+
+  function removePack() {
+    var dialog = openDialog({
+      title: "Remove the local question pack?",
+      body: "<p>This removes the imported questions from this browser. Your domain progress is not affected.</p>",
+      actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Keep pack</button><button type="button" class="btn btn--signal btn--small" data-confirm-pack-remove>Remove</button>'
+    });
+    dialog.querySelector("[data-confirm-pack-remove]").addEventListener("click", function () {
+      dialog.close();
+      clearPack();
+      practiceSession = null;
+      clearPracticeState();
+      render();
+      toast("Question pack removed.");
+    });
+  }
+
   function ensureDaily() {
     if (!localState.daily || localState.daily.date !== todayKey()) {
       localState.daily = { date: todayKey(), drill: false, review: false, cards: false };
@@ -590,6 +721,7 @@
   function allStats() {
     var attempts = 0, correct = 0, seen = 0;
     Object.keys(state.attempts).forEach(function (id) {
+      if (!QID[id]) return;
       var a = state.attempts[id];
       attempts += (a.c || 0) + (a.w || 0);
       correct += a.c || 0;
@@ -1378,6 +1510,13 @@
       "<h3>Manager’s cut</h3><p>Five questions each from risk, assets, assessment, and operations — the four domains technical candidates most often underweight.</p>" +
       '<div class="mode__foot"><span>~ 15 minutes</span><span>Management-weighted</span></div></a>';
 
+    if (PACK_QUESTIONS.length) {
+      modes += '<a class="mode mode--pack" href="#/practice" data-start="pack">' +
+        '<div class="mode__top"><span class="label">Local pack</span><span class="chip">' + PACK_QUESTIONS.length + " questions</span></div>" +
+        "<h3>Official practice</h3><p>" + esc(packMeta ? packMeta.title : "Imported question pack") + ". Single-answer items with the source answer key. Not counted toward domain readiness.</p>" +
+        '<div class="mode__foot"><span>20 at a time</span><span>Local only</span></div></a>';
+    }
+
     modes += '<a class="mode" href="#/practice" data-start="weak">' +
       '<div class="mode__top"><span class="label">Adaptive</span><span class="chip">20 questions</span></div>' +
       "<h3>Weak areas</h3><p>Weighted toward the domains and topics where your evidence is thinnest.</p>" +
@@ -1404,13 +1543,28 @@
       return '<button type="button" data-start="domain" data-domain="' + d.id + '">' + pad(d.id) + " · " + esc(d.short) + "</button>";
     }).join("");
 
+    var packPanel;
+    if (PACK_QUESTIONS.length) {
+      packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Imported from your own file. It stays in this browser and is not uploaded.</p></div>' +
+        '<span class="label">' + PACK_QUESTIONS.length + " questions</span></div>" +
+        '<div class="pack-card"><div><p class="label">Loaded · local only</p><h3>' + esc(packMeta ? packMeta.title : "Imported pack") + "</h3>" +
+        "<p>" + esc(packMeta && packMeta.source ? packMeta.source : "Answer key supplied by the imported file.") + "</p></div>" +
+        '<div class="q-actions"><a class="btn btn--small" href="#/practice" data-start="pack">Start 20</a>' +
+        '<a class="btn btn--ghost btn--small" href="#/practice" data-start="packFull">125-question set</a>' +
+        '<button type="button" class="btn btn--ghost btn--small" data-pack-remove>Remove</button></div></div>';
+    } else {
+      packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Load a JSON pack built from your own book. The questions stay in this browser; nothing is committed or uploaded.</p></div></div>' +
+        '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank remains the original 160-question practice set. A local pack is optional and separate from domain readiness.</p>' +
+        '<button type="button" class="btn" data-pack-import>Load question pack</button></div>';
+    }
+
     return {
       title: "Practice",
       html:
         '<header class="page-head"><div class="page-head__copy">' +
           '<p class="eyebrow">Active recall</p>' +
           '<h1 class="display-l">Practice is where<br>the reading becomes judgment.</h1>' +
-          '<p class="lede">Every question is original, scenario-based, and followed by the reasoning a manager would use. Wrong answers are data, not verdicts.</p>' +
+          '<p class="lede">' + (PACK_QUESTIONS.length ? "The core bank is original. The loaded pack is your local source, kept separate from domain readiness." : "Every question is original, scenario-based, and followed by the reasoning a manager would use. Wrong answers are data, not verdicts.") + "</p>" +
         "</div>" +
         '<div class="page-head__aside"><span class="chip">' + stats.attempts + " answered</span>" +
         '<span class="chip ' + (stats.accuracy != null && stats.accuracy >= 0.7 ? "chip--ok" : "") + '">' + (stats.accuracy == null ? "No accuracy yet" : pct(stats.accuracy) + " correct") + "</span></div></header>" +
@@ -1423,7 +1577,10 @@
         '<span class="label">Weakest: ' + pad(focus.id) + " · " + esc(focus.short) + "</span></div>" +
         '<div class="domain-picker">' + picker + "</div></section>" +
 
-        '<div class="callout" style="margin-top:18px"><p class="callout__label">How close is this bank?</p><p>These are original questions written to the outline. They are deliberately shorter and more direct than the real CAT. Use them for daily retrieval and explanation practice; use the official practice tests for your score benchmark.</p></div>' +
+        '<div class="callout" style="margin-top:18px"><p class="callout__label">How close is this bank?</p><p>The core bank is original, written to the outline. It is deliberately shorter and more direct than the real CAT. Use it for daily retrieval and explanation practice; use the official practice tests for your score benchmark.</p></div>' +
+
+        '<section class="section">' + packPanel + "</section>" +
+        '<input type="file" id="pack-import" accept=".json,application/json" hidden>' +
 
         '<section class="section"><div class="split"><div class="callout" style="margin:0"><p class="callout__label">How to review a miss</p><p>Name the property under attack, the role in the question, and the operative verb. If the explanation surprises you, bookmark the question and revisit it in three days — not in three minutes.</p></div>' +
         '<div class="callout callout--mnemonic" style="margin:0"><p class="callout__label">Estimated readiness</p><p>' + (readiness() == null ? "Answer at least eight questions and your answer sheet will start to fill." : readiness() + " / 100 — " + readinessLabel(readiness()) + ". This is a practice estimate, not an ISC2 score.") + "</p></div></div></section>"
@@ -1452,6 +1609,11 @@
       pool = shuffle(questionsFor(domain.id)).slice(0, 15);
       title = "Domain " + pad(domain.id);
       kicker = domain.name;
+    } else if (kind === "pack" || kind === "packFull") {
+      if (!PACK_QUESTIONS.length) return null;
+      pool = kind === "packFull" ? shuffle(PACK_QUESTIONS).slice(0, 125) : shuffle(PACK_QUESTIONS).slice(0, 20);
+      title = kind === "packFull" ? "Official pack · 125" : "Official pack";
+      kicker = packMeta ? packMeta.title : "Imported pack";
     } else if (kind === "manager") {
       [1, 2, 6, 7].forEach(function (domainId) {
         pool = pool.concat(shuffle(questionsFor(domainId)).slice(0, 5));
@@ -1560,7 +1722,7 @@
       var items = [];
       for (var i = 0; i < data.items.length; i++) {
         var rawItem = data.items[i];
-        var q = rawItem && QID[rawItem.id];
+        var q = rawItem && findQuestion(rawItem.id);
         if (!q) return null;
         var picked = typeof rawItem.picked === "number" && rawItem.picked >= 0 && rawItem.picked < 4 ? rawItem.picked : null;
         items.push({ q: q, picked: picked, submitted: !!rawItem.submitted, correct: !!rawItem.correct });
@@ -1659,11 +1821,11 @@
       '<div class="session__main">' +
         '<div class="q-head">' +
           '<span class="q-head__no">Question <strong>' + pad(s.index + 1) + "</strong> / " + pad(s.items.length) + "</span>" +
-          '<span class="chip">Domain ' + pad(q.d) + "</span>" +
+          '<span class="chip">' + (q.pack ? "Official pack" : "Domain " + pad(q.d)) + "</span>" +
           '<span class="chip chip--blue">' + esc(q.topic || "Scenario") + "</span>" +
           (q.diff === 3 ? '<span class="chip chip--signal">Hard</span>' : "") +
-          '<button type="button" class="flag-button" data-bookmark aria-pressed="' + bookmarked + '" style="margin-left:auto">' +
-            icon(bookmarked ? "bookmarkFill" : "bookmark") + (bookmarked ? "Saved" : "Save") + "</button>" +
+          (q.pack ? "" : '<button type="button" class="flag-button" data-bookmark aria-pressed="' + bookmarked + '" style="margin-left:auto">' +
+            icon(bookmarked ? "bookmarkFill" : "bookmark") + (bookmarked ? "Saved" : "Save") + "</button>") +
         "</div>" +
         '<h1 class="q-stem">' + esc(q.stem) + "</h1>" +
         '<div class="options" role="group" aria-label="Answer choices">' + options + "</div>" +
@@ -1752,6 +1914,7 @@
       startedAt: practiceSession.startedAt,
       finishedAt: Date.now(),
       byDomain: byDomain,
+      pack: items.some(function (it) { return !!it.q.pack; }),
       missed: items.filter(function (it) { return !it.correct; }).map(function (it) { return { id: it.q.id, picked: it.picked }; })
     };
     localState.lastSummary = lastPracticeSummary;
@@ -1772,7 +1935,7 @@
     var domainRows = Object.keys(summary.byDomain).map(function (id) {
       var row = summary.byDomain[id];
       var p = row.total ? row.correct / row.total : 0;
-      return "<tr><td>" + pad(id) + " · " + esc(domainShort(id)) + "</td>" +
+      return "<tr><td>" + (id == 0 ? "Official pack" : pad(id) + " · " + esc(domainShort(id))) + "</td>" +
         '<td class="num">' + row.correct + " / " + row.total + "</td>" +
         '<td class="bar-cell"><div class="bar-cell__track"><i style="width:' + Math.round(p * 100) + '%"></i><span>' + Math.round(p * 100) + "%</span></div></td></tr>";
     }).join("");
@@ -1780,12 +1943,12 @@
     var missed = summary.missed.map(function (entry) {
       var id = entry.id;
       var picked = entry.picked;
-      var q = QID[id];
+      var q = findQuestion(id);
       if (!q) return "";
       return '<details class="review-item"><summary>' +
         '<span class="review-item__no">' + (picked == null ? "—" : "ABCD"[picked]) + "</span>" +
         '<span class="review-item__stem">' + esc(q.stem) + "</span>" +
-        '<span class="review-item__tag">Domain ' + pad(q.d) + "</span>" +
+        '<span class="review-item__tag">' + (q.d ? "Domain " + pad(q.d) : "Official pack") + "</span>" +
         '</summary><div class="review-item__body">' +
           '<p class="review-item__answer">Best answer: ' + "ABCD"[q.answer] + ". " + esc(q.options[q.answer]) + "</p>" +
           '<p class="review-item__answer is-wrong">You chose: ' + (picked == null ? "No answer" : "ABCD"[picked] + ". " + esc(q.options[picked])) + "</p>" +
@@ -1805,10 +1968,10 @@
         '<div class="score-band">' +
           '<div class="score-band__score"><strong>' + summary.correct + "<small>/" + summary.total + "</small></strong><span>correct this session</span></div>" +
           '<div class="score-band__copy"><h2>' + (accuracy >= 0.8 ? "This is exam-level." : accuracy >= 0.6 ? "Close. The reasoning needs one more pass." : "Slow down. Read the role and the verb.") + "</h2>" +
-          "<p>Your answer sheet has been updated. Accuracy is only half the signal — coverage tells you whether the sample was fair.</p></div>" +
+          "<p>" + (summary.pack ? "These official pack results are separate from domain readiness. Use them to calibrate the source, not to inflate the answer sheet." : "Your answer sheet has been updated. Accuracy is only half the signal — coverage tells you whether the sample was fair.") + "</p></div>" +
         "</div>" +
 
-        '<section><div class="section-head"><div><h2>By domain</h2><p>Where the marks came from.</p></div></div>' +
+        '<section><div class="section-head"><div><h2>' + (summary.pack ? "By section" : "By domain") + '</h2><p>Where the marks came from.</p></div></div>' +
         '<table class="summary-table"><thead><tr><th scope="col">Domain</th><th scope="col">Score</th><th scope="col">Rate</th></tr></thead><tbody>' + domainRows + "</tbody></table></section>" +
 
         (summary.missed.length
@@ -1816,7 +1979,8 @@
             '<span class="label">Explanations inside</span></div><div class="review-list">' + missed + "</div></section>"
           : "") +
 
-        '<div class="q-actions" style="margin-top:28px"><a class="btn" href="#/practice" data-start="weak">Drill weak areas ' + icon("arrow") + "</a>" +
+        '<div class="q-actions" style="margin-top:28px">' +
+        (summary.pack ? '<a class="btn" href="#/practice" data-start="pack">Another 20 from the pack ' + icon("arrow") + "</a>" : '<a class="btn" href="#/practice" data-start="weak">Drill weak areas ' + icon("arrow") + "</a>") +
         '<a class="btn btn--ghost" href="#/practice">Choose another mode</a></div>'
     };
   }
@@ -2361,7 +2525,7 @@
     var domains = Object.keys(result.byDomain).map(function (id) {
       var row = result.byDomain[id];
       var rate = row.total ? row.correct / row.total : 0;
-      return "<tr><td>" + pad(id) + " · " + esc(domainShort(id)) + "</td>" +
+      return "<tr><td>" + (id == 0 ? "Official pack" : pad(id) + " · " + esc(domainShort(id))) + "</td>" +
         '<td class="num">' + row.correct + " / " + row.total + "</td>" +
         '<td class="bar-cell"><div class="bar-cell__track"><i style="width:' + Math.round(rate * 100) + '%"></i><span>' + Math.round(rate * 100) + "%</span></div></td></tr>";
     }).join("");
@@ -2375,7 +2539,7 @@
       return '<details class="review-item"><summary>' +
         '<span class="review-item__no">' + (r.picked == null ? "—" : "ABCD"[r.picked]) + "</span>" +
         '<span class="review-item__stem">' + esc(q.stem) + "</span>" +
-        '<span class="review-item__tag">Domain ' + pad(q.d) + "</span>" +
+        '<span class="review-item__tag">' + (q.d ? "Domain " + pad(q.d) : "Official pack") + "</span>" +
         '</summary><div class="review-item__body">' +
           '<p class="review-item__answer">Best answer: ' + "ABCD"[q.answer] + ". " + esc(q.options[q.answer]) + "</p>" +
           '<p class="review-item__answer is-wrong" style="margin-bottom:10px">You chose: ' + esc(picked) + "</p>" +
@@ -3160,6 +3324,19 @@
       return;
     }
 
+    if (event.target.closest("[data-pack-import]")) {
+      event.preventDefault();
+      var packInput = document.getElementById("pack-import");
+      if (packInput) packInput.click();
+      return;
+    }
+
+    if (event.target.closest("[data-pack-remove]")) {
+      event.preventDefault();
+      removePack();
+      return;
+    }
+
     if (event.target.closest("[data-export-progress]")) {
       event.preventDefault();
       exportProgress();
@@ -3373,10 +3550,18 @@
   /* --------------------------------------------------------------- lifecycle */
 
   document.addEventListener("change", function (event) {
-    if (!event.target || event.target.id !== "progress-import") return;
-    var file = event.target.files && event.target.files[0];
-    event.target.value = "";
-    if (file) importProgressFile(file);
+    if (!event.target) return;
+    if (event.target.id === "pack-import") {
+      var packFile = event.target.files && event.target.files[0];
+      event.target.value = "";
+      if (packFile) importPackFile(packFile);
+      return;
+    }
+    if (event.target.id === "progress-import") {
+      var progressFile = event.target.files && event.target.files[0];
+      event.target.value = "";
+      if (progressFile) importProgressFile(progressFile);
+    }
   });
 
   function handleHashChange() {

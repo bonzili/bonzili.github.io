@@ -28,6 +28,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
 - **Progress export/import**: download a JSON backup and restore it on another browser or device.
+- **Local question packs**: import a JSON pack of your own official practice questions. The pack stays in the browser and is never committed, uploaded, or included in sync.
 - **Optional encrypted cross-device sync**: create a 128-bit sync code, enter it on your phone, and each device syncs its own encrypted snapshot through a small Cloudflare Worker. No accounts, email, or analytics; the Worker stores ciphertext only. See `sync-worker/README.md` for deployment.
 - **Local-first progress**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`. Sync is additive and per-device, so one device cannot overwrite another.
 - **Exam date countdown** and a daily four-move study brief.
@@ -79,6 +80,35 @@ Append to `assets/flashcards.js`:
 ### Editing domain notes
 
 Each entry in `CISSP.domains` (`assets/data.js`) has `sections` with `points` and `terms`, plus `traps` and a `mnemonic`. `points` may contain the small amount of inline HTML used for emphasis (`<strong>`, `<em>`).
+
+## Local question packs
+
+The public site does not ship official practice-test questions. The Practice page has a local pack loader for question sets you own.
+
+1. A pack is a JSON object with `title`, `source`, and a `questions` array.
+2. Each question needs `id`, `stem`, four `options`, an `answer` index from 0–3, and optional `topic` / `whyText`.
+3. Import it from **Practice → Local question pack → Load question pack**.
+
+```json
+{
+  "title": "My official practice set",
+  "source": "Personal copy",
+  "questions": [
+    {
+      "id": "local-1",
+      "topic": "Risk",
+      "stem": "Scenario…",
+      "options": ["A", "B", "C", "D"],
+      "answer": 2,
+      "whyText": "Explanation…"
+    }
+  ]
+}
+```
+
+Pack questions are stored in this browser only. They are not included in cross-device sync, progress export, or the repository. Import the pack again on another device. Pack attempts are shown in the pack summary but are deliberately **not** counted toward domain readiness.
+
+A local pack generated from the practice tests you own is intentionally kept outside the repository (for example, in `~/Downloads/CISSP/`). Do not commit it or redistribute it.
 
 ## Progress portability
 

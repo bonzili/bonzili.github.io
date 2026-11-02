@@ -2037,3 +2037,31 @@ button, a, [role="button"] { touch-action: manipulation; }
   color: var(--ink-3);
 }
 .sync-advanced p { margin: 10px 0 8px; }
+
+/* ---------- Local question packs ---------- */
+
+.pack-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.pack-card h3 { font-size: 23px; line-height: 1.15; margin: 7px 0 4px; }
+.pack-card p { font-size: 12.5px; line-height: 1.55; color: var(--ink-3); max-width: 64ch; }
+.pack-card .q-actions { margin: 0; flex: none; }
+.pack-empty { text-align: left; padding: 24px; }
+.pack-empty h3 { font-size: 21px; }
+.pack-empty p { margin: 0 0 14px; }
+
+@media (max-width: 720px) {
+  .pack-card { flex-direction: column; gap: 14px; }
+  .pack-card .q-actions { width: 100%; }
+}
+
+@media (min-width: 1500px) {
+  .pack-card h3 { font-size: 25px; }
+  .pack-card p, .pack-empty p { font-size: 14px; }
+}
