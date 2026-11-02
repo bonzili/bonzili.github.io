@@ -50,9 +50,19 @@ certificate is needed.
 In Cloudflare: **Security → WAF → Rate limiting rules**. The Free plan includes
 one rule.
 
-- Path equals `/v1/sync`
+Protect the **whole `sync.bonzili.me` host**, not only `/v1/sync`: unknown paths
+and `/v1/health` also invoke the Worker and count against the Workers request
+allowance.
+
+- If the dashboard offers **All incoming requests**, use that.
+- Otherwise use `starts_with(http.request.uri.path, "/")`.
 - 30 requests per 10 seconds per IP
 - Block for 10 seconds
+
+Only `sync.bonzili.me` is proxied in this setup, so the rule does not affect the
+DNS-only `bonzili.me` site. If you later proxy the main site, scope the rule to
+the sync host or use a WAF custom rule; the Free plan's rate-limiting fields do
+not include the host.
 
 The sync client debounces to one request every few seconds, so normal use stays
 well below this.
