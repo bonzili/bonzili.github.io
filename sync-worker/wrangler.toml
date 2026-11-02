@@ -1,0 +1,22 @@
+name = "cissp-sync"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+routes = [
+  { pattern = "sync.bonzili.me", custom_domain = true }
+]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cissp-sync"
+database_id = "e5eee29c-536e-4ba2-a892-929296e9c375"
+
+# Optional: after creating your sync code in the app, click
+# "Server lock (advanced)" and paste the 64-character value here.
+# This makes the Worker reject every other account before it touches D1.
+# Leave empty during initial setup.
+[vars]
+ACCOUNT_ID = ""
+
+# The custom domain is created automatically by `wrangler deploy`.
+# It will appear in Workers & Pages -> cissp-sync -> Settings -> Domains & Routes.

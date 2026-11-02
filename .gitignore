@@ -2,3 +2,5 @@
 Thumbs.db
 .DS_Store
 .dev/
+.wrangler/
+node_modules/

@@ -57,6 +57,19 @@
   var STORAGE_KEY = "cissp.fieldmanual.v1";
   var ACTIVE_EXAM_KEY = "cissp.fieldmanual.exam.v1";
   var ACTIVE_PRACTICE_KEY = "cissp.fieldmanual.practice.v1";
+
+  var SYNC = window.CISSP_SYNC || null;
+  var syncConfig = SYNC ? SYNC.loadConfig() : null;
+  var syncStatus = {
+    state: "idle",
+    lastError: null,
+    devices: syncConfig ? (syncConfig.lastDeviceCount || 0) : 0,
+    lastSyncAt: syncConfig ? syncConfig.lastSyncAt : null
+  };
+  var syncInFlight = false;
+  var syncQueued = false;
+  var syncTimer = null;
+  var syncShowCode = false;
   var PALETTE = {
     1: { name: "Security and Risk Management", short: "Risk & Governance", weight: 16 },
     2: { name: "Asset Security", short: "Asset Security", weight: 10 },
@@ -94,6 +107,13 @@
 
   function pad(n) { return n < 10 ? "0" + n : String(n); }
 
+  function makeId(prefix) {
+    var value;
+    if (window.crypto && window.crypto.randomUUID) value = window.crypto.randomUUID();
+    else value = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+    return (prefix || "") + value;
+  }
+
   function dateKey(date) {
     var d = date || new Date();
     return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
@@ -107,13 +127,6 @@
   }
 
   function todayKey() { return dateKey(new Date()); }
-
-  function dayDiff(fromKey, toKey) {
-    var a = parseDateKey(fromKey);
-    var b = parseDateKey(toKey);
-    if (!a || !b) return 0;
-    return Math.round((b - a) / 86400000);
-  }
 
   function addDaysKey(days) {
     var d = new Date();
@@ -213,13 +226,13 @@
 
   function defaultState() {
     return {
-      v: 1,
+      v: 2,
       attempts: {},
-      bookmarks: [],
+      bookmarks: {},
       cards: {},
       exams: [],
       activity: {},
-      settings: { examDate: null },
+      settings: { examDate: null, examDateAt: 0 },
       daily: { date: todayKey(), drill: false, review: false, cards: false },
       visits: {},
       lastSummary: null,
@@ -227,35 +240,54 @@
     };
   }
 
-  var state = loadState();
+  /* localState is this device's own snapshot. state is the merged view the UI
+     reads. Only localState is ever written to disk or pushed to the Worker. */
+  var localState = loadState();
+  var remoteStates = (SYNC && syncConfig) ? SYNC.loadCachedStates() : {};
+  var state = buildMergedState();
+  persistLocal();
+
+  function buildMergedState() {
+    var docs = [localState];
+    if (syncConfig) {
+      Object.keys(remoteStates || {}).forEach(function (id) {
+        if (id !== syncConfig.deviceId && remoteStates[id]) docs.push(remoteStates[id]);
+      });
+    }
+    return SYNC ? SYNC.mergeStates(docs, defaultState()) : localState;
+  }
+
+  function rebuildState() {
+    state = buildMergedState();
+  }
 
   function loadState() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultState();
       var parsed = JSON.parse(raw);
-      var base = defaultState();
-      Object.keys(base).forEach(function (key) {
-        if (parsed[key] == null) parsed[key] = base[key];
-      });
-      if (!parsed.settings) parsed.settings = base.settings;
-      if (!parsed.daily) parsed.daily = base.daily;
-      if (!parsed.streak) parsed.streak = base.streak;
-      if (!parsed.visits) parsed.visits = {};
-      if (!Array.isArray(parsed.bookmarks)) parsed.bookmarks = [];
-      if (!Array.isArray(parsed.exams)) parsed.exams = [];
-      return parsed;
+      var next = sanitizeState(parsed);
+      if (parsed && parsed.lastSummary && typeof parsed.lastSummary === "object") {
+        next.lastSummary = parsed.lastSummary;
+      }
+      return next;
     } catch (err) {
       return defaultState();
     }
   }
 
-  function save() {
+  function persistLocal() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(localState));
     } catch (err) {
       /* Storage may be unavailable or full; the session still works in memory. */
     }
+  }
+
+  function save() {
+    rebuildState();
+    persistLocal();
+    scheduleSync();
   }
 
   function safeNumber(value, min, max, fallback) {
@@ -268,10 +300,10 @@
     return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
   }
 
-  function sanitizeImportedState(raw) {
-    var source = raw && raw.app === "cissp-field-manual" ? raw.state : raw;
+  function sanitizeState(source) {
     if (!source || typeof source !== "object") throw new Error("Invalid progress file");
     var next = defaultState();
+    var maxFuture = Date.now() + 86400000;
 
     if (source.attempts && typeof source.attempts === "object") {
       Object.keys(source.attempts).forEach(function (id) {
@@ -283,7 +315,7 @@
         next.attempts[id] = {
           c: c,
           w: w,
-          last: safeNumber(a.last, 0, Date.now() + 86400000, Date.now()),
+          last: a.last == null ? 0 : safeNumber(a.last, 0, maxFuture, 0),
           box: safeNumber(a.box, 0, 4, 0),
           lastResult: typeof a.lastResult === "boolean" ? a.lastResult : (w > 0 ? false : true)
         };
@@ -291,7 +323,19 @@
     }
 
     if (Array.isArray(source.bookmarks)) {
-      source.bookmarks.forEach(function (id) { if (QID[id] && next.bookmarks.indexOf(id) === -1) next.bookmarks.push(id); });
+      source.bookmarks.forEach(function (id) {
+        if (QID[id]) next.bookmarks[id] = { on: true, at: 0 };
+      });
+    } else if (source.bookmarks && typeof source.bookmarks === "object") {
+      Object.keys(source.bookmarks).forEach(function (id) {
+        if (!QID[id]) return;
+        var b = source.bookmarks[id];
+        if (b == null) return;
+        next.bookmarks[id] = {
+          on: typeof b === "boolean" ? b : !!b.on,
+          at: b && typeof b === "object" ? safeNumber(b.at, 0, maxFuture, 0) : 0
+        };
+      });
     }
 
     if (source.cards && typeof source.cards === "object") {
@@ -303,7 +347,8 @@
           box: safeNumber(c.box, 0, 4, 0),
           due: isDateKey(c.due) ? c.due : todayKey(),
           seen: safeNumber(c.seen, 0, 9999, 0),
-          lapses: safeNumber(c.lapses, 0, 9999, 0)
+          lapses: safeNumber(c.lapses, 0, 9999, 0),
+          last: c.last == null ? 0 : safeNumber(c.last, 0, maxFuture, 0)
         };
       });
     }
@@ -314,6 +359,13 @@
         var total = safeNumber(e.total, 0, 300, 0);
         if (!total) return;
         var correct = safeNumber(e.correct, 0, total, 0);
+        var seconds = safeNumber(e.seconds, 0, 10800, 0);
+        var dateKeyValue = isDateKey(e.dateKey) ? e.dateKey : todayKey();
+        var examId = typeof e.id === "string" && /^[A-Za-z0-9._:-]{1,80}$/.test(e.id) ? e.id : "";
+        if (!examId) {
+          examId = "legacy-" + dateKeyValue + "-" + total + "-" + correct + "-" + Math.round(seconds);
+        }
+        if (next.exams.some(function (x) { return x.id === examId; })) return;
         var byDomain = {};
         Object.keys(e.byDomain || {}).forEach(function (id) {
           if (!/^[1-8]$/.test(id)) return;
@@ -333,13 +385,14 @@
           });
         });
         next.exams.push({
-          dateKey: isDateKey(e.dateKey) ? e.dateKey : todayKey(),
+          id: examId,
+          dateKey: dateKeyValue,
           date: typeof e.date === "string" ? e.date : new Date().toISOString(),
           total: total,
           correct: correct,
           pct: correct / total,
           scaled: safeNumber(e.scaled, 300, 1000, Math.round(300 + (correct / total) * 700)),
-          seconds: safeNumber(e.seconds, 0, 10800, 0),
+          seconds: seconds,
           byDomain: byDomain,
           review: review
         });
@@ -359,7 +412,18 @@
       });
     }
 
-    if (source.settings && isDateKey(source.settings.examDate)) next.settings.examDate = source.settings.examDate;
+    if (source.settings) {
+      var at = source.settings.examDateAt == null
+        ? 0
+        : safeNumber(source.settings.examDateAt, 0, maxFuture, 0);
+      if (isDateKey(source.settings.examDate)) {
+        next.settings.examDate = source.settings.examDate;
+        next.settings.examDateAt = at || 1;
+      } else if (source.settings.examDate === null) {
+        next.settings.examDate = null;
+        next.settings.examDateAt = at;
+      }
+    }
 
     if (source.daily && isDateKey(source.daily.date)) {
       next.daily = {
@@ -377,18 +441,25 @@
     if (source.visits && typeof source.visits === "object") {
       Object.keys(source.visits).forEach(function (id) {
         if (!/^[1-8]$/.test(id)) return;
-        next.visits[id] = safeNumber(source.visits[id], 0, Date.now() + 86400000, 0);
+        next.visits[id] = safeNumber(source.visits[id], 0, maxFuture, 0);
       });
     }
 
+    next.v = 2;
     next.lastSummary = null;
     return next;
+  }
+
+  function sanitizeImportedState(raw) {
+    var source = raw && raw.app === "cissp-field-manual" ? raw.state : raw;
+    if (!source || typeof source !== "object") throw new Error("Invalid progress file");
+    return sanitizeState(source);
   }
 
   function exportProgress() {
     var payload = {
       app: "cissp-field-manual",
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       state: state
     };
@@ -406,6 +477,14 @@
 
   function importProgressFile(file) {
     if (!file) return;
+    if (syncConfig) {
+      openDialog({
+        title: "Import is paused while sync is on",
+        body: "<p>Importing a merged backup on a synced device would count the same answers twice. Turn sync off on your devices first, then import the backup and create a new sync code.</p><p>Your local progress is unchanged.</p>",
+        actions: '<button type="button" class="btn btn--small" data-close>OK</button>'
+      });
+      return;
+    }
     if (file.size > 3 * 1024 * 1024) { toast("That file is too large for a progress backup."); return; }
     file.text().then(function (text) {
       var parsed;
@@ -421,7 +500,7 @@
       });
       dialog.querySelector("[data-confirm-import]").addEventListener("click", function () {
         dialog.close();
-        state = next;
+        localState = next;
         lastPracticeSummary = null;
         lastExamResult = null;
         practiceSession = null;
@@ -437,28 +516,26 @@
   }
 
   function ensureDaily() {
-    if (!state.daily || state.daily.date !== todayKey()) {
-      state.daily = { date: todayKey(), drill: false, review: false, cards: false };
+    if (!localState.daily || localState.daily.date !== todayKey()) {
+      localState.daily = { date: todayKey(), drill: false, review: false, cards: false };
+      rebuildState();
     }
   }
 
-  function updateStreak() {
-    var today = todayKey();
-    if (!state.streak || !state.streak.last) {
-      state.streak = { last: today, count: 1 };
-      return;
-    }
-    if (state.streak.last === today) return;
-    var diff = dayDiff(state.streak.last, today);
-    state.streak.count = diff === 1 ? (state.streak.count || 0) + 1 : 1;
-    state.streak.last = today;
+  function hasActivity(key) {
+    var day = state.activity[key];
+    return !!(day && ((day.a || 0) + (day.cards || 0) > 0));
   }
 
   function currentStreak() {
-    if (!state.streak || !state.streak.last) return 0;
-    var diff = dayDiff(state.streak.last, todayKey());
-    if (diff <= 1) return state.streak.count || 0;
-    return 0;
+    var start = hasActivity(todayKey()) ? 0 : 1;
+    if (!hasActivity(addDaysKey(-start))) return 0;
+    var count = 0;
+    for (var i = start; i < 400; i++) {
+      if (!hasActivity(addDaysKey(-i))) break;
+      count += 1;
+    }
+    return count;
   }
 
   function visitedToday(domainId) {
@@ -469,15 +546,14 @@
   function logActivity(kind, correct) {
     ensureDaily();
     var key = todayKey();
-    var day = state.activity[key] || { a: 0, c: 0, cards: 0 };
+    var day = localState.activity[key] || { a: 0, c: 0, cards: 0 };
     if (kind === "answer") {
       day.a += 1;
       if (correct) day.c += 1;
     } else if (kind === "card") {
       day.cards += 1;
     }
-    state.activity[key] = day;
-    updateStreak();
+    localState.activity[key] = day;
   }
 
   /* --------------------------------------------------------------- analytics */
@@ -1192,8 +1268,8 @@
       return { title: "Domain not found", html: '<section class="empty"><h1>No such domain.</h1><p>The manual has eight domains, numbered 1 to 8.</p><a class="btn" href="#/study">Back to the notes</a></section>' };
     }
     var s = domainStats(domain.id);
-    if (!state.visits) state.visits = {};
-    state.visits[domain.id] = Date.now();
+    if (!localState.visits) localState.visits = {};
+    localState.visits[domain.id] = Date.now();
     save();
     var sections = domain.sections.map(function (section, index) {
       var terms = (section.terms || []).map(function (term) {
@@ -1273,7 +1349,10 @@
     ensureDaily();
     var stats = allStats();
     var wrong = wrongQuestions().length;
-    var bookmarked = state.bookmarks.filter(function (id) { return QID[id]; }).length;
+    var bookmarked = Object.keys(state.bookmarks).filter(function (id) {
+      var b = state.bookmarks[id];
+      return b && b.on && QID[id];
+    }).length;
     var focus = weakestDomain();
     var isNew = stats.attempts === 0;
     var activeDrill = (practiceSession && !practiceSession.completed) ? practiceSession : loadPracticeState();
@@ -1405,7 +1484,10 @@
       title = "Review mistakes";
       kicker = "Your question log";
     } else if (kind === "bookmarks") {
-      pool = shuffle(state.bookmarks.map(function (id) { return QID[id]; }).filter(Boolean)).slice(0, 20);
+      pool = shuffle(Object.keys(state.bookmarks).filter(function (id) {
+        var b = state.bookmarks[id];
+        return b && b.on && QID[id];
+      }).map(function (id) { return QID[id]; })).slice(0, 20);
       title = "Bookmarked";
       kicker = "Saved questions";
     }
@@ -1556,7 +1638,8 @@
     }).join("");
 
     var progress = Math.round(((s.index + (submitted ? 1 : 0)) / s.items.length) * 100);
-    var bookmarked = state.bookmarks.indexOf(q.id) !== -1;
+    var bookmarkInfo = state.bookmarks[q.id];
+    var bookmarked = !!(bookmarkInfo && bookmarkInfo.on);
     var last = s.index === s.items.length - 1;
 
     var verdict = "";
@@ -1637,12 +1720,12 @@
   }
 
   function recordAnswer(q, correct, persist) {
-    var a = state.attempts[q.id] || { c: 0, w: 0, last: 0, box: 0 };
+    var a = localState.attempts[q.id] || { c: 0, w: 0, last: 0, box: 0 };
     if (correct) { a.c = (a.c || 0) + 1; a.box = Math.min(4, (a.box || 0) + 1); }
     else { a.w = (a.w || 0) + 1; a.box = 0; }
     a.last = Date.now();
     a.lastResult = !!correct;
-    state.attempts[q.id] = a;
+    localState.attempts[q.id] = a;
     logActivity("answer", !!correct);
     if (persist !== false) save();
   }
@@ -1650,8 +1733,8 @@
   function finishPractice() {
     if (!practiceSession) return;
     ensureDaily();
-    if (practiceSession.kind === "review") state.daily.review = true;
-    else state.daily.drill = true;
+    if (practiceSession.kind === "review") localState.daily.review = true;
+    else localState.daily.drill = true;
     practiceSession.completed = true;
     var items = practiceSession.items;
     var byDomain = {};
@@ -1671,7 +1754,7 @@
       byDomain: byDomain,
       missed: items.filter(function (it) { return !it.correct; }).map(function (it) { return { id: it.q.id, picked: it.picked }; })
     };
-    state.lastSummary = lastPracticeSummary;
+    localState.lastSummary = lastPracticeSummary;
     save();
     clearPracticeState();
     location.hash = "#/practice/summary";
@@ -1878,8 +1961,17 @@
     if (!card) return;
     if (!cardSession.flipped) { toast("Reveal the definition before grading."); return; }
     var today = todayKey();
-    var info = state.cards[card.id] || { box: 0, due: today, seen: 0, lapses: 0 };
+    var localInfo = localState.cards[card.id] || { box: 0, due: today, seen: 0, lapses: 0, last: 0 };
+    var mergedInfo = state.cards[card.id] || localInfo;
+    var info = {
+      box: mergedInfo.box || 0,
+      due: mergedInfo.due || today,
+      seen: localInfo.seen || 0,
+      lapses: localInfo.lapses || 0,
+      last: localInfo.last || 0
+    };
     info.seen = (info.seen || 0) + 1;
+    info.last = Date.now();
     if (grade === "good") {
       info.box = Math.min(4, (info.box || 0) + 1);
       var intervals = [1, 3, 7, 21, 45];
@@ -1891,10 +1983,10 @@
       info.due = addDaysKey(1);
       cardSession.again += 1;
     }
-    state.cards[card.id] = info;
+    localState.cards[card.id] = info;
     logActivity("card");
     ensureDaily();
-    state.daily.cards = true;
+    localState.daily.cards = true;
     save();
     cardSession.index += 1;
     cardSession.flipped = false;
@@ -2231,6 +2323,7 @@
     scaled = clamp(scaled, 300, 1000);
 
     var entry = {
+      id: makeId("exam-"),
       dateKey: todayKey(),
       date: new Date().toISOString(),
       total: s.questions.length,
@@ -2243,8 +2336,8 @@
       review: review
     };
 
-    state.exams.push(entry);
-    if (state.exams.length > 20) state.exams = state.exams.slice(-20);
+    localState.exams.push(entry);
+    if (localState.exams.length > 20) localState.exams = localState.exams.slice(-20);
     lastExamResult = entry;
     examSession = null;
     clearActiveExam();
@@ -2330,6 +2423,386 @@
     };
   }
 
+  /* ------------------------------------------------------------------- sync */
+
+  function relativeTime(timestamp) {
+    var diff = Math.max(0, Date.now() - Number(timestamp || 0));
+    if (!timestamp) return "never";
+    if (diff < 45000) return "just now";
+    var minutes = Math.round(diff / 60000);
+    if (minutes < 60) return minutes + "m ago";
+    var hours = Math.round(minutes / 60);
+    if (hours < 24) return hours + "h ago";
+    return Math.round(hours / 24) + "d ago";
+  }
+
+  function syncSectionHTML() {
+    var on = !!(syncConfig && SYNC);
+    var status = syncStatus.state;
+    var statusText = "Sync off";
+    var statusClass = "chip--ok";
+    if (on) {
+      if (status === "syncing") { statusText = "Syncing…"; statusClass = "chip--blue"; }
+      else if (status === "error") { statusText = "Sync failed"; statusClass = "chip--signal"; }
+      else if (status === "offline") { statusText = "Offline"; statusClass = "chip--signal"; }
+      else if (!syncStatus.lastSyncAt) { statusText = "Ready to sync"; statusClass = "chip--blue"; }
+      else { statusText = "Synced " + relativeTime(syncStatus.lastSyncAt); }
+    }
+
+    var body;
+    if (!on) {
+      body = "<p>Keep this browser and your phone on the same answer sheet. Sync uses a private code, not an account, and the Worker stores only encrypted progress.</p>" +
+        '<div class="q-actions" style="margin-top:14px">' +
+          '<button type="button" class="btn btn--small" data-sync-create>Create a sync code</button>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-sync-join>I have a code</button>' +
+        "</div>" +
+        '<p class="sync-fineprint">No email, no password, no analytics. If you lose the code, the server copy cannot be recovered; local progress stays.</p>';
+    } else {
+      var code = syncShowCode
+        ? esc(SYNC.formatCode(syncConfig.code))
+        : "••••-••••-••••-••••-••••-••••-••••-••••";
+      var devices = syncStatus.devices || syncConfig.lastDeviceCount || 1;
+      body = '<div class="sync-status-row"><span class="chip ' + statusClass + '">' + esc(statusText) + "</span>" +
+        '<span class="sync-devices">' + devices + (devices === 1 ? " device" : " devices") + "</span></div>" +
+        (syncStatus.lastError ? '<p class="sync-error">' + esc(syncStatus.lastError) + "</p>" : "") +
+        '<div class="sync-code-row"><code class="sync-code">' + code + "</code>" +
+          '<button type="button" class="btn btn--ghost btn--small" data-sync-toggle-code>' + (syncShowCode ? "Hide" : "Show") + "</button>" +
+          '<button type="button" class="btn btn--ghost btn--small" data-sync-copy>Copy</button>' +
+        "</div>" +
+        '<p class="sync-fineprint">Anyone with this code can read and change your synced progress. Store it in your password manager.</p>' +
+        '<div class="q-actions" style="margin-top:14px">' +
+          '<button type="button" class="btn btn--small" data-sync-now' + (status === "syncing" ? " disabled" : "") + ">Sync now</button>" +
+          '<button type="button" class="btn btn--ghost btn--small" data-sync-disable>Turn off on this device</button>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-sync-delete>Delete synced data</button>' +
+        "</div>" +
+        '<details class="sync-advanced"><summary>Server lock (advanced)</summary>' +
+          '<p class="sync-fineprint">Optional: set the Worker\u2019s <code>ACCOUNT_ID</code> to a fingerprint of this code so it rejects every other account before touching D1.</p>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-sync-lock>Show lock value</button>' +
+        "</details>";
+    }
+
+    return '<section class="section" id="sync-section"><div class="section-head"><div><h2>Sync across devices</h2><p>Laptop and phone, one progress record.</p></div></div>' +
+      '<div class="card sync-card">' + body + "</div></section>";
+  }
+
+  function refreshSyncPanel() {
+    var panel = document.getElementById("sync-section");
+    if (panel) panel.outerHTML = syncSectionHTML();
+  }
+
+  function isProgressRoute() {
+    return routeFor(parseRoute(location.hash).parts).name === "progress";
+  }
+
+  function isHomeRoute() {
+    return routeFor(parseRoute(location.hash).parts).name === "home";
+  }
+
+  function hasActiveSession() {
+    var route = routeFor(parseRoute(location.hash).parts);
+    if (route.name === "practiceSession") return !!(practiceSession && !practiceSession.completed);
+    if (route.name === "cardsSession") return !!cardSession;
+    if (route.name === "examRun") return !!examSession;
+    return false;
+  }
+
+  function scheduleSync() {
+    if (!syncConfig || !SYNC) return;
+    if (syncTimer) return;
+    syncTimer = setTimeout(function () {
+      syncTimer = null;
+      syncNow(false);
+    }, 4000);
+  }
+
+  async function syncNow(manual) {
+    if (!syncConfig || !SYNC) return;
+    if (syncTimer) { clearTimeout(syncTimer); syncTimer = null; }
+    if (syncInFlight) { syncQueued = true; return; }
+    if (navigator.onLine === false) {
+      syncStatus.state = "offline";
+      syncStatus.lastError = null;
+      refreshSyncPanel();
+      if (manual) toast("You are offline. Progress will sync when you reconnect.");
+      return;
+    }
+
+    syncInFlight = true;
+    syncStatus.state = "syncing";
+    syncStatus.lastError = null;
+    refreshSyncPanel();
+    var shouldRender = false;
+
+    try {
+      var envelope = await SYNC.encryptState(localState, syncConfig.code);
+      var data = await SYNC.push(syncConfig, envelope);
+      var devices = Array.isArray(data.devices) ? data.devices : [];
+      var nextRemote = {};
+      var readWarning = null;
+
+      for (var i = 0; i < devices.length; i++) {
+        var device = devices[i];
+        if (!device || !device.deviceId || device.deviceId === syncConfig.deviceId) continue;
+        try {
+          var raw = await SYNC.decryptState(device.envelope, syncConfig.code);
+          nextRemote[device.deviceId] = sanitizeState(raw);
+        } catch (err) {
+          readWarning = "One device snapshot could not be read and was skipped.";
+        }
+      }
+
+      remoteStates = nextRemote;
+      SYNC.saveCachedStates(remoteStates);
+      syncConfig.lastSyncAt = Date.now();
+      syncConfig.lastDeviceCount = devices.length || 1;
+      syncConfig = SYNC.saveConfig(syncConfig) || syncConfig;
+      syncStatus.state = "idle";
+      syncStatus.lastError = readWarning;
+      syncStatus.devices = syncConfig.lastDeviceCount;
+      syncStatus.lastSyncAt = syncConfig.lastSyncAt;
+      shouldRender = manual || isProgressRoute() || isHomeRoute();
+      rebuildState();
+
+      if (shouldRender && !hasActiveSession() && !document.querySelector("dialog[open]")) {
+        render();
+      } else {
+        refreshChrome(routeFor(parseRoute(location.hash).parts));
+        refreshSyncPanel();
+      }
+      if (manual) toast(readWarning || "Progress synced.");
+    } catch (err) {
+      syncStatus.state = "error";
+      syncStatus.lastError = err && err.message ? err.message : "Sync failed.";
+      refreshSyncPanel();
+      if (manual) toast(syncStatus.lastError);
+    } finally {
+      syncInFlight = false;
+      if (syncQueued) {
+        syncQueued = false;
+        scheduleSync();
+      }
+    }
+  }
+
+  function adoptSyncCode(code, deviceCount) {
+    syncConfig = SYNC.saveConfig({
+      code: code,
+      deviceId: SYNC.newDeviceId(),
+      lastSyncAt: null,
+      lastDeviceCount: deviceCount || 1,
+      createdAt: Date.now()
+    });
+    if (!syncConfig) { toast("That sync code could not be saved."); return; }
+    remoteStates = {};
+    SYNC.clearCache();
+    syncStatus = { state: "idle", lastError: null, devices: deviceCount || 1, lastSyncAt: null };
+    syncShowCode = false;
+    rebuildState();
+    persistLocal();
+    syncNow(true);
+  }
+
+  function copyText(text, successMessage) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast(successMessage);
+      }, function () {
+        window.prompt("Copy", text);
+      });
+    } else {
+      window.prompt("Copy", text);
+    }
+  }
+
+  function copySyncCode() {
+    if (!syncConfig || !SYNC) return;
+    copyText(SYNC.formatCode(syncConfig.code), "Sync code copied.");
+  }
+
+  async function openSyncLock() {
+    if (!syncConfig || !SYNC) return;
+    var lock;
+    try {
+      lock = await SYNC.accountId(syncConfig.code);
+    } catch (err) {
+      toast(err.message || "Could not compute the lock value.");
+      return;
+    }
+    var dialog = openDialog({
+      title: "Server lock",
+      body: "<p>This is a SHA-256 fingerprint of your sync code. Set the Worker variable <code>ACCOUNT_ID</code> to this value, then redeploy. The Worker will reject every other account before it touches D1.</p>" +
+        '<div class="sync-code-row"><code class="sync-code">' + esc(lock) + "</code></div>" +
+        '<p class="sync-fineprint">The fingerprint is not the sync code and cannot decrypt your data. It does not stop request floods; the <code>/v1/sync</code> rate-limit rule does that.</p>',
+      actions: '<button type="button" class="btn btn--small" data-sync-lock-copy>Copy lock value</button>' +
+        '<button type="button" class="btn btn--ghost btn--small" data-close>Close</button>'
+    });
+    var copy = dialog.querySelector("[data-sync-lock-copy]");
+    if (copy) copy.addEventListener("click", function () { copyText(lock, "Server lock value copied."); });
+  }
+
+  function showSyncCodeDialog(created) {
+    if (!syncConfig || !SYNC) return;
+    var code = SYNC.formatCode(syncConfig.code);
+    var dialog = openDialog({
+      title: created ? "Your sync code" : "Sync code",
+      body: "<p>" + (created
+        ? "This device is ready. Enter the same code on your phone."
+        : "Enter this code on another device.") + "</p>" +
+        '<div class="sync-code-row"><code class="sync-code">' + esc(code) + "</code></div>" +
+        '<p class="sync-fineprint">Store it somewhere safe. Without it, the server copy cannot be decrypted.</p>',
+      actions: '<button type="button" class="btn btn--small" data-sync-copy>Copy code</button>' +
+        '<button type="button" class="btn btn--ghost btn--small" data-close>Done</button>'
+    });
+    var copy = dialog.querySelector("[data-sync-copy]");
+    if (copy) copy.addEventListener("click", function () { copySyncCode(); });
+  }
+
+  function openSyncCreate() {
+    if (!SYNC) { toast("Sync is unavailable in this browser."); return; }
+    var dialog = openDialog({
+      title: "Create a sync code",
+      body: "<p>This code is the only key to your synced progress. It is not an account and there is no password reset.</p>" +
+        '<div class="callout"><p class="callout__label">Anyone with this code</p><p>can read and change your synced progress. Treat it like a passphrase and store it in your password manager.</p></div>',
+      actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button>' +
+        '<button type="button" class="btn btn--small" data-sync-create-confirm>Create code</button>'
+    });
+    dialog.querySelector("[data-sync-create-confirm]").addEventListener("click", function () {
+      dialog.close();
+      var code;
+      try { code = SYNC.generateCode(); } catch (err) { toast(err.message); return; }
+      syncConfig = SYNC.saveConfig({
+        code: code,
+        deviceId: SYNC.newDeviceId(),
+        lastSyncAt: null,
+        lastDeviceCount: 1,
+        createdAt: Date.now()
+      });
+      if (!syncConfig) { toast("Could not create a sync code."); return; }
+      remoteStates = {};
+      SYNC.clearCache();
+      syncStatus = { state: "idle", lastError: null, devices: 1, lastSyncAt: null };
+      syncShowCode = true;
+      rebuildState();
+      persistLocal();
+      showSyncCodeDialog(true);
+      syncNow(true);
+    });
+  }
+
+  function openSyncJoin() {
+    if (!SYNC) { toast("Sync is unavailable in this browser."); return; }
+    var dialog = openDialog({
+      title: "Enter a sync code",
+      body: '<form id="sync-join-form"><div class="field"><label for="sync-join-input">Sync code</label>' +
+        '<input id="sync-join-input" name="code" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Paste your sync code">' +
+        "<small>Paste the code from your other device.</small></div></form>",
+      actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button>' +
+        '<button type="submit" class="btn btn--small" form="sync-join-form">Connect</button>'
+    });
+    var form = dialog.querySelector("#sync-join-form");
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      var input = dialog.querySelector("#sync-join-input");
+      var code = SYNC.normalizeCode(input.value);
+      var submit = dialog.querySelector('button[type="submit"]');
+      if (!SYNC.validCode(code)) {
+        toast("That code is not the right length. It has 32 letters and digits.");
+        return;
+      }
+      if (submit) { submit.disabled = true; submit.textContent = "Checking…"; }
+      try {
+        var data = await SYNC.pull(code);
+        if (!dialog.open) return;
+        var devices = Array.isArray(data.devices) ? data.devices : [];
+        var verified = false;
+        for (var i = 0; i < devices.length && !verified; i++) {
+          try {
+            await SYNC.decryptState(devices[i].envelope, code);
+            verified = true;
+          } catch (err) { /* try the next device */ }
+        }
+        if (devices.length && !verified) {
+          toast("That code does not match the saved progress.");
+          if (submit) { submit.disabled = false; submit.textContent = "Connect"; }
+          return;
+        }
+        dialog.close();
+        if (!devices.length) {
+          var confirmJoin = openDialog({
+            title: "No progress found",
+            body: "<p>No saved progress was found for that code. If this is the code from your first device, it may not have synced yet. If you mistyped it, go back and check.</p>",
+            actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Check the code</button>' +
+              '<button type="button" class="btn btn--small" data-sync-join-anyway>Use this code</button>'
+          });
+          confirmJoin.querySelector("[data-sync-join-anyway]").addEventListener("click", function () {
+            confirmJoin.close();
+            adoptSyncCode(code, 1);
+          });
+          return;
+        }
+        adoptSyncCode(code, devices.length);
+      } catch (err) {
+        toast(err.message || "Could not check that code.");
+        if (submit) { submit.disabled = false; submit.textContent = "Connect"; }
+      }
+    });
+  }
+
+  function openSyncDisable() {
+    if (!syncConfig || !SYNC) return;
+    var dialog = openDialog({
+      title: "Turn off sync on this device?",
+      body: "<p>Progress already merged into this browser stays. This device stops sending and receiving updates and forgets the sync code; the snapshot already on the server stays there for your other devices.</p>" +
+        "<p>If you turn sync back on later, use a new code. Reusing the old code after this device has absorbed the combined progress can count the same answers twice.</p>",
+      actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button>' +
+        '<button type="button" class="btn btn--signal btn--small" data-sync-disable-confirm>Turn off sync</button>'
+    });
+    dialog.querySelector("[data-sync-disable-confirm]").addEventListener("click", function () {
+      dialog.close();
+      localState = state;
+      syncConfig = null;
+      SYNC.clearConfig();
+      SYNC.clearCache();
+      remoteStates = {};
+      syncStatus = { state: "idle", lastError: null, devices: 0, lastSyncAt: null };
+      syncShowCode = false;
+      save();
+      render();
+      toast("Sync turned off on this device. The server snapshot stays for your other devices.");
+    });
+  }
+
+  function openSyncDelete() {
+    if (!syncConfig || !SYNC) return;
+    var dialog = openDialog({
+      title: "Delete all synced progress?",
+      body: "<p>This removes the encrypted snapshots from the sync service and turns sync off on this device. Progress on this device stays.</p>" +
+        "<p>Other devices keep their local copies and may upload them again if they sync later, so turn sync off on those devices too if you want a clean removal.</p>",
+      actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button>' +
+        '<button type="button" class="btn btn--signal btn--small" data-sync-delete-confirm>Delete synced data</button>'
+    });
+    dialog.querySelector("[data-sync-delete-confirm]").addEventListener("click", async function () {
+      dialog.close();
+      var config = syncConfig;
+      try {
+        await SYNC.deleteAccount(config);
+      } catch (err) {
+        toast(err.message || "Could not delete the synced data.");
+        return;
+      }
+      localState = state;
+      syncConfig = null;
+      SYNC.clearConfig();
+      SYNC.clearCache();
+      remoteStates = {};
+      syncStatus = { state: "idle", lastError: null, devices: 0, lastSyncAt: null };
+      syncShowCode = false;
+      save();
+      render();
+      toast("Synced data deleted. This device kept its local progress.");
+    });
+  }
+
   /* ---------------------------------------------------------------- progress */
 
   function viewProgress() {
@@ -2391,6 +2864,8 @@
           '<button type="button" class="btn btn--ghost btn--small" data-set-exam-date>Exam date</button>' +
           '<button type="button" class="btn btn--ghost btn--small" data-reset>Reset data</button></div></header>' +
 
+        syncSectionHTML() +
+
         '<div class="stat-grid">' +
           '<div class="stat"><p class="stat__label">Questions answered</p><p class="stat__value">' + stats.attempts + '</p><p class="stat__note">' + stats.seen + " unique of " + stats.total + "</p></div>" +
           '<div class="stat"><p class="stat__label">Accuracy</p><p class="stat__value">' + (stats.accuracy == null ? "—" : Math.round(stats.accuracy * 100) + "<small>%</small>") + '</p><p class="stat__note">All attempts, including repeats</p></div>' +
@@ -2412,7 +2887,7 @@
         (recentList ? '<table class="history"><thead><tr><th scope="col">Domain</th><th scope="col">Topic</th><th scope="col">Result</th><th scope="col">Record</th></tr></thead><tbody>' + recentList + "</tbody></table>" : '<div class="empty"><h3>No answers recorded.</h3><p>Start with the diagnostic and the log will fill itself.</p><a class="btn" href="#/practice" data-start="diagnostic">Start the diagnostic</a></div>') +
         "</section>" +
 
-        '<section class="section"><div class="callout"><p class="callout__label">Your data</p><p>Progress is stored only in this browser. Before clearing Safari data, switching devices, or resetting the site, use <strong>Export</strong> to save a JSON backup. <strong>Import</strong> restores it on another browser.</p></div></section>' +
+        '<section class="section"><div class="callout"><p class="callout__label">Your data</p><p>Progress is local to this browser. Use <strong>Export</strong> for a JSON backup, or turn on <strong>sync</strong> above to keep this device and your phone together. Import is available only while sync is off.</p></div></section>' +
         '<input type="file" id="progress-import" accept=".json,application/json" hidden>'
     };
   }
@@ -2458,7 +2933,8 @@
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       var value = dialog.querySelector("#exam-date-input").value;
-      state.settings.examDate = value || null;
+      localState.settings.examDate = value || null;
+      localState.settings.examDateAt = Date.now();
       save();
       dialog.close();
       renderExamDate();
@@ -2467,28 +2943,70 @@
     });
   }
 
+  function clearLocalProgress() {
+    localState = defaultState();
+    practiceSession = null;
+    cardSession = null;
+    examSession = null;
+    lastExamResult = null;
+    lastPracticeSummary = null;
+    clearPracticeState();
+    clearActiveExam();
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (err) { /* ignore */ }
+    save();
+  }
+
   function openReset() {
+    var on = !!(syncConfig && SYNC);
     var dialog = openDialog({
-      title: "Reset all progress?",
-      body: "<p>This deletes every answer, flashcard schedule, bookmark, and mock result stored in this browser. It cannot be undone.</p>",
-      actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Keep my progress</button><button type="button" class="btn btn--signal btn--small" data-confirm-reset>Reset everything</button>'
+      title: on ? "Reset progress?" : "Reset all progress?",
+      body: on
+        ? "<p><strong>Reset this device</strong> clears this browser's answers and sends the empty sheet to sync. Your other devices keep their progress.</p><p><strong>Reset everything</strong> also deletes the synced account. Other devices may re-upload their local copies if they sync again.</p>"
+        : "<p>This deletes every answer, flashcard schedule, bookmark, and mock result stored in this browser. It cannot be undone.</p>",
+      actions: on
+        ? '<button type="button" class="btn btn--ghost btn--small" data-close>Keep my progress</button>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-confirm-reset-device>Reset this device</button>' +
+          '<button type="button" class="btn btn--signal btn--small" data-confirm-reset-all>Reset everything</button>'
+        : '<button type="button" class="btn btn--ghost btn--small" data-close>Keep my progress</button>' +
+          '<button type="button" class="btn btn--signal btn--small" data-confirm-reset>Reset everything</button>'
     });
-    dialog.querySelector("[data-confirm-reset]").addEventListener("click", function () {
-      state = defaultState();
-      practiceSession = null;
-      cardSession = null;
-      examSession = null;
-      lastExamResult = null;
-      lastPracticeSummary = null;
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(ACTIVE_EXAM_KEY);
-        localStorage.removeItem(ACTIVE_PRACTICE_KEY);
-      } catch (err) { /* ignore */ }
-      save();
+
+    if (!on) {
+      dialog.querySelector("[data-confirm-reset]").addEventListener("click", function () {
+        dialog.close();
+        clearLocalProgress();
+        render();
+        toast("Progress reset. A clean sheet.");
+      });
+      return;
+    }
+
+    dialog.querySelector("[data-confirm-reset-device]").addEventListener("click", function () {
       dialog.close();
+      clearLocalProgress();
       render();
-      toast("Progress reset. A clean sheet.");
+      toast("This device was reset. Other synced devices keep their progress.");
+    });
+
+    dialog.querySelector("[data-confirm-reset-all]").addEventListener("click", async function () {
+      dialog.close();
+      var config = syncConfig;
+      try {
+        await SYNC.deleteAccount(config);
+      } catch (err) {
+        toast(err.message || "Could not delete the synced data.");
+        return;
+      }
+      syncConfig = null;
+      SYNC.clearConfig();
+      SYNC.clearCache();
+      remoteStates = {};
+      syncStatus = { state: "idle", lastError: null, devices: 0, lastSyncAt: null };
+      clearLocalProgress();
+      render();
+      toast("All synced progress was deleted.");
     });
   }
 
@@ -2597,14 +3115,10 @@
   });
 
   function toggleBookmark(id) {
-    var index = state.bookmarks.indexOf(id);
-    if (index === -1) {
-      state.bookmarks.push(id);
-      toast("Saved to your bookmarks.");
-    } else {
-      state.bookmarks.splice(index, 1);
-      toast("Removed from bookmarks.");
-    }
+    var current = state.bookmarks[id];
+    var next = !(current && current.on);
+    localState.bookmarks[id] = { on: next, at: Date.now() };
+    toast(next ? "Saved to your bookmarks." : "Removed from bookmarks.");
     save();
   }
 
@@ -2668,6 +3182,55 @@
     if (event.target.closest("[data-reset]")) {
       event.preventDefault();
       openReset();
+      return;
+    }
+
+    if (event.target.closest("[data-sync-create]")) {
+      event.preventDefault();
+      openSyncCreate();
+      return;
+    }
+
+    if (event.target.closest("[data-sync-join]")) {
+      event.preventDefault();
+      openSyncJoin();
+      return;
+    }
+
+    if (event.target.closest("[data-sync-now]")) {
+      event.preventDefault();
+      syncNow(true);
+      return;
+    }
+
+    if (event.target.closest("[data-sync-toggle-code]")) {
+      event.preventDefault();
+      syncShowCode = !syncShowCode;
+      refreshSyncPanel();
+      return;
+    }
+
+    if (event.target.closest("[data-sync-copy]")) {
+      event.preventDefault();
+      copySyncCode();
+      return;
+    }
+
+    if (event.target.closest("[data-sync-lock]")) {
+      event.preventDefault();
+      openSyncLock();
+      return;
+    }
+
+    if (event.target.closest("[data-sync-disable]")) {
+      event.preventDefault();
+      openSyncDisable();
+      return;
+    }
+
+    if (event.target.closest("[data-sync-delete]")) {
+      event.preventDefault();
+      openSyncDelete();
       return;
     }
 
@@ -2865,4 +3428,38 @@
   }
 
   render();
+
+  if (syncConfig && SYNC) {
+    setTimeout(function () { syncNow(false); }, 700);
+  }
+
+  window.addEventListener("online", function () {
+    if (syncConfig && SYNC) syncNow(false);
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (syncConfig && SYNC) syncNow(false);
+  });
+
+  window.addEventListener("storage", function (event) {
+    if (event.key === STORAGE_KEY && event.newValue) {
+      try {
+        var parsed = JSON.parse(event.newValue);
+        localState = sanitizeState(parsed);
+        if (parsed && parsed.lastSummary && typeof parsed.lastSummary === "object") {
+          localState.lastSummary = parsed.lastSummary;
+        }
+        rebuildState();
+        if (!hasActiveSession() && !document.querySelector("dialog[open]")) render();
+      } catch (err) { /* ignore a malformed write from another tab */ }
+      return;
+    }
+    if (SYNC && event.key === SYNC.CONFIG_KEY) {
+      syncConfig = SYNC.loadConfig();
+      remoteStates = syncConfig ? SYNC.loadCachedStates() : {};
+      rebuildState();
+      if (!hasActiveSession() && !document.querySelector("dialog[open]")) render();
+      if (syncConfig) setTimeout(function () { syncNow(false); }, 300);
+    }
+  });
 })();

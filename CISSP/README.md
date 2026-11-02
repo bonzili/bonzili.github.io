@@ -13,6 +13,8 @@ A static, no-build study site for the CISSP exam. It lives at:
 | `assets/data.js` | Domain notes, exam metadata, and the manager-mindset primer |
 | `assets/questions-d1.js` … `d8.js` | 20 original practice questions per domain (160 total) |
 | `assets/flashcards.js` | 150 key-term cards with spaced repetition |
+| `assets/sync.js` | Sync core: sync code, AES-GCM envelopes, per-device merge rules, Worker API client |
+| `sync-worker/` | Optional Cloudflare Worker + D1 service for cross-device sync |
 | `manifest.webmanifest`, `assets/icon-*.png` | Installable Home Screen metadata and icons |
 | `assets/app.js` | Hash router, practice engine, flashcard scheduler, mock exam, progress storage |
 
@@ -26,7 +28,8 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
 - **Progress export/import**: download a JSON backup and restore it on another browser or device.
-- **Progress that stays local**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`.
+- **Optional encrypted cross-device sync**: create a 128-bit sync code, enter it on your phone, and each device syncs its own encrypted snapshot through a small Cloudflare Worker. No accounts, email, or analytics; the Worker stores ciphertext only. See `sync-worker/README.md` for deployment.
+- **Local-first progress**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`. Sync is additive and per-device, so one device cannot overwrite another.
 - **Exam date countdown** and a daily four-move study brief.
 - Responsive down to 360 px, keyboard shortcuts, reduced-motion support, and print styles for the notes.
 
@@ -79,7 +82,44 @@ Each entry in `CISSP.domains` (`assets/data.js`) has `sections` with `points` an
 
 ## Progress portability
 
-The Progress page can export the entire local state (attempts, cards, exams, settings) as a JSON file and import it on another browser. Import validation only accepts known question/card IDs and numeric fields, and it replaces the current local state after confirmation. This is the intended way to move progress between a laptop and an iPhone.
+The Progress page can export the entire merged local state (attempts, cards, exams, settings) as a JSON file and import it on another browser. Import replaces the current local state after confirmation, and validation only accepts known question/card IDs and numeric fields.
+
+Export/import is the fallback and backup path. Import is intentionally paused while sync is on: importing a merged backup on a synced device would count the same attempts twice. Turn sync off on your devices first, import, then create a new sync code if you want to resume syncing.
+
+## Sync across devices
+
+The sync feature is optional. It is designed for one person with two devices — typically a laptop and a phone.
+
+1. Open **Progress → Sync across devices → Create a sync code**.
+2. Store the code in a password manager.
+3. On the other device, choose **I have a code** and enter it.
+4. Both devices now push their own encrypted snapshot and merge the others.
+
+The sync code is the only credential. It is never stored on the server; the Worker derives an account id from it with SHA-256. The browser derives an AES-GCM-256 key from the same code, so the Worker only stores ciphertext. There are no accounts, cookies, or analytics.
+
+**Optional server lock:** after creating the code, open **Server lock (advanced) → Show lock value**. Set the Worker variable `ACCOUNT_ID` to that 64-character fingerprint and redeploy. The Worker then rejects every other account before touching D1, so random codes cannot create junk rows. The fingerprint is a hash, not the code, and cannot decrypt anything. It does not stop request floods; use the `/v1/sync` rate-limit rule for that.
+
+Each device writes only its own row. The merge rules are:
+
+- **Attempts** — counts are summed; the newest attempt supplies the box/result.
+- **Cards** — review counts are summed; the newest review supplies the box/due date.
+- **Exams** — union by a stable exam id.
+- **Bookmarks** — latest on/off state wins, so a removal is not resurrected.
+- **Activity** — per-day counts are summed; the streak is derived from the merged days.
+- **Exam date and domain visits** — newest timestamp wins.
+- **Daily brief** — flags for the same day are OR-ed.
+
+The Worker is in `sync-worker/`. It needs a free Cloudflare account, one D1 database, and the `sync.bonzili.me` custom domain. Full deployment and rate-limiting instructions are in `sync-worker/README.md`.
+
+Limits: 10 devices per code, 900 KB per snapshot, and the Cloudflare Free plan's Workers/D1 allowances. The app is local-first: a failed sync never blocks studying and retries on the next save or when the app becomes visible again.
+
+**Losing the sync code** means losing the server copy. Local progress remains on each device. Deleting synced data removes the server rows, but another device that still has the code and its local copy can upload it again; turn sync off on the other devices before deleting if you want a complete removal.
+
+Run the merge tests from the repository root with:
+
+```bash
+node --test tests/sync.test.js
+```
 
 ## Study plan and exam date
 
@@ -94,11 +134,11 @@ The default target date is **30 November 2026** (`META.examDate` in `assets/data
 
 ## iPhone and installable app
 
-The page uses `viewport-fit=cover` and the `env(safe-area-inset-*)` values so the top bar clears the Dynamic Island and the bottom tab bar clears the home indicator. Safari's own bottom toolbar sits outside the page; for a true full-screen study app, open the site on the iPhone, tap **Share → Add to Home Screen**, and launch it from the icon. The web app manifest and 180/192/512 px icons are included in this folder.
+The page uses `viewport-fit=cover` and the `env(safe-area-inset-*)` values so the top bar clears the Dynamic Island and the bottom tab bar clears the home indicator. Safari's own bottom toolbar sits outside the page; for a true full-screen study app, open the site on the iPhone, tap **Share → Add to Home Screen**, and launch it from the icon. The web app manifest and 180/192/512 px icons are included in this folder. Enter your sync code once on the iPhone if you want the two devices to share progress.
 
 ## Privacy
 
-No accounts, analytics, cookies, or network calls beyond the Google Fonts stylesheet. Study progress is stored only in the browser’s `localStorage`. “Reset data” on the Progress page clears it.
+No accounts, analytics, cookies, or third-party scripts beyond the Google Fonts stylesheet. Study progress is local by default. If you enable sync, the browser sends encrypted snapshots to your own Cloudflare Worker at `sync.bonzili.me`; the Worker stores ciphertext and an account id derived from your sync code. It uses the sync code only to derive an account id, never stores the code, and never receives plaintext progress. “Reset data” and “Delete synced data” on the Progress page clear local and/or remote data as described in the dialogs.
 
 ## Disclaimer
 
