@@ -16,7 +16,7 @@ database_id = "e5eee29c-536e-4ba2-a892-929296e9c375"
 # This makes the Worker reject every other account before it touches D1.
 # Leave empty during initial setup.
 [vars]
-ACCOUNT_ID = ""
+ACCOUNT_ID = "b90209800214b998b156ba232f4a1a9d23f152a6a4ae39af7b2f49c33c4c890b"
 
 # The custom domain is created automatically by `wrangler deploy`.
 # It will appear in Workers & Pages -> cissp-sync -> Settings -> Domains & Routes.
