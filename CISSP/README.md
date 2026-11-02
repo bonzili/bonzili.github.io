@@ -31,6 +31,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **Local question packs**: import a JSON pack of your own official practice questions. The pack stays in the browser and is never committed, uploaded, or included in sync. Pack drills and the pack mock prefer unseen questions, then least recently seen; duplicate stems and figure-dependent items are skipped on import.
 - **Optional encrypted cross-device sync**: create a 128-bit sync code, enter it on your phone, and each device syncs its own encrypted snapshot through a small Cloudflare Worker. No accounts, email, or analytics; the Worker stores ciphertext only. See `sync-worker/README.md` for deployment.
 - **Local-first progress**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`. Sync is additive and per-device, so one device cannot overwrite another.
+- **A− / A+ reading-size control** in the top bar: 90–130% in 10% steps, remembered per browser.
 - **Exam date countdown** and a daily four-move study brief.
 - Responsive down to 360 px, keyboard shortcuts, reduced-motion support, and print styles for the notes.
 

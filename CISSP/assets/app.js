@@ -218,6 +218,9 @@
   var spine = document.getElementById("spine");
   var scrim = document.getElementById("spine-scrim");
   var menuButton = document.getElementById("menu-button");
+  var TEXT_SIZE_KEY = "cissp.fieldmanual.textsize.v1";
+  var TEXT_SCALES = [0.9, 1, 1.1, 1.2, 1.3];
+  var textScale = loadTextScale();
 
   var practiceSession = null;
   var cardSession = null;
@@ -969,6 +972,54 @@
     { section: "exam", href: "#/exam", label: "Mock exam", icon: "clock" },
     { section: "progress", href: "#/progress", label: "Progress", icon: "chart" }
   ];
+
+  function loadTextScale() {
+    try {
+      var n = parseFloat(localStorage.getItem(TEXT_SIZE_KEY));
+      if (!isFinite(n)) return 1;
+      var best = TEXT_SCALES[0];
+      var bestDistance = Math.abs(n - best);
+      TEXT_SCALES.forEach(function (scale) {
+        var distance = Math.abs(n - scale);
+        if (distance < bestDistance) { best = scale; bestDistance = distance; }
+      });
+      return best;
+    } catch (err) {
+      return 1;
+    }
+  }
+
+  function applyTextScale() {
+    var root = document.documentElement;
+    if (textScale === 1) {
+      root.removeAttribute("data-reading");
+      root.style.removeProperty("--reading-scale");
+    } else {
+      root.setAttribute("data-reading", "on");
+      root.style.setProperty("--reading-scale", textScale);
+    }
+    var label = document.getElementById("text-size-label");
+    if (label) {
+      var percent = Math.round(textScale * 100) + "%";
+      label.textContent = percent;
+      label.setAttribute("aria-label", "Reading size " + percent);
+    }
+    var index = TEXT_SCALES.indexOf(textScale);
+    var dec = document.querySelector("[data-text-dec]");
+    var inc = document.querySelector("[data-text-inc]");
+    if (dec) dec.disabled = index <= 0;
+    if (inc) inc.disabled = index >= TEXT_SCALES.length - 1;
+  }
+
+  function changeTextScale(delta) {
+    var index = TEXT_SCALES.indexOf(textScale);
+    if (index < 0) index = 1;
+    var next = clamp(index + delta, 0, TEXT_SCALES.length - 1);
+    if (next === index) return;
+    textScale = TEXT_SCALES[next];
+    try { localStorage.setItem(TEXT_SIZE_KEY, String(textScale)); } catch (err) { /* ignore */ }
+    applyTextScale();
+  }
 
   function refreshChrome(route) {
     var nav = document.getElementById("primary-nav");
@@ -3690,6 +3741,14 @@
   if (location.hash === "#/") {
     history.replaceState(null, "", location.pathname + location.search);
   }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-text-dec]"), function (button) {
+    button.addEventListener("click", function () { changeTextScale(-1); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-text-inc]"), function (button) {
+    button.addEventListener("click", function () { changeTextScale(1); });
+  });
+  applyTextScale();
 
   render();
 

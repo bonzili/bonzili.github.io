@@ -2065,3 +2065,96 @@ button, a, [role="button"] { touch-action: manipulation; }
   .pack-card h3 { font-size: 25px; }
   .pack-card p, .pack-empty p { font-size: 14px; }
 }
+
+/* ---------- Reading-size control ---------- */
+
+.text-size {
+  display: inline-flex;
+  align-items: stretch;
+  height: 30px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  border-radius: 2px;
+  flex: none;
+}
+.text-size__button {
+  width: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 600 11px/1 var(--mono);
+  display: grid;
+  place-items: center;
+}
+.text-size__button:hover { background: var(--paper); color: var(--ink); }
+.text-size__button:disabled { opacity: 0.35; cursor: not-allowed; }
+.text-size__label {
+  min-width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  font: 500 9px/1 var(--mono);
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 720px) {
+  .text-size { height: 32px; }
+  .text-size__button { width: 32px; font-size: 12px; }
+  .text-size__label { min-width: 34px; font-size: 8.5px; }
+}
+
+@media (max-width: 420px) {
+  .streak span { display: none; }
+  .text-size__label { min-width: 32px; }
+}
+
+/* The control scales reading text only. Body size is set per breakpoint; the
+   content below uses em so the hierarchy survives every step. */
+
+html[data-reading] body {
+  font-size: calc(16.5px * var(--reading-scale));
+}
+@media (max-width: 720px) {
+  html[data-reading] body { font-size: calc(15px * var(--reading-scale)); }
+}
+@media (min-width: 1500px) {
+  html[data-reading] body { font-size: calc(18px * var(--reading-scale)); }
+}
+
+html[data-reading] .lede { font-size: 1.18em; }
+html[data-reading] .study-section__lead { font-size: 0.94em; }
+html[data-reading] .study-list li { font-size: 0.88em; }
+html[data-reading] .term { font-size: 0.84em; }
+html[data-reading] .callout p,
+html[data-reading] .callout li { font-size: 0.86em; }
+html[data-reading] .q-stem { font-size: 1.78em; }
+html[data-reading] .option { font-size: 0.9em; }
+html[data-reading] .option__why { font-size: 0.8em; }
+html[data-reading] .explain p { font-size: 0.9em; }
+html[data-reading] .lens p { font-size: 0.9em; }
+html[data-reading] .register td { font-size: 0.88em; }
+html[data-reading] .brief__title { font-size: 0.92em; }
+html[data-reading] .brief__sub { font-size: 0.78em; }
+html[data-reading] .mode p,
+html[data-reading] .domain-card p { font-size: 0.82em; }
+html[data-reading] .summary-table td,
+html[data-reading] .history td { font-size: 0.82em; }
+html[data-reading] .review-item__stem { font-size: 0.9em; }
+html[data-reading] .deck-row p { font-size: 0.8em; }
+html[data-reading] .stat__note { font-size: 0.72em; }
+html[data-reading] .plan-week__summary { font-size: 0.92em; }
+html[data-reading] .plan-week__actions li { font-size: 0.88em; }
+html[data-reading] .plan-day p { font-size: 0.8em; }
+html[data-reading] .plan-exam p { font-size: 0.88em; }
+html[data-reading] .plan-exam li { font-size: 0.85em; }
+html[data-reading] .flashcard__def { font-size: 1.05em; }
+html[data-reading] .tech-item p { font-size: 0.84em; }
+html[data-reading] .rule-item p { font-size: 0.9em; }
+html[data-reading] .verb-table td { font-size: 0.88em; }
+html[data-reading] .worked__option { font-size: 0.84em; }
+html[data-reading] .pack-card p { font-size: 0.8em; }
+html[data-reading] .site-foot { font-size: 0.76em; }

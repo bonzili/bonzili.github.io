@@ -21,7 +21,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=9">
+  <link rel="stylesheet" href="assets/styles.css?v=10">
+  <script>
+    (function () {
+      try {
+        var scale = parseFloat(localStorage.getItem("cissp.fieldmanual.textsize.v1"));
+        if (scale >= 0.8 && scale <= 1.4 && scale !== 1) {
+          document.documentElement.setAttribute("data-reading", "on");
+          document.documentElement.style.setProperty("--reading-scale", scale);
+        }
+      } catch (err) { /* storage may be unavailable */ }
+    })();
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -64,6 +75,11 @@
         <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
         <div class="topbar__right">
           <a class="streak" id="streak-pill" href="#/progress" title="Open progress"></a>
+          <div class="text-size" role="group" aria-label="Reading size">
+            <button type="button" class="text-size__button" data-text-dec aria-label="Decrease reading size">A−</button>
+            <span class="text-size__label" id="text-size-label" aria-live="polite">100%</span>
+            <button type="button" class="text-size__button" data-text-inc aria-label="Increase reading size">A+</button>
+          </div>
           <a class="btn btn--small btn--ink" href="#/exam">Mock exam</a>
         </div>
       </header>
@@ -93,17 +109,17 @@
     <div class="noscript">This study manual needs JavaScript for drills, flashcards, and progress tracking.</div>
   </noscript>
 
-  <script src="assets/data.js?v=9"></script>
-  <script src="assets/questions-d1.js?v=9"></script>
-  <script src="assets/questions-d2.js?v=9"></script>
-  <script src="assets/questions-d3.js?v=9"></script>
-  <script src="assets/questions-d4.js?v=9"></script>
-  <script src="assets/questions-d5.js?v=9"></script>
-  <script src="assets/questions-d6.js?v=9"></script>
-  <script src="assets/questions-d7.js?v=9"></script>
-  <script src="assets/questions-d8.js?v=9"></script>
-  <script src="assets/flashcards.js?v=9"></script>
-  <script src="assets/sync.js?v=9"></script>
-  <script src="assets/app.js?v=9"></script>
+  <script src="assets/data.js?v=10"></script>
+  <script src="assets/questions-d1.js?v=10"></script>
+  <script src="assets/questions-d2.js?v=10"></script>
+  <script src="assets/questions-d3.js?v=10"></script>
+  <script src="assets/questions-d4.js?v=10"></script>
+  <script src="assets/questions-d5.js?v=10"></script>
+  <script src="assets/questions-d6.js?v=10"></script>
+  <script src="assets/questions-d7.js?v=10"></script>
+  <script src="assets/questions-d8.js?v=10"></script>
+  <script src="assets/flashcards.js?v=10"></script>
+  <script src="assets/sync.js?v=10"></script>
+  <script src="assets/app.js?v=10"></script>
 </body>
 </html>
