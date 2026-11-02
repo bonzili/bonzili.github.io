@@ -23,12 +23,12 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **A date-aware four-week study plan** (defaults to the 30 November 2026 exam; change it in the sidebar) with weekly milestones and a daily hour.
 - **Condensed notes** for all eight domains, with key terms, traps, and mnemonics.
 - **160 original scenario questions** with immediate explanations and a “manager’s lens” note.
-- **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, domain drill, adaptive weak areas, review mistakes, bookmarks. Active drills survive a refresh.
+- **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
 - **150 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
-- **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final.
+- **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final. When a local pack is loaded, the exam desk also offers a **125-question mixed pack mock** drawn from the official items.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
 - **Progress export/import**: download a JSON backup and restore it on another browser or device.
-- **Local question packs**: import a JSON pack of your own official practice questions. The pack stays in the browser and is never committed, uploaded, or included in sync.
+- **Local question packs**: import a JSON pack of your own official practice questions. The pack stays in the browser and is never committed, uploaded, or included in sync. Pack drills and the pack mock prefer unseen questions, then least recently seen; duplicate stems and figure-dependent items are skipped on import.
 - **Optional encrypted cross-device sync**: create a 128-bit sync code, enter it on your phone, and each device syncs its own encrypted snapshot through a small Cloudflare Worker. No accounts, email, or analytics; the Worker stores ciphertext only. See `sync-worker/README.md` for deployment.
 - **Local-first progress**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`. Sync is additive and per-device, so one device cannot overwrite another.
 - **Exam date countdown** and a daily four-move study brief.

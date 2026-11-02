@@ -65,7 +65,7 @@
   },
   {
     id: "d2q8", d: 2, topic: "Retention risk", diff: 1,
-    stem: "What is the primary security risk of retaining records longer than necessary?",
+    stem: "A records team proposes keeping every email and document indefinitely because storage is inexpensive. Legal has not issued a hold. What is the primary security risk of this over-retention?",
     options: ["Increased storage cost only", "Greater exposure in a breach and broader discovery obligations", "Faster backup performance", "Reduced need for classification"],
     answer: 1,
     whyText: "Over-retention enlarges the data footprint available to an attacker and increases the scope and cost of legal discovery. It also conflicts with privacy minimisation principles.",
@@ -110,7 +110,7 @@
   },
   {
     id: "d2q13", d: 2, topic: "Data states", diff: 1,
-    stem: "Which control best protects data in use on an endpoint?",
+    stem: "A clinician steps away from a workstation without signing out, leaving patient records visible on screen and in memory. Which control most directly protects data in use on the endpoint?",
     options: ["TLS for network transmission", "AES-256 encryption of the disk", "Screen locking and memory protection", "Offsite backup replication"],
     answer: 2,
     whyText: "Data in use is in memory and on screen. Screen locks, memory protection, and restricted capture reduce exposure during active use. Disk encryption protects data at rest; TLS protects data in transit.",

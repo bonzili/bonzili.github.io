@@ -65,7 +65,7 @@
   },
   {
     id: "d3q8", d: 3, topic: "FIPS 140-3", diff: 1,
-    stem: "What does FIPS 140-3 validate?",
+    stem: "A vendor advertises a hardware security module as 'FIPS 140-3 Level 3 validated.' A procurement manager asks what that validation actually covers. What should the security engineer explain?",
     options: ["The security of an entire operating system", "Cryptographic modules and their security requirements", "The business continuity capability of a data centre", "The privacy practices of a cloud provider"],
     answer: 1,
     whyText: "FIPS 140-3 is the US standard for validating cryptographic modules, with increasing levels that add physical and tamper-resistance requirements.",
@@ -74,7 +74,7 @@
   },
   {
     id: "d3q9", d: 3, topic: "Digital signatures", diff: 2,
-    stem: "Which security properties does a digital signature provide?",
+    stem: "A supplier sends a digitally signed contract. The buyer wants to prove the document came from the supplier, was not altered in transit, and that the supplier cannot later deny signing it. Which properties does the signature provide?",
     options: ["Confidentiality, integrity, and availability", "Integrity, authenticity, and non-repudiation", "Confidentiality and non-repudiation only", "Availability and authentication only"],
     answer: 1,
     whyText: "A digital signature uses the sender's private key over a hash. It provides integrity, authenticity, and non-repudiation. It does not hide the message; encryption is separate.",

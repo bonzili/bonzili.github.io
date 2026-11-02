@@ -56,7 +56,7 @@
   },
   {
     id: "d7q7", d: 7, topic: "Backup strategy", diff: 1,
-    stem: "What does the 3-2-1 backup rule recommend?",
+    stem: "A small firm keeps three nightly backups on the same RAID array in the same server room. A consultant says the design does not meet the 3-2-1 rule. What does the rule recommend?",
     options: ["Three administrators, two passwords, one backup", "Three copies of data, on two different media or locations, with one copy offsite", "Three full backups per week and two differentials", "Three sites, two clouds, one tape"],
     answer: 1,
     whyText: "3-2-1 means three copies, two media or locations, and one offsite. Many programmes add an offline or immutable copy for ransomware resilience.",

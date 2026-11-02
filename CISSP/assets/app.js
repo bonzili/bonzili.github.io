@@ -54,17 +54,24 @@
   var PACK_QID = {};
   var packMeta = null;
   var PACK_KEY = "cissp.fieldmanual.pack.v1";
+  var PACK_SEEN_KEY = "cissp.fieldmanual.packseen.v1";
+  var packSeen = {};
 
   function normalizePack(raw) {
     if (!raw || !Array.isArray(raw.questions) || !raw.questions.length) throw new Error("No questions in pack");
     if (raw.questions.length > 500) throw new Error("Pack is too large");
     var questions = [];
     var seen = {};
+    var seenStems = {};
     raw.questions.forEach(function (q, index) {
       if (!q || typeof q.stem !== "string" || !Array.isArray(q.options) || q.options.length !== 4) return;
       if (typeof q.answer !== "number" || q.answer < 0 || q.answer > 3) return;
       var options = q.options.map(function (o) { return String(o).trim(); });
       if (options.some(function (o) { return !o; })) return;
+      var stemKey = q.stem.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      if (seenStems[stemKey]) return;
+      if (/shown here|shown in the figure|figure shown|following diagram|following illustration|what occurs between steps/i.test(q.stem)) return;
+      seenStems[stemKey] = true;
       var id = String(q.id || ("pack-" + (index + 1)));
       if (QID[id] || seen[id]) id = "pack-" + (index + 1);
       if (seen[id]) return;
@@ -119,6 +126,7 @@
       importedAt: pack.importedAt,
       questions: pack.questions
     }));
+    clearPackSeen();
     PACK_QUESTIONS = pack.questions;
     PACK_QID = {};
     PACK_QUESTIONS.forEach(function (q) { PACK_QID[q.id] = q; });
@@ -130,9 +138,48 @@
     PACK_QUESTIONS = [];
     PACK_QID = {};
     packMeta = null;
+    clearPackSeen();
+    if (typeof examSession !== "undefined" && examSession && examSession.pack) {
+      examSession = null;
+      clearActiveExam();
+    }
+  }
+
+  function loadPackSeen() {
+    try {
+      var raw = localStorage.getItem(PACK_SEEN_KEY);
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return;
+      Object.keys(parsed).forEach(function (id) {
+        if (PACK_QID[id]) packSeen[id] = Number(parsed[id]) || 0;
+      });
+    } catch (err) { packSeen = {}; }
+  }
+
+  function savePackSeen() {
+    try { localStorage.setItem(PACK_SEEN_KEY, JSON.stringify(packSeen)); } catch (err) { /* ignore */ }
+  }
+
+  function clearPackSeen() {
+    packSeen = {};
+    try { localStorage.removeItem(PACK_SEEN_KEY); } catch (err) { /* ignore */ }
+  }
+
+  function pickPack(count) {
+    var unseen = [];
+    var seen = [];
+    PACK_QUESTIONS.forEach(function (q) {
+      var last = packSeen[q.id];
+      if (!last) unseen.push(q);
+      else seen.push({ q: q, last: last });
+    });
+    seen.sort(function (a, b) { return a.last - b.last; });
+    return shuffle(unseen).concat(seen.map(function (x) { return x.q; })).slice(0, count);
   }
 
   loadPack();
+  loadPackSeen();
 
   var CARDS = ((window.CISSP && CISSP.cards) || []).slice();
   var CARDID = {};
@@ -255,6 +302,18 @@
       var t = a[i]; a[i] = a[j]; a[j] = t;
     }
     return a;
+  }
+
+  function pickQuestions(pool, count) {
+    var unseen = [];
+    var seen = [];
+    pool.forEach(function (q) {
+      var a = state.attempts[q.id];
+      if (!a) unseen.push(q);
+      else seen.push({ q: q, last: a.last || 0 });
+    });
+    seen.sort(function (a, b) { return a.last - b.last; });
+    return shuffle(unseen).concat(seen.map(function (x) { return x.q; })).slice(0, count);
   }
 
   function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
@@ -479,6 +538,8 @@
           pct: correct / total,
           scaled: safeNumber(e.scaled, 300, 1000, Math.round(300 + (correct / total) * 700)),
           seconds: seconds,
+          strict: !!e.strict,
+          pack: !!e.pack,
           byDomain: byDomain,
           review: review
         });
@@ -1595,28 +1656,28 @@
     if (kind === "diagnostic") {
       var perDomain = { 1: 3, 2: 2, 3: 3, 4: 3, 5: 3, 6: 2, 7: 2, 8: 2 };
       DOMAINS.forEach(function (d) {
-        pool = pool.concat(shuffle(questionsFor(d.id)).slice(0, perDomain[d.id] || 2));
+        pool = pool.concat(pickQuestions(questionsFor(d.id), perDomain[d.id] || 2));
       });
       title = "Diagnostic";
       kicker = "Baseline · every domain";
     } else if (kind === "quick") {
-      pool = shuffle(QUESTIONS).slice(0, 10);
+      pool = pickQuestions(QUESTIONS, 10);
       title = "Quick ten";
       kicker = "Daily drill";
     } else if (kind === "domain") {
       var domain = domainById(domainId);
       if (!domain) return null;
-      pool = shuffle(questionsFor(domain.id)).slice(0, 15);
+      pool = pickQuestions(questionsFor(domain.id), 15);
       title = "Domain " + pad(domain.id);
       kicker = domain.name;
     } else if (kind === "pack" || kind === "packFull") {
       if (!PACK_QUESTIONS.length) return null;
-      pool = kind === "packFull" ? shuffle(PACK_QUESTIONS).slice(0, 125) : shuffle(PACK_QUESTIONS).slice(0, 20);
+      pool = kind === "packFull" ? pickPack(125) : pickPack(20);
       title = kind === "packFull" ? "Official pack · 125" : "Official pack";
       kicker = packMeta ? packMeta.title : "Imported pack";
     } else if (kind === "manager") {
       [1, 2, 6, 7].forEach(function (domainId) {
-        pool = pool.concat(shuffle(questionsFor(domainId)).slice(0, 5));
+        pool = pool.concat(pickQuestions(questionsFor(domainId), 5));
       });
       pool = shuffle(pool);
       title = "Manager’s cut";
@@ -1888,6 +1949,7 @@
     a.last = Date.now();
     a.lastResult = !!correct;
     localState.attempts[q.id] = a;
+    if (q.pack) { packSeen[q.id] = Date.now(); savePackSeen(); }
     logActivity("answer", !!correct);
     if (persist !== false) save();
   }
@@ -2182,7 +2244,8 @@
     return shuffle(picked).slice(0, META.examQuestions);
   }
 
-  function startExam() {
+  function startExam(source) {
+    source = source === "pack" ? "pack" : "core";
     var strictEl = document.getElementById("strict-mode");
     var strict = !!(strictEl && strictEl.checked);
     var active = peekActiveExam();
@@ -2196,17 +2259,18 @@
         dialog.close();
         examSession = null;
         clearActiveExam();
-        launchExam(strict);
+        launchExam(strict, source);
       });
       return;
     }
-    launchExam(strict);
+    launchExam(strict, source);
   }
 
-  function launchExam(strict) {
-    var qs = buildExam();
+  function launchExam(strict, source) {
+    var isPack = source === "pack";
+    var qs = isPack ? pickPack(META.examQuestions) : buildExam();
     if (qs.length < META.examQuestions) {
-      toast("The question bank is still being written. Only " + qs.length + " questions are available.");
+      toast(isPack ? "The local pack needs at least " + META.examQuestions + " questions for a mock." : "The question bank is still being written. Only " + qs.length + " questions are available.");
       return;
     }
     examSession = {
@@ -2217,7 +2281,9 @@
       startedAt: Date.now(),
       endsAt: Date.now() + (META.examMinutes || 180) * 60000,
       submitted: false,
-      strict: !!strict
+      strict: !!strict,
+      pack: isPack,
+      source: isPack ? "pack" : "core"
     };
     saveActiveExam();
     if (location.hash !== "#/exam/run") location.hash = "#/exam/run";
@@ -2292,7 +2358,7 @@
             '<div class="section-head"><div><h2>Before you begin</h2><p>Read this once. It will save you a restart.</p></div></div>' +
             '<ol class="rules-list">' +
               '<li><span class="n">01</span><span><strong>125 questions, 180 minutes.</strong> The timer starts immediately and keeps running if you leave the page.</span></li>' +
-              '<li><span class="n">02</span><span><strong>Every question is weighted by domain.</strong> The allocation follows the official exam percentages, not an even split.</span></li>' +
+              '<li><span class="n">02</span><span><strong>The core mock is weighted by domain.</strong> The official pack mock is a mixed set. Neither uses adaptive stopping.</span></li>' +
               '<li><span class="n">03</span><span><strong>You may flag and revisit</strong> inside this simulation. The real adaptive exam does not permit review, so answer as if you cannot come back — or switch on CAT-style pacing below.</span></li>' +
               '<li><span class="n">04</span><span><strong>No feedback until submission.</strong> Choose the best answer, not the most technical one.</span></li>' +
               '<li><span class="n">05</span><span><strong>Unanswered counts as wrong.</strong> There is no penalty for guessing, so never leave a blank if time is short.</span></li>' +
@@ -2300,8 +2366,10 @@
             "</ol>" +
             '<label class="strict-option" for="strict-mode"><input type="checkbox" id="strict-mode">' +
               "<span><strong>CAT-style pacing</strong><em>No previous question, no flag, no map. The next question is final — closer to the real adaptive test.</em></span></label>" +
-            '<div class="q-actions"><button type="button" class="btn btn--signal" data-exam-start>Begin the mock exam ' + icon("arrow") + "</button>" +
+            '<div class="q-actions"><button type="button" class="btn btn--signal" data-exam-start>Begin the core mock ' + icon("arrow") + "</button>" +
+            (PACK_QUESTIONS.length >= META.examQuestions ? '<button type="button" class="btn btn--ghost" data-exam-start-pack>Begin official pack mock</button>' : "") +
             (active ? '<a class="btn btn--ghost" href="#/exam/run">Resume in progress</a>' : "") + "</div>" +
+            (PACK_QUESTIONS.length >= META.examQuestions ? '<p class="label" style="margin-top:12px">The pack mock uses 125 mixed official single-answer questions. It is not domain-weighted and does not update domain readiness.</p>' : "") +
           "</div>" +
           '<aside class="card" style="padding:20px"><p class="label">Weighted allocation</p>' +
             '<table class="weight-table" style="margin-top:10px">' + weights + '<tr><td><strong>Total</strong></td><td><strong>125</strong></td></tr></table>' +
@@ -2324,6 +2392,11 @@
         html: '<section class="empty"><h1>No exam is in progress.</h1><p>Start a new simulation, or resume one you left open. Finished attempts live in your progress log.</p><a class="btn" href="#/exam">Go to the exam desk</a></section>'
       };
     }
+    if (s.pack && !PACK_QUESTIONS.length) {
+      examSession = null;
+      clearActiveExam();
+      return { title: "Mock exam", html: '<section class="empty"><h1>The local pack is no longer loaded.</h1><p>Import the pack again, then start a new pack mock.</p><a class="btn" href="#/exam">Go to the exam desk</a></section>' };
+    }
     if (s.endsAt <= Date.now()) {
       submitExam(true);
       return { title: "Mock exam", html: '<section class="empty"><h1>Time is up. Scoring…</h1></section>' };
@@ -2334,7 +2407,7 @@
   function examHTML() {
     var s = examSession;
     var strict = !!s.strict;
-    var q = QID[s.questions[s.index]];
+    var q = findQuestion(s.questions[s.index]);
     if (!q) return '<section class="empty"><h1>Question not found.</h1><p>This attempt may be corrupted.</p></section>';
     var picked = s.answers[q.id];
     var flagged = !!s.flags[q.id];
@@ -2350,7 +2423,7 @@
 
     return '<div class="exam-shell">' +
       '<div class="exam-bar">' +
-        '<div class="exam-bar__title">Mock exam<strong>' + (strict ? "CAT-style · answers are final" : "Fixed-form simulation") + "</strong></div>" +
+        '<div class="exam-bar__title">' + (s.pack ? "Pack mock" : "Mock exam") + '<strong>' + (strict ? "CAT-style · answers are final" : (s.pack ? "Official pack · mixed set" : "Fixed-form simulation")) + "</strong></div>" +
         '<div class="exam-bar__right">' +
           '<span class="timer" id="exam-timer">' + formatClock(examRemaining() / 1000) + "</span>" +
           '<span class="exam-count"><strong>' + (s.index + 1) + " / " + s.questions.length + "</strong>" + answered + " answered</span>" +
@@ -2360,7 +2433,7 @@
       '<div class="exam-q">' +
         '<div class="q-head">' +
           '<span class="q-head__no">Question <strong>' + pad(s.index + 1) + "</strong></span>" +
-          '<span class="chip">Domain ' + pad(q.d) + "</span>" +
+          '<span class="chip">' + (q.pack ? "Official pack" : "Domain " + pad(q.d)) + "</span>" +
           '<span class="chip chip--blue">' + esc(q.topic || "Scenario") + "</span>" +
           (strict ? "" : '<button type="button" class="flag-button ' + (flagged ? "is-on" : "") + '" data-exam-flag style="margin-left:auto">' + icon("flag") + (flagged ? "Flagged" : "Flag for review") + "</button>") +
         "</div>" +
@@ -2470,7 +2543,7 @@
     var seconds = Math.max(1, Math.round(((s.endsAt - s.startedAt) - Math.max(0, s.endsAt - Date.now())) / 1000));
 
     s.questions.forEach(function (id) {
-      var q = QID[id];
+      var q = findQuestion(id);
       if (!q) return;
       var picked = s.answers[id];
       var correct = picked === q.answer;
@@ -2496,6 +2569,7 @@
       scaled: scaled,
       seconds: clamp(seconds, 1, META.examMinutes * 60),
       strict: !!s.strict,
+      pack: !!s.pack,
       byDomain: byDomain,
       review: review
     };
@@ -2533,7 +2607,7 @@
     var missedAll = (result.review || []).filter(function (r) { return !r.correct; });
     var missedShown = missedAll.slice(0, 30);
     var missed = missedShown.map(function (r) {
-      var q = QID[r.id];
+      var q = findQuestion(r.id);
       if (!q) return "";
       var picked = r.picked == null ? "No answer" : "ABCD"[r.picked] + ". " + q.options[r.picked];
       return '<details class="review-item"><summary>' +
@@ -2556,9 +2630,9 @@
     return {
       title: "Exam results",
       html:
-        '<header class="page-head"><div class="page-head__copy"><p class="eyebrow">Mock exam complete · ' + esc(formatDate(result.dateKey, { day: "numeric", month: "long" })) + "</p>" +
+        '<header class="page-head"><div class="page-head__copy"><p class="eyebrow">' + (result.pack ? "Pack mock complete" : "Mock exam complete") + " · " + esc(formatDate(result.dateKey, { day: "numeric", month: "long" })) + "</p>" +
           '<h1 class="display-l">' + (pass ? "Above the line." : "Below the line.") + "<br>" + result.correct + " of " + result.total + " correct.</h1>" +
-          '<p class="lede">' + (pass ? "The estimate says you are close. The domain table says where the next hour should go." : "This is a fixed-form estimate, not an ISC2 result. The useful signal is the domain breakdown, not the number.") + "</p></div>" +
+          '<p class="lede">' + (result.pack ? "A mixed set of official single-answer practice items. Useful for timing and exposure, but not a domain-weighted core mock or an ISC2 score." : (pass ? "The estimate says you are close. The domain table says where the next hour should go." : "This is a fixed-form estimate, not an ISC2 result. The useful signal is the domain breakdown, not the number.")) + "</p></div>" +
           '<div class="page-head__aside"><span class="chip ' + (pass ? "chip--ok" : "chip--signal") + '">Estimated scaled ' + result.scaled + "</span>" +
           '<span class="chip">' + formatDuration(result.seconds) + " used</span>" +
           (result.strict ? '<span class="chip">CAT-style · no review</span>' : "") + "</div></header>" +
@@ -2566,16 +2640,16 @@
         '<div class="score-band">' +
           '<div class="score-band__score"><strong>' + result.scaled + "<small>/1000</small></strong><span>estimated scaled score</span></div>" +
           '<div class="score-band__copy"><h2>' + (pass ? "At or above the practice pass line" : "Below the practice pass line") + "</h2>" +
-            "<p>" + Math.round(pctRaw * 100) + "% raw accuracy. The practice mapping puts 700 at 70% raw. The real exam is adaptive and scored differently; this is a study estimate.</p></div>" +
+            "<p>" + Math.round(pctRaw * 100) + "% raw accuracy. " + (result.pack ? "The pack is a mixed official question set; use the result for calibration, not a pass prediction." : "The practice mapping puts 700 at 70% raw. The real exam is adaptive and scored differently; this is a study estimate.") + "</p></div>" +
         "</div>" +
 
-        '<section><div class="section-head"><div><h2>By domain</h2><p>Weighted like the exam, scored like a drill.</p></div>' +
-        (weak.length ? '<span class="label">Weakest: ' + weak.map(function (w) { return pad(w.id); }).join(" · ") + "</span>" : "") +
+        '<section><div class="section-head"><div><h2>' + (result.pack ? "By section" : "By domain") + '</h2><p>' + (result.pack ? "A mixed official set, not a domain-weighted sample." : "Weighted like the exam, scored like a drill.") + "</p></div>" +
+        (weak.length && !result.pack ? '<span class="label">Weakest: ' + weak.map(function (w) { return pad(w.id); }).join(" · ") + "</span>" : "") +
         "</div>" +
         '<table class="summary-table"><thead><tr><th scope="col">Domain</th><th scope="col">Score</th><th scope="col">Rate</th></tr></thead><tbody>' + domains + "</tbody></table></section>" +
 
         '<div class="q-actions" style="margin-top:26px">' +
-          '<a class="btn" href="#/practice" data-start="weak">Drill the weak areas ' + icon("arrow") + "</a>" +
+          (result.pack ? '<a class="btn" href="#/exam">Another pack mock ' + icon("arrow") + "</a>" : '<a class="btn" href="#/practice" data-start="weak">Drill the weak areas ' + icon("arrow") + "</a>") +
           '<a class="btn btn--ghost" href="#/study">Return to the notes</a>' +
           '<a class="btn btn--ghost" href="#/exam">Retake the mock</a>' +
         "</div>" +
@@ -3466,6 +3540,11 @@
     var grade = event.target.closest("[data-grade]");
     if (grade && cardSession) {
       gradeCard(grade.getAttribute("data-grade"));
+      return;
+    }
+
+    if (event.target.closest("[data-exam-start-pack]")) {
+      startExam("pack");
       return;
     }
 

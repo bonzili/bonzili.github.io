@@ -92,7 +92,7 @@
   },
   {
     id: "d8q11", d: 8, topic: "Deserialization", diff: 2,
-    stem: "Why is deserializing untrusted data dangerous?",
+    stem: "A web service accepts serialized objects from untrusted clients and reconstructs them on the server. A tester warns that this could execute attacker-controlled code. Why is deserializing untrusted data dangerous?",
     options: ["It always increases network latency", "It can instantiate attacker-controlled objects and trigger code execution or privilege escalation", "It removes data integrity checks", "It prevents the use of encryption"],
     answer: 1,
     whyText: "Unsafe deserialization can turn attacker-controlled input into object state or method invocation, leading to remote code execution and other serious flaws. Avoid untrusted serialization formats or enforce strict type and integrity controls.",

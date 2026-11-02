@@ -173,7 +173,7 @@
   },
   {
     id: "d1q20", d: 1, topic: "Security governance", diff: 1,
-    stem: "Who should approve the organisation's top-level information security policy?",
+    stem: "A newly appointed CISO drafts the organisation's first enterprise information security policy. It assigns security responsibilities across business units and commits budget and staff. Who must approve the policy before it becomes enforceable?",
     options: ["The security operations team", "The senior management or governing body", "The internal audit function", "The IT service desk manager"],
     answer: 1,
     whyText: "A top-level security policy expresses management's intent and assigns authority across the organisation. It must be approved at the level that can commit the organisation, typically senior management or the board.",

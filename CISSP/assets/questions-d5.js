@@ -2,7 +2,7 @@
 (window.CISSP = window.CISSP || {}).questions = (window.CISSP.questions || []).concat([
   {
     id: "d5q1", d: 5, topic: "Authentication factors", diff: 1,
-    stem: "Which combination constitutes true multi-factor authentication?",
+    stem: "A bank issues employees a smart card and requires a password before the card can be used. A manager asks whether this is true multi-factor authentication. Which combination describes the factors?",
     options: ["A password and a security question", "A password and a smart card", "A PIN and a password", "Two different passwords"],
     answer: 1,
     whyText: "MFA requires factors from different categories. A password is something you know; a smart card is something you have. Two passwords, or a password and a security question, remain in the knowledge category.",
@@ -65,7 +65,7 @@
   },
   {
     id: "d5q8", d: 5, topic: "Kerberos", diff: 2,
-    stem: "Which statement about Kerberos is correct?",
+    stem: "Users authenticate to a realm and receive a ticket-granting ticket. After a domain controller's clock drifts by ten minutes, authentications begin to fail. Which statement about the protocol explains the failure?",
     options: ["It uses asymmetric keys for all service tickets", "It uses a key distribution centre and symmetric keys, and depends on reasonably synchronised clocks", "It sends passwords in clear text to every service", "It does not support single sign-on"],
     answer: 1,
     whyText: "Kerberos uses a KDC, symmetric keys, and time-stamped tickets. Clock skew can cause authentication failures because tickets have validity windows.",
@@ -128,7 +128,7 @@
   },
   {
     id: "d5q15", d: 5, topic: "Session management", diff: 2,
-    stem: "Which control most directly prevents session fixation?",
+    stem: "An attacker sends a victim a link containing a known session identifier. The victim logs in, and the attacker reuses the identifier to access the account. Which control most directly prevents this?",
     options: ["Issuing a new session identifier after successful authentication", "Increasing the password length", "Using a longer session timeout", "Storing the session identifier in the URL"],
     answer: 0,
     whyText: "Session fixation works by forcing a known session ID on a victim. Issuing a fresh, unpredictable session ID after login invalidates the attacker's known value.",

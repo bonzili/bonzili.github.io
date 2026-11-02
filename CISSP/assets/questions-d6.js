@@ -47,7 +47,7 @@
   },
   {
     id: "d6q6", d: 6, topic: "Vulnerability identifiers", diff: 1,
-    stem: "What is the role of a CVE identifier?",
+    stem: "A vulnerability manager needs one common identifier to correlate advisories from several vendors and scanners that describe the same flaw. What does a CVE identifier provide?",
     options: ["It scores the business risk of a vulnerability", "It provides a unique public identifier for a specific vulnerability", "It certifies that a product is secure", "It lists every affected customer"],
     answer: 1,
     whyText: "CVE assigns a unique identifier to a publicly known vulnerability. CVSS provides severity scoring, and NVD enriches CVE records with references and scores.",

@@ -11,7 +11,7 @@
   },
   {
     id: "d4q2", d: 4, topic: "PDUs", diff: 1,
-    stem: "What is the protocol data unit at the transport layer?",
+    stem: "A network engineer is analysing a capture and needs the unit that carries TCP port numbers, sequence numbers, and acknowledgements. What is the protocol data unit at the transport layer?",
     options: ["Bit", "Frame", "Packet", "Segment"],
     answer: 3,
     whyText: "The transport layer PDU is a segment (TCP) or datagram (UDP). Network layer uses packets, data link uses frames, physical uses bits.",
@@ -56,7 +56,7 @@
   },
   {
     id: "d4q7", d: 4, topic: "DNSSEC", diff: 2,
-    stem: "What does DNSSEC provide?",
+    stem: "An attacker poisons a DNS resolver's cache so users are redirected to a fraudulent site. Which control lets the resolver verify that the DNS records it receives are authentic and unmodified?",
     options: ["Encryption of DNS queries", "Integrity and authenticity of DNS responses through digital signatures", "Anonymity for DNS clients", "Compression of DNS records"],
     answer: 1,
     whyText: "DNSSEC signs DNS records so resolvers can verify that the data is authentic and unmodified. It does not encrypt queries or hide the client's identity.",
