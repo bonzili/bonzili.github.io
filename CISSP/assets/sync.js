@@ -339,6 +339,8 @@
             out.attempts[id] = {
               c: num(src.c),
               w: num(src.w),
+              cc: num(src.cc),
+              cw: num(src.cw),
               last: num(src.last),
               box: num(src.box),
               lastResult: src.lastResult === true
@@ -347,6 +349,8 @@
           }
           dst.c = num(dst.c) + num(src.c);
           dst.w = num(dst.w) + num(src.w);
+          dst.cc = num(dst.cc) + num(src.cc);
+          dst.cw = num(dst.cw) + num(src.cw);
           if (num(src.last) > num(dst.last)) {
             dst.last = num(src.last);
             dst.box = num(src.box);

@@ -56,6 +56,21 @@ test("attempts sum and keep the newest result", () => {
   assert.equal(merged.attempts.d1q2.lastResult, true);
 });
 
+test("counted pack attempts sum separately from mixed attempts", () => {
+  const a = baseState();
+  a.attempts["ch1-1"] = { c: 3, w: 1, cc: 2, cw: 0, last: 10, box: 1, lastResult: true };
+  const b = baseState();
+  b.attempts["ch1-1"] = { c: 1, w: 2, cc: 0, cw: 1, last: 20, box: 0, lastResult: false };
+
+  const merged = sync.mergeStates([a, b], baseState());
+  assert.equal(merged.attempts["ch1-1"].c, 4);
+  assert.equal(merged.attempts["ch1-1"].w, 3);
+  assert.equal(merged.attempts["ch1-1"].cc, 2);
+  assert.equal(merged.attempts["ch1-1"].cw, 1);
+  assert.equal(merged.attempts["ch1-1"].last, 20);
+  assert.equal(merged.attempts["ch1-1"].lastResult, false);
+});
+
 test("cards sum reviews and take the newest schedule", () => {
   const a = baseState();
   a.cards.c1 = { box: 1, due: "2026-11-03", seen: 1, lapses: 0, last: 10 };

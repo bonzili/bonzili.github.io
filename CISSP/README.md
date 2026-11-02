@@ -89,7 +89,7 @@ The public site does not ship official practice-test questions. The Practice pag
 1. A pack is a JSON object with `title`, `source`, and a `questions` array.
 2. Each question needs `id`, `stem`, four `options`, an `answer` index from 0–3, and optional `topic` / `whyText`.
 3. Import it from **Practice → Local question pack → Load question pack**.
-4. If questions include `d` values from 1–8, use the **Official domain drills** row to run a 20-question set from that domain.
+4. If questions include `d` values from 1–8, use the **Official domain drills** row to run a 20-question set from that domain. Those drills count toward domain readiness.
 
 ```json
 {
@@ -109,7 +109,7 @@ The public site does not ship official practice-test questions. The Practice pag
 }
 ```
 
-Pack questions are stored in this browser only. They are not included in cross-device sync, progress export, or the repository. Import the pack again on another device. Pack attempts are shown in the pack summary but are deliberately **not** counted toward domain readiness.
+Pack questions are stored in this browser only. They are not included in cross-device sync, progress export, or the repository. Import the pack again on another device. Questions tagged `d` 1–8 feed domain accuracy and coverage when answered through an **Official domain drill**. Mixed pack sets (`d` 0) and the pack mock stay separate from domain readiness. Importing a pack does not lower an existing score until official questions are answered, and removing the pack returns readiness to the core bank only.
 
 A local pack generated from the practice tests you own is intentionally kept outside the repository (for example, in `~/Downloads/CISSP/`). Do not commit it or redistribute it.
 

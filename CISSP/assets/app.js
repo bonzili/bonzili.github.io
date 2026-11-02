@@ -466,6 +466,8 @@
         next.attempts[id] = {
           c: c,
           w: w,
+          cc: safeNumber(a.cc, 0, 9999, 0),
+          cw: safeNumber(a.cw, 0, 9999, 0),
           last: a.last == null ? 0 : safeNumber(a.last, 0, maxFuture, 0),
           box: safeNumber(a.box, 0, 4, 0),
           lastResult: typeof a.lastResult === "boolean" ? a.lastResult : (w > 0 ? false : true)
@@ -528,7 +530,7 @@
         });
         var review = [];
         (Array.isArray(e.review) ? e.review : []).slice(0, 200).forEach(function (r) {
-          if (!r || !QID[r.id]) return;
+          if (!r || !findQuestion(r.id)) return;
           review.push({
             id: r.id,
             picked: typeof r.picked === "number" ? safeNumber(r.picked, 0, 3, null) : null,
@@ -678,7 +680,7 @@
       try { pack = normalizePack(parsed); } catch (err) { toast("That file is not a valid question pack."); return; }
       var dialog = openDialog({
         title: "Load this question pack?",
-        body: "<p><strong>" + esc(pack.title) + "</strong></p><p>" + pack.questions.length + " questions. " + esc(pack.source || "Local source") + "</p><p>The pack stays in this browser. It is not uploaded or included in cross-device sync.</p>",
+        body: "<p><strong>" + esc(pack.title) + "</strong></p><p>" + pack.questions.length + " questions. " + esc(pack.source || "Local source") + "</p><p>The pack stays in this browser. It is not uploaded or included in cross-device sync. Questions tagged with a domain add official domain drills that count toward readiness.</p>",
         actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button type="button" class="btn btn--small" data-confirm-pack>Load pack</button>'
       });
       dialog.querySelector("[data-confirm-pack]").addEventListener("click", function () {
@@ -700,7 +702,7 @@
   function removePack() {
     var dialog = openDialog({
       title: "Remove the local question pack?",
-      body: "<p>This removes the imported questions from this browser. Your domain progress is not affected.</p>",
+      body: "<p>This removes the imported questions from this browser. Core progress stays, but official domain evidence drops out of readiness until the pack is imported again.</p>",
       actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Keep pack</button><button type="button" class="btn btn--signal btn--small" data-confirm-pack-remove>Remove</button>'
     });
     dialog.querySelector("[data-confirm-pack-remove]").addEventListener("click", function () {
@@ -756,26 +758,58 @@
 
   /* --------------------------------------------------------------- analytics */
 
-  function domainStats(domainId) {
-    var qs = questionsFor(domainId);
+  function tallyQuestions(qs) {
     var correct = 0, wrong = 0, seen = 0;
     qs.forEach(function (q) {
       var a = state.attempts[q.id];
       if (!a) return;
+      var countedCorrect = q.pack ? (a.cc || 0) : (a.c || 0);
+      var countedWrong = q.pack ? (a.cw || 0) : (a.w || 0);
+      if (q.pack && countedCorrect + countedWrong === 0) return;
       seen += 1;
-      correct += a.c || 0;
-      wrong += a.w || 0;
+      correct += countedCorrect;
+      wrong += countedWrong;
     });
-    var attempts = correct + wrong;
+    return {
+      total: qs.length,
+      seen: seen,
+      attempts: correct + wrong,
+      correct: correct,
+      wrong: wrong
+    };
+  }
+
+  /* Official domain drills count; mixed pack sets and the pack mock do not.
+     Pack attempts keep counted domain-drill answers in cc/cw, separate from
+     the c/w totals used by the repair log and the recent-answers table.
+     Coverage uses a union estimate so importing a pack cannot lower a score
+     before the learner has answered any official question. */
+  function combinedCoverage(core, pack) {
+    var coreCoverage = core.total ? core.seen / core.total : 0;
+    var packCoverage = pack.total ? pack.seen / pack.total : 0;
+    return 1 - (1 - coreCoverage) * (1 - packCoverage);
+  }
+
+  function domainStats(domainId) {
+    var id = Number(domainId);
+    var core = tallyQuestions(questionsFor(id));
+    var pack = tallyQuestions(PACK_QUESTIONS.filter(function (q) { return q.d === id; }));
+    var attempts = core.attempts + pack.attempts;
+    var correct = core.correct + pack.correct;
+    var wrong = core.wrong + pack.wrong;
     var accuracy = attempts ? correct / attempts : null;
-    var coverage = qs.length ? seen / qs.length : 0;
+    var coverage = combinedCoverage(core, pack);
     var confidence = Math.min(attempts, 12) / 12;
     var mastery = attempts
       ? Math.round(100 * (0.6 * accuracy + 0.4 * coverage) * (0.55 + 0.45 * confidence))
       : 0;
     return {
-      total: qs.length,
-      seen: seen,
+      total: core.total + pack.total,
+      seen: core.seen + pack.seen,
+      coreTotal: core.total,
+      coreSeen: core.seen,
+      packTotal: pack.total,
+      packSeen: pack.seen,
       attempts: attempts,
       correct: correct,
       wrong: wrong,
@@ -786,21 +820,21 @@
   }
 
   function allStats() {
-    var attempts = 0, correct = 0, seen = 0;
-    Object.keys(state.attempts).forEach(function (id) {
-      if (!QID[id]) return;
-      var a = state.attempts[id];
-      attempts += (a.c || 0) + (a.w || 0);
-      correct += a.c || 0;
-      seen += 1;
-    });
+    var core = tallyQuestions(QUESTIONS);
+    var pack = tallyQuestions(PACK_QUESTIONS.filter(function (q) { return q.d >= 1 && q.d <= 8; }));
+    var attempts = core.attempts + pack.attempts;
+    var correct = core.correct + pack.correct;
     return {
       attempts: attempts,
       correct: correct,
-      seen: seen,
-      total: QUESTIONS.length,
+      seen: core.seen + pack.seen,
+      total: core.total + pack.total,
+      coreTotal: core.total,
+      coreSeen: core.seen,
+      packTotal: pack.total,
+      packSeen: pack.seen,
       accuracy: attempts ? correct / attempts : null,
-      coverage: QUESTIONS.length ? seen / QUESTIONS.length : 0
+      coverage: combinedCoverage(core, pack)
     };
   }
 
@@ -1292,7 +1326,7 @@
       return "<tr>" +
         '<td class="register__no">' + pad(d.id) + "</td>" +
         '<td class="register__name"><a href="#/study/' + d.id + '">' + esc(d.name) + "</a>" +
-          '<span class="register__sub">' + esc(d.short) + " · " + plural(s.total, "question") + "</span></td>" +
+          '<span class="register__sub">' + esc(d.short) + " · " + (s.packTotal ? s.coreTotal + " core + " + s.packTotal + " official" : plural(s.total, "question")) + "</span></td>" +
         '<td class="register__num">' + d.weight + "%</td>" +
         '<td class="register__num">' + s.seen + " / " + s.total + "</td>" +
         '<td class="register__num">' + (s.accuracy == null ? "—" : Math.round(s.accuracy * 100) + "%") + "</td>" +
@@ -1628,7 +1662,7 @@
     if (PACK_QUESTIONS.length) {
       modes += '<a class="mode mode--pack" href="#/practice" data-start="pack">' +
         '<div class="mode__top"><span class="label">Local pack</span><span class="chip">' + PACK_QUESTIONS.length + " questions</span></div>" +
-        "<h3>Official practice</h3><p>" + esc(packMeta ? packMeta.title : "Imported question pack") + ". Single-answer items with the source answer key. Not counted toward domain readiness.</p>" +
+        "<h3>Official practice</h3><p>" + esc(packMeta ? packMeta.title : "Imported question pack") + ". Single-answer items with the source answer key. Mixed pack sets stay separate from domain readiness; official domain drills below count.</p>" +
         '<div class="mode__foot"><span>20 at a time</span><span>Local only</span></div></a>';
     }
 
@@ -1660,7 +1694,7 @@
 
     var packPanel;
     if (PACK_QUESTIONS.length) {
-      packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Imported from your own file. It stays in this browser and is not uploaded.</p></div>' +
+      packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Imported from your own file. It stays in this browser and is not uploaded. Official domain drills count toward domain readiness; mixed sets do not.</p></div>' +
         '<span class="label">' + PACK_QUESTIONS.length + " questions</span></div>" +
         '<div class="pack-card"><div><p class="label">Loaded · local only</p><h3>' + esc(packMeta ? packMeta.title : "Imported pack") + "</h3>" +
         "<p>" + esc(packMeta && packMeta.source ? packMeta.source : "Answer key supplied by the imported file.") + "</p></div>" +
@@ -1673,11 +1707,11 @@
             if (!count) return "";
             return '<button type="button" data-start="packDomain" data-domain="' + d.id + '">' + pad(d.id) + " · " + esc(d.short) + " · " + count + "</button>";
           }).join("");
-          return buttons ? '<div class="pack-domains"><p class="label">Official domain drills</p><div class="domain-picker">' + buttons + "</div></div>" : "";
+          return buttons ? '<div class="pack-domains"><p class="label">Official domain drills · count toward readiness</p><div class="domain-picker">' + buttons + "</div></div>" : "";
         })();
     } else {
       packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Load a JSON pack built from your own book. The questions stay in this browser; nothing is committed or uploaded.</p></div></div>' +
-        '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank remains the original 160-question practice set. A local pack is optional and separate from domain readiness.</p>' +
+        '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank remains the original 160-question practice set. A local pack is optional; import one to add official domain drills that count toward domain readiness.</p>' +
         '<button type="button" class="btn" data-pack-import>Load question pack</button></div>';
     }
 
@@ -1687,16 +1721,16 @@
         '<header class="page-head"><div class="page-head__copy">' +
           '<p class="eyebrow">Active recall</p>' +
           '<h1 class="display-l">Practice is where<br>the reading becomes judgment.</h1>' +
-          '<p class="lede">' + (PACK_QUESTIONS.length ? "The core bank is original. The loaded pack is your local source, kept separate from domain readiness." : "Every question is original, scenario-based, and followed by the reasoning a manager would use. Wrong answers are data, not verdicts.") + "</p>" +
+          '<p class="lede">' + (PACK_QUESTIONS.length ? "The core bank is original. Official domain drills from the loaded pack count toward domain readiness; mixed pack sets and the pack mock stay separate." : "Every question is original, scenario-based, and followed by the reasoning a manager would use. Wrong answers are data, not verdicts.") + "</p>" +
         "</div>" +
-        '<div class="page-head__aside"><span class="chip">' + stats.attempts + " answered</span>" +
+        '<div class="page-head__aside"><span class="chip">' + stats.attempts + " counted</span>" +
         '<span class="chip ' + (stats.accuracy != null && stats.accuracy >= 0.7 ? "chip--ok" : "") + '">' + (stats.accuracy == null ? "No accuracy yet" : pct(stats.accuracy) + " correct") + "</span></div></header>" +
 
         resumeDrill +
         '<h2 class="sr-only">Practice modes</h2>' +
         '<div class="mode-grid">' + modes + "</div>" +
 
-        '<section class="section"><div class="section-head"><div><h2>Drill one domain</h2><p>Fifteen questions from a single domain, in a random order.</p></div>' +
+        '<section class="section"><div class="section-head"><div><h2>Drill one domain</h2><p>Fifteen core-bank questions from a single domain, in a random order.</p></div>' +
         '<span class="label">Weakest: ' + pad(focus.id) + " · " + esc(focus.short) + "</span></div>" +
         '<div class="domain-picker">' + picker + "</div></section>" +
 
@@ -1706,7 +1740,7 @@
         '<input type="file" id="pack-import" accept=".json,application/json" hidden>' +
 
         '<section class="section"><div class="split"><div class="callout" style="margin:0"><p class="callout__label">How to review a miss</p><p>Name the property under attack, the role in the question, and the operative verb. If the explanation surprises you, bookmark the question and revisit it in three days — not in three minutes.</p></div>' +
-        '<div class="callout callout--mnemonic" style="margin:0"><p class="callout__label">Estimated readiness</p><p>' + (readiness() == null ? "Answer at least eight questions and your answer sheet will start to fill." : readiness() + " / 100 — " + readinessLabel(readiness()) + ". This is a practice estimate, not an ISC2 score.") + "</p></div></div></section>"
+        '<div class="callout callout--mnemonic" style="margin:0"><p class="callout__label">Estimated readiness</p><p>' + (readiness() == null ? "Answer at least eight counted questions — core bank or an official domain drill — and your answer sheet will start to fill." : readiness() + " / 100 — " + readinessLabel(readiness()) + ". This is a practice estimate, not an ISC2 score.") + "</p></div></div></section>"
     };
   }
 
@@ -1998,7 +2032,7 @@
     item.submitted = true;
     item.correct = item.picked === q.answer;
     if (item.correct) practiceSession.correct += 1;
-    recordAnswer(q, item.correct);
+    recordAnswer(q, item.correct, true, !q.pack || practiceSession.kind === "packDomain");
     save();
     savePracticeState();
     repaintPractice();
@@ -2012,12 +2046,16 @@
     }
   }
 
-  function recordAnswer(q, correct, persist) {
+  function recordAnswer(q, correct, persist, counted) {
     var a = localState.attempts[q.id] || { c: 0, w: 0, last: 0, box: 0 };
     if (correct) { a.c = (a.c || 0) + 1; a.box = Math.min(4, (a.box || 0) + 1); }
     else { a.w = (a.w || 0) + 1; a.box = 0; }
     a.last = Date.now();
     a.lastResult = !!correct;
+    if (q.pack && counted === true) {
+      if (correct) a.cc = (a.cc || 0) + 1;
+      else a.cw = (a.cw || 0) + 1;
+    }
     localState.attempts[q.id] = a;
     if (q.pack) { packSeen[q.id] = Date.now(); savePackSeen(); }
     logActivity("answer", !!correct);
@@ -2100,7 +2138,7 @@
         '<div class="score-band">' +
           '<div class="score-band__score"><strong>' + summary.correct + "<small>/" + summary.total + "</small></strong><span>correct this session</span></div>" +
           '<div class="score-band__copy"><h2>' + (accuracy >= 0.8 ? "This is exam-level." : accuracy >= 0.6 ? "Close. The reasoning needs one more pass." : "Slow down. Read the role and the verb.") + "</h2>" +
-          "<p>" + (summary.pack ? "These official pack results are separate from domain readiness. Use them to calibrate the source, not to inflate the answer sheet." : "Your answer sheet has been updated. Accuracy is only half the signal — coverage tells you whether the sample was fair.") + "</p></div>" +
+          "<p>" + (summary.kind === "review" ? "Review answers were logged. Core answers and official domain drills move readiness; pack items answered here only update your repair log." : summary.pack && summary.domainId ? "This official domain set counts toward domain readiness. Accuracy and coverage both moved." : summary.pack ? "Mixed official pack results stay separate from domain readiness. Use them to calibrate the source; drill one domain to move the answer sheet." : "Your answer sheet has been updated. Accuracy is only half the signal — coverage tells you whether the sample was fair.") + "</p></div>" +
         "</div>" +
 
         '<section><div class="section-head"><div><h2>' + (summary.pack && !summary.domainId ? "By section" : "By domain") + '</h2><p>Where the marks came from.</p></div></div>' +
@@ -2112,7 +2150,7 @@
           : "") +
 
         '<div class="q-actions" style="margin-top:28px">' +
-        (summary.pack ? '<a class="btn" href="#/practice" data-start="pack">Another 20 from the pack ' + icon("arrow") + "</a>" : '<a class="btn" href="#/practice" data-start="weak">Drill weak areas ' + icon("arrow") + "</a>") +
+        (summary.pack && summary.domainId ? '<a class="btn" href="#/practice" data-start="packDomain" data-domain="' + summary.domainId + '">Another 20 from this domain ' + icon("arrow") + "</a>" : summary.pack ? '<a class="btn" href="#/practice" data-start="pack">Another 20 from the pack ' + icon("arrow") + "</a>" : '<a class="btn" href="#/practice" data-start="weak">Drill weak areas ' + icon("arrow") + "</a>") +
         '<a class="btn btn--ghost" href="#/practice">Choose another mode</a></div>'
     };
   }
@@ -2622,7 +2660,7 @@
       byDomain[q.d].total += 1;
       if (correct) byDomain[q.d].correct += 1;
       review.push({ id: id, picked: picked == null ? null : picked, correct: correct });
-      if (picked != null) recordAnswer(q, correct, false);
+      if (picked != null) recordAnswer(q, correct, false, !q.pack);
     });
 
     var pctRaw = s.questions.length ? correctTotal / s.questions.length : 0;
@@ -3166,7 +3204,7 @@
       html:
         '<header class="page-head"><div class="page-head__copy"><p class="eyebrow">Candidate record</p>' +
           '<h1 class="display-l">' + (r == null ? (stats.attempts ? "Not enough evidence yet." : "The sheet is still blank.") : r + " / 100 readiness.") + "</h1>" +
-          '<p class="lede">' + (r == null ? "Answer at least eight questions to establish a baseline. Until then, every number below is an empty container." : readinessLabel(r) + ". Readiness is a weighted practice estimate — useful for direction, not a prediction of your ISC2 score.") + "</p></div>" +
+          '<p class="lede">' + (r == null ? "Answer at least eight counted questions — core bank or an official domain drill — to establish a baseline. Until then, every number below is an empty container." : readinessLabel(r) + ". Readiness is a weighted practice estimate — useful for direction, not a prediction of your ISC2 score.") + "</p></div>" +
           '<div class="page-head__aside"><button type="button" class="btn btn--ghost btn--small" data-export-progress>Export</button>' +
           '<button type="button" class="btn btn--ghost btn--small" data-import-progress>Import</button>' +
           '<button type="button" class="btn btn--ghost btn--small" data-set-exam-date>Exam date</button>' +
@@ -3175,16 +3213,16 @@
         syncSectionHTML() +
 
         '<div class="stat-grid">' +
-          '<div class="stat"><p class="stat__label">Questions answered</p><p class="stat__value">' + stats.attempts + '</p><p class="stat__note">' + stats.seen + " unique of " + stats.total + "</p></div>" +
-          '<div class="stat"><p class="stat__label">Accuracy</p><p class="stat__value">' + (stats.accuracy == null ? "—" : Math.round(stats.accuracy * 100) + "<small>%</small>") + '</p><p class="stat__note">All attempts, including repeats</p></div>' +
-          '<div class="stat"><p class="stat__label">Coverage</p><p class="stat__value">' + Math.round(stats.coverage * 100) + "<small>%</small></p><p class=\"stat__note\">" + stats.seen + " of " + stats.total + " questions seen</p></div>" +
+          '<div class="stat"><p class="stat__label">Counted answers</p><p class="stat__value">' + stats.attempts + '</p><p class="stat__note">' + stats.seen + " unique of " + stats.total + (stats.packTotal ? " · core + official domain drills" : " · core bank") + "</p></div>" +
+          '<div class="stat"><p class="stat__label">Accuracy</p><p class="stat__value">' + (stats.accuracy == null ? "—" : Math.round(stats.accuracy * 100) + "<small>%</small>") + '</p><p class="stat__note">Counted attempts, including repeats</p></div>' +
+          '<div class="stat"><p class="stat__label">Coverage</p><p class="stat__value">' + Math.round(stats.coverage * 100) + "<small>%</small></p><p class=\"stat__note\">" + (stats.packTotal ? stats.coreSeen + " of " + stats.coreTotal + " core · " + stats.packSeen + " of " + stats.packTotal + " official · combined" : stats.seen + " of " + stats.total + " questions seen") + "</p></div>" +
           '<div class="stat"><p class="stat__label">Current streak</p><p class="stat__value">' + streak + "<small> days</small></p><p class=\"stat__note\">" + due + " cards due today</p></div>" +
         "</div>" +
 
         '<section class="section"><div class="section-head"><div><h2>The last fourteen days</h2><p>Answers and cards, not minutes. Consistency beats duration.</p></div></div>' +
         '<div class="card" style="padding:20px"><div class="activity">' + activity + "</div></div></section>" +
 
-        '<section class="section"><div class="section-head"><div><h2>Domain evidence</h2><p>Accuracy, coverage, and the weighted mastery score.</p></div></div>' +
+        '<section class="section"><div class="section-head"><div><h2>Domain evidence</h2><p>Accuracy, coverage, and the weighted mastery score. ' + (PACK_QUESTIONS.some(function (q) { return q.d >= 1; }) ? "Official domain drills are included; mixed pack sets are not." : "") + '</p></div></div>' +
         '<table class="summary-table"><thead><tr><th scope="col">Domain</th><th scope="col">Seen</th><th scope="col">Accuracy</th><th scope="col">Mastery</th></tr></thead><tbody>' + domainRows + "</tbody></table></section>" +
 
         '<section class="section"><div class="section-head"><div><h2>Mock exam history</h2><p>Most recent first. Scaled scores are estimates.</p></div></div>' +
@@ -3388,7 +3426,7 @@
       var ek = event.key.toLowerCase();
       if (["1", "2", "3", "4"].indexOf(ek) !== -1) {
         event.preventDefault();
-        var q = QID[examSession.questions[examSession.index]];
+        var q = findQuestion(examSession.questions[examSession.index]);
         if (q) {
           examSession.answers[q.id] = Number(ek) - 1;
           saveActiveExam();
@@ -3411,7 +3449,7 @@
         focusSoon(".option");
       } else if (ek === "f" && !examSession.strict) {
         event.preventDefault();
-        var cq = QID[examSession.questions[examSession.index]];
+        var cq = findQuestion(examSession.questions[examSession.index]);
         if (cq) {
           examSession.flags[cq.id] = !examSession.flags[cq.id];
           saveActiveExam();
@@ -3642,7 +3680,7 @@
 
     var examOption = event.target.closest("[data-exam-option]");
     if (examOption && examSession) {
-      var eq = QID[examSession.questions[examSession.index]];
+      var eq = findQuestion(examSession.questions[examSession.index]);
       if (eq) {
         examSession.answers[eq.id] = Number(examOption.getAttribute("data-exam-option"));
         saveActiveExam();
@@ -3675,7 +3713,7 @@
     }
 
     if (event.target.closest("[data-exam-flag]") && examSession) {
-      var fq = QID[examSession.questions[examSession.index]];
+      var fq = findQuestion(examSession.questions[examSession.index]);
       if (fq) {
         examSession.flags[fq.id] = !examSession.flags[fq.id];
         saveActiveExam();
