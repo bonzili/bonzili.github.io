@@ -7,6 +7,8 @@
     workspace: LS + 'workspace',
     read: (ws) => LS + ws + '.read',
     saved: (ws) => LS + ws + '.saved',
+    mutedCards: (ws) => LS + ws + '.mutedCards',
+    mutedTopics: (ws) => LS + ws + '.mutedTopics',
     lastData: LS + 'lastData',
     hint: LS + 'hintDismissed',
   };
@@ -77,6 +79,22 @@
       removedToast: 'Removed from saved.',
       installHint: 'Tip: add this to your Home Screen from Safari’s Share menu.',
       dismiss: 'Dismiss',
+      notInterested: 'Not interested',
+      muteTopic: 'Mute topic',
+      unmuteTopic: 'Unmute topic',
+      unmute: 'Unmute',
+      mutedToast: 'Story muted.',
+      topicMutedToast: 'Topic muted.',
+      topicUnmutedToast: 'Topic unmuted.',
+      mutedTopicsNote: 'Muted topics:',
+      mutedCardsNote: 'hidden because you marked them not interested.',
+      manageMuted: 'Manage',
+      mutedSettingsTitle: 'Muted stories',
+      mutedSettingsBody: 'Marked not interested on this device. They stay out of Today and Topics until you clear them.',
+      clearMuted: 'Clear all muted stories',
+      clearedMuted: 'Muted stories cleared.',
+      mutedBadge: 'Muted',
+      undo: 'Undo',
     },
     zh: {
       today: '今日', topics: '主題', saved: '已存', archive: '存檔',
@@ -140,6 +158,22 @@
       removedToast: '已移除。',
       installHint: '提示：在 Safari 的分享選單選擇「加入主畫面」。',
       dismiss: '關閉',
+      notInterested: '沒興趣',
+      muteTopic: '靜音主題',
+      unmuteTopic: '取消靜音主題',
+      unmute: '取消靜音',
+      mutedToast: '已隱藏這則報導。',
+      topicMutedToast: '已靜音主題。',
+      topicUnmutedToast: '已取消靜音主題。',
+      mutedTopicsNote: '已靜音主題：',
+      mutedCardsNote: '則報導因標記為沒興趣而未顯示。',
+      manageMuted: '管理',
+      mutedSettingsTitle: '已靜音報導',
+      mutedSettingsBody: '在此裝置標記為沒興趣。清除前不會顯示於今日與主題。',
+      clearMuted: '清除所有已靜音報導',
+      clearedMuted: '已清除靜音報導。',
+      mutedBadge: '已靜音',
+      undo: '復原',
     },
   };
 
@@ -150,6 +184,8 @@
     workspaceId: null,
     read: {},
     saved: [],
+    mutedCards: {},
+    mutedTopics: [],
     demo: false,
     booting: true,
     loading: true,
@@ -345,7 +381,11 @@
   function visibleBriefPicks(edition, ws, { archive = false } = {}) {
     const all = briefPicks(edition, ws);
     if (archive) return all;
-    return all.filter(({ card }) => !readInPreviousEdition(card.id, edition));
+    return all.filter(({ card }) => (
+      !isMutedTopic(card.topic)
+      && !isMutedCard(card.id)
+      && !readInPreviousEdition(card.id, edition)
+    ));
   }
 
   function sourceStatus() {
@@ -498,8 +538,12 @@
     state.workspaceId = id;
     state.read = readJSON(KEY.read(id), {});
     state.saved = readJSON(KEY.saved(id), []);
+    state.mutedCards = readJSON(KEY.mutedCards(id), {});
+    state.mutedTopics = readJSON(KEY.mutedTopics(id), []);
     if (!state.read || typeof state.read !== 'object' || Array.isArray(state.read)) state.read = {};
     if (!Array.isArray(state.saved)) state.saved = [];
+    if (!state.mutedCards || typeof state.mutedCards !== 'object' || Array.isArray(state.mutedCards)) state.mutedCards = {};
+    if (!Array.isArray(state.mutedTopics)) state.mutedTopics = [];
     document.documentElement.lang = isZH() ? 'zh-Hant-HK' : 'en';
     const selected = state.data?.workspaces?.[id];
     document.title = selected ? `Daily Brief · ${pickLang(selected.name)}` : 'Daily Brief';
@@ -535,6 +579,14 @@
     if (state.workspaceId) writeJSON(KEY.saved(state.workspaceId), state.saved);
   }
 
+  function persistMutedCards() {
+    if (state.workspaceId) writeJSON(KEY.mutedCards(state.workspaceId), state.mutedCards);
+  }
+
+  function persistMutedTopics() {
+    if (state.workspaceId) writeJSON(KEY.mutedTopics(state.workspaceId), state.mutedTopics);
+  }
+
   function isRead(id) {
     return Boolean(state.read[id]);
   }
@@ -550,6 +602,22 @@
 
   function isSaved(id) {
     return state.saved.some((entry) => entry?.card?.id === id);
+  }
+
+  function isMutedCard(id) {
+    return Boolean(state.mutedCards[id]);
+  }
+
+  function isMutedTopic(id) {
+    return state.mutedTopics.includes(id);
+  }
+
+  function mutedCardCount() {
+    return Object.keys(state.mutedCards).length;
+  }
+
+  function mutedTopicList(ws) {
+    return (ws?.topic_ids || []).filter(isMutedTopic);
   }
 
   function findContext(cardId) {
@@ -583,6 +651,49 @@
     updateSaveButtons(cardId);
   }
 
+  function muteCard(cardId) {
+    if (!cardId || state.mutedCards[cardId]) return;
+    state.mutedCards[cardId] = Date.now();
+    persistMutedCards();
+    render();
+    showToast(t('mutedToast'), () => {
+      delete state.mutedCards[cardId];
+      persistMutedCards();
+      render();
+    });
+  }
+
+  function setTopicMuted(topicId, muted) {
+    if (!topicId) return;
+    const exists = state.mutedTopics.includes(topicId);
+    if (muted && !exists) state.mutedTopics.push(topicId);
+    if (!muted) state.mutedTopics = state.mutedTopics.filter((id) => id !== topicId);
+    persistMutedTopics();
+    render();
+  }
+
+  function toggleTopicMute(topicId) {
+    if (!topicId) return;
+    const muted = isMutedTopic(topicId);
+    setTopicMuted(topicId, !muted);
+    showToast(muted ? t('topicUnmutedToast') : t('topicMutedToast'), () => {
+      setTopicMuted(topicId, muted);
+    });
+  }
+
+  function clearMutedCards() {
+    if (!mutedCardCount()) return;
+    const previous = state.mutedCards;
+    state.mutedCards = {};
+    persistMutedCards();
+    render();
+    showToast(t('clearedMuted'), () => {
+      state.mutedCards = previous;
+      persistMutedCards();
+      render();
+    });
+  }
+
   function cssEscape(value) {
     if (window.CSS?.escape) return CSS.escape(value);
     return String(value).replace(/["\\]/g, '\\$&');
@@ -603,6 +714,7 @@
     close: '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>',
     check: '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>',
     link: '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l4-4M7 14l-1 .8a3 3 0 0 1-4.2-4.2L5 8a3 3 0 0 1 4.2 0M13 6l1-.8a3 3 0 1 1 4.2 4.2L15 12a3 3 0 0 1-4.2 0"/></svg>',
+    eyeOff: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c5.5 0 9 7 9 7a17 17 0 0 1-2.1 2.9"/><path d="M6.2 6.2C4.2 7.6 3 10 3 12c0 0 3.5 7 9 7 2.1 0 4-.8 5.6-2"/></svg>',
   };
 
   // ---------- rendering ----------
@@ -740,8 +852,13 @@
     const ws = edition.workspaces?.[state.workspaceId];
     if (!ws) return '';
     const allPicks = briefPicks(edition, ws);
-    const picks = archive ? allPicks : allPicks.filter(({ card }) => !readInPreviousEdition(card.id, edition));
-    const hiddenCount = allPicks.length - picks.length;
+    const mutedTopics = archive ? [] : mutedTopicList(ws);
+    const afterTopicMute = archive ? allPicks : allPicks.filter(({ card }) => !isMutedTopic(card.topic));
+    const mutedTopicHidden = allPicks.length - afterTopicMute.length;
+    const afterCardMute = archive ? afterTopicMute : afterTopicMute.filter(({ card }) => !isMutedCard(card.id));
+    const mutedCardHidden = afterTopicMute.length - afterCardMute.length;
+    const picks = archive ? afterCardMute : afterCardMute.filter(({ card }) => !readInPreviousEdition(card.id, edition));
+    const readHidden = afterCardMute.length - picks.length;
     const names = topicNames(ws);
     const end = isZH() ? '。' : '.';
     const nextLine = edition.next_update
@@ -763,9 +880,21 @@
            <p class="brief-sub">${esc(names)}${names ? esc(end) : ''}${isZH() ? '' : ' '}${esc(nextLine)}</p>
          </div>`;
 
+    const mutedTopicNote = !archive && mutedTopics.length
+      ? `<p class="muted-note"><span>${esc(t('mutedTopicsNote'))}</span>${mutedTopics.map((id) => {
+          const topic = topicById(id);
+          return `<button type="button" data-action="toggle-topic-mute" data-topic-id="${esc(id)}">${esc(pickLang(topic?.name) || id)} · ${esc(t('unmute'))}</button>`;
+        }).join('')}</p>`
+      : '';
+    const mutedCardNote = !archive && mutedCardHidden
+      ? `<p class="footer-note">${esc(isZH()
+          ? `${mutedCardHidden} ${t('mutedCardsNote')}`
+          : `${mutedCardHidden} ${mutedCardHidden === 1 ? 'story' : 'stories'} ${t('mutedCardsNote')}`)} <a href="#/topics">${esc(t('manageMuted'))}</a></p>`
+      : '';
+
     if (!total) {
-      const caughtUp = !archive && hiddenCount > 0;
-      return `${hero}
+      const caughtUp = !archive && readHidden > 0 && !mutedCardHidden && !mutedTopicHidden;
+      return `${hero}${mutedTopicNote}${mutedCardNote}
         <div class="empty">
           <p class="empty__kicker">${esc(caughtUp ? t('caughtUpKicker') : t('today'))}</p>
           <h2 class="empty__title">${esc(caughtUp ? t('caughtUpTitle') : t('quietTitle'))}</h2>
@@ -775,13 +904,13 @@
         ${renderSourceFooter(failed)}`;
     }
 
-    const stories = picks.map(({ card, pick }, index) => renderStory(card, pick, index)).join('');
-    const hiddenNote = hiddenCount
+    const stories = picks.map(({ card, pick }, index) => renderStory(card, pick, index, { allowMute: !archive })).join('');
+    const readNote = readHidden
       ? `<p class="footer-note">${esc(isZH()
-        ? `${hiddenCount} 則先前已讀的故事未顯示於此版本。`
-        : `${hiddenCount} previously read ${hiddenCount === 1 ? 'story' : 'stories'} hidden from this edition.`)}</p>`
+        ? `${readHidden} 則先前已讀的故事未顯示於此版本。`
+        : `${readHidden} previously read ${readHidden === 1 ? 'story' : 'stories'} hidden from this edition.`)}</p>`
       : '';
-    return `${hero}<div class="stories">${stories}</div>${hiddenNote}${renderSourceFooter(failed)}`;
+    return `${hero}${mutedTopicNote}<div class="stories">${stories}</div>${readNote}${mutedCardNote}${renderSourceFooter(failed)}`;
   }
 
   function renderSourceFooter(failed) {
@@ -796,7 +925,7 @@
     return `<p class="footer-note">${text} · <a href="#/sources">${esc(t('sourceHealth'))}</a> · <a href="#/about">${esc(t('howItWorks'))}</a></p>`;
   }
 
-  function renderStory(card, pick, index) {
+  function renderStory(card, pick, index, { allowMute = true } = {}) {
     const topic = topicById(card.topic) || {
       short: (card.topic || '—').slice(0, 2).toUpperCase(),
       color: FALLBACK_COLOR,
@@ -854,6 +983,12 @@
         </a>`;
       }).join('')}</div>` : '';
 
+    const muteAction = allowMute
+      ? `<div class="story__actions">
+          <button class="story__action" type="button" data-action="mute-story" data-card-id="${cardId}">${icons.eyeOff}${esc(t('notInterested'))}</button>
+        </div>`
+      : '';
+
     const signalParts = [];
     if (sourceCount) signalParts.push(`<span>${sourceCount} ${esc(sourceCount === 1 ? t('source') : t('sources'))}</span>`);
     if (commentCount) signalParts.push(`<span>${commentCount} ${esc(commentCount === 1 ? t('comment') : t('comments'))}</span>`);
@@ -888,6 +1023,7 @@
               ${bulletHtml}
               ${commentsHtml}
               ${sourcesHtml}
+              ${muteAction}
             </div></div>
           </div>
         </div>
@@ -898,17 +1034,31 @@
     const ws = currentWorkspace();
     if (!ws) return '';
     const topics = (ws.topic_ids || []).map((id) => topicById(id)).filter(Boolean);
+    const mutedTopics = mutedTopicList(ws);
+    const mutedCount = mutedCardCount();
     const rows = topics.map((topic) => {
-      const count = state.data.cards.filter((card) => card.topic === topic.id).length;
-      return `<a class="topic-row" href="#/topic/${encodeURIComponent(topic.id)}" style="${topicVars(topic)}">
+      const count = state.data.cards.filter((card) => card.topic === topic.id && !isMutedCard(card.id)).length;
+      const muted = isMutedTopic(topic.id);
+      return `<a class="topic-row${muted ? ' is-muted' : ''}" href="#/topic/${encodeURIComponent(topic.id)}" style="${topicVars(topic)}">
         <span class="topic-row__bar"></span>
         <span>
           <span class="topic-row__name">${esc(pickLang(topic.name) || topic.id)}</span>
-          <span class="topic-row__meta">${esc(storyCount(count))}</span>
+          <span class="topic-row__meta">${esc(storyCount(count))}${muted ? ` · ${esc(t('mutedBadge'))}` : ''}</span>
         </span>
         <span class="topic-row__chevron" aria-hidden="true">${icons.chevronRight}</span>
       </a>`;
     }).join('');
+
+    const mutedSettings = (mutedTopics.length || mutedCount) ? `
+      <section class="muted-settings">
+        <h2 class="muted-settings__title">${esc(t('mutedSettingsTitle'))}</h2>
+        <p class="muted-settings__body">${esc(t('mutedSettingsBody'))}</p>
+        ${mutedTopics.length ? `<div class="muted-settings__row">${mutedTopics.map((id) => {
+          const topic = topicById(id);
+          return `<button class="muted-settings__button" type="button" data-action="toggle-topic-mute" data-topic-id="${esc(id)}">${esc(pickLang(topic?.name) || id)} · ${esc(t('unmute'))}</button>`;
+        }).join('')}</div>` : ''}
+        ${mutedCount ? `<button class="button button--quiet" type="button" data-action="clear-muted-cards">${esc(t('clearMuted'))}</button>` : ''}
+      </section>` : '';
 
     return `<div class="list-page">
       <div class="page-head">
@@ -917,6 +1067,7 @@
         <p class="brief-sub">${esc(t('topicsSub'))}</p>
       </div>
       <div class="topic-list">${rows}</div>
+      ${mutedSettings}
     </div>`;
   }
 
@@ -924,9 +1075,14 @@
     const topic = topicById(topicId);
     const wsForTopic = currentWorkspace();
     if (!topic || !(wsForTopic?.topic_ids || []).includes(topicId)) return renderTopics();
-    const allCards = state.data.cards.filter((card) => card.topic === topicId);
+    const allCards = state.data.cards.filter((card) => card.topic === topicId && !isMutedCard(card.id));
     const tags = [...new Set(allCards.flatMap((card) => (Array.isArray(card.tags) ? card.tags : [])))].filter(Boolean);
-    tags.sort((a, b) => (a === 'HK' ? -1 : b === 'HK' ? 1 : 0));
+    const tagPriority = ['HK', 'AI', 'Exploit', 'Tool', 'Model', 'Benchmark', 'IP', 'Privacy', 'Fintech', 'Cyber', 'Global'];
+    tags.sort((a, b) => {
+      const ia = tagPriority.indexOf(a);
+      const ib = tagPriority.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+    });
     if (state.tagFilterTopic !== topicId) {
       state.tagFilter = 'All';
       state.tagFilterTopic = topicId;
@@ -949,7 +1105,7 @@
           <span class="topic-hero__bar"></span>
           <div>
             <h1 class="topic-hero__name">${esc(pickLang(topic.name) || topic.id)}</h1>
-            <p class="topic-hero__meta">${esc(storyCount(allCards.length))} · ${esc(t('today'))}</p>
+            <p class="topic-hero__meta">${esc(storyCount(allCards.length))} · ${esc(t('today'))} · <button class="topic-hero__mute" type="button" data-action="toggle-topic-mute" data-topic-id="${esc(topic.id)}" aria-pressed="${isMutedTopic(topic.id)}">${esc(isMutedTopic(topic.id) ? t('unmuteTopic') : t('muteTopic'))}</button></p>
           </div>
         </div>
         ${filters}
@@ -963,7 +1119,7 @@
     const stories = saved.map((entry, index) => {
       const card = entry.card;
       const pick = entry.pick || currentWorkspace()?.picks?.find((item) => item.card_id === card.id) || null;
-      return renderStory(card, pick, index);
+      return renderStory(card, pick, index, { allowMute: false });
     }).join('');
 
     return `<div class="list-page">
@@ -1081,12 +1237,20 @@
           <p>Only the selected cards go to Gemini 3.5 Flash-Lite on the free tier. If a summary is unavailable or contains an unsupported number, that card falls back to a source excerpt. Headlines, bullets and takeaways stay in the source language; the interface is English.</p>
         </section>
         <section class="about__item">
-          <h2>Reading</h2>
-          <p>Opening a card marks it read on this device. Cards read in an earlier edition are hidden from the next Today, but remain under Topics, Archive and Saved. Read state is per browser and does not sync.</p>
+          <h2>AI models and tools</h2>
+          <p>The AI desk covers model releases and benchmarks, but also new tools and products: GitHub trending projects, Product Hunt launches, Hugging Face and Google Open Source releases, and open-source AI news. A benchmark card is added when the Artificial Analysis top five changes, or once a week if it has not.</p>
+        </section>
+        <section class="about__item">
+          <h2>Red teaming</h2>
+          <p>Red teaming tracks AI red-team research and incidents, new offensive-security tools on GitHub, Google Project Zero, CISA’s exploited-vulnerability list and new CVE proof-of-concepts. The brief aims for one AI red-team card and one exploit or tool card when available.</p>
+        </section>
+        <section class="about__item">
+          <h2>Reading and muting</h2>
+          <p>Opening a card marks it read on this device. Cards read in an earlier edition are hidden from the next Today, but remain under Topics, Archive and Saved. Tap <strong>Not interested</strong> on an open card to hide it from Today and Topics; mute a topic from its page to keep it out of Today. Both are local, can be undone, and can be managed under Topics.</p>
         </section>
         <section class="about__item">
           <h2>What gets prioritised</h2>
-          <p>Legal aims for at least three Hong Kong legal cards; cybersecurity aims for two Hong Kong and two global cards when available. Routine notices, vendor launches, event listings and soft news are damped.</p>
+          <p>Legal aims for at least three Hong Kong legal cards; cybersecurity aims for two Hong Kong cards; red teaming aims for one AI red-team card and one exploit or tool card; AI keeps at most one tool card so model and benchmark news still get space. Routine notices, vendor launches, event listings and soft news are damped.</p>
         </section>
         <section class="about__item">
           <h2>Sources and trust</h2>
@@ -1168,15 +1332,21 @@
     });
   }
 
-  function showToast(message) {
+  function showToast(message, undo) {
     const old = $('.toast');
     if (old) old.remove();
     if (!message) return;
     const wrap = document.createElement('div');
     wrap.className = 'toast';
-    wrap.innerHTML = `<div class="toast__inner" role="status">${esc(message)}</div>`;
+    wrap.innerHTML = `<div class="toast__inner" role="status">${esc(message)}${undo ? `<button class="toast__action" type="button">${esc(t('undo'))}</button>` : ''}</div>`;
+    if (undo) {
+      wrap.querySelector('.toast__action')?.addEventListener('click', () => {
+        undo();
+        wrap.remove();
+      });
+    }
     app.appendChild(wrap);
-    window.setTimeout(() => wrap.remove(), 2400);
+    window.setTimeout(() => wrap.remove(), undo ? 4200 : 2400);
   }
 
   // ---------- interactions ----------
@@ -1241,6 +1411,21 @@
     if (action === 'save-story') {
       event.preventDefault();
       toggleSaved(target.dataset.cardId);
+      return;
+    }
+    if (action === 'mute-story') {
+      event.preventDefault();
+      muteCard(target.dataset.cardId);
+      return;
+    }
+    if (action === 'toggle-topic-mute') {
+      event.preventDefault();
+      toggleTopicMute(target.dataset.topicId);
+      return;
+    }
+    if (action === 'clear-muted-cards') {
+      event.preventDefault();
+      clearMutedCards();
       return;
     }
     if (action === 'refresh') {

@@ -99,7 +99,34 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
 
     selected: list[dict] = []
     counts: Counter[str] = Counter()
+    tag_counts: Counter[tuple[str, str]] = Counter()
     selected_ids: set[str] = set()
+    tag_caps = workspace.get("tag_caps") or {}
+
+    def tag_cap_allows(cluster: dict) -> bool:
+        topic_id = str(cluster.get("topic") or "")
+        caps_for_topic = tag_caps.get(topic_id) or {}
+        if not isinstance(caps_for_topic, dict):
+            return True
+        tags = set(cluster.get("tags") or [])
+        for tag, maximum in caps_for_topic.items():
+            if tag not in tags:
+                continue
+            try:
+                maximum = int(maximum)
+            except (TypeError, ValueError):
+                continue
+            if tag_counts[(topic_id, tag)] >= maximum:
+                return False
+        return True
+
+    def add(cluster: dict) -> None:
+        selected.append(cluster)
+        selected_ids.add(cluster["id"])
+        topic_id = str(cluster.get("topic") or "")
+        counts[topic_id] += 1
+        for tag in set(cluster.get("tags") or []):
+            tag_counts[(topic_id, str(tag))] += 1
 
     # One guaranteed slot per topic when that topic has a live story. This is
     # what stops a busy AI or legal day from squeezing out Mayday or Jackson.
@@ -111,9 +138,9 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
             cluster = first_by_topic.get(topic_id)
             if not cluster or len(selected) >= cap:
                 continue
-            selected.append(cluster)
-            selected_ids.add(cluster["id"])
-            counts[topic_id] += 1
+            if not tag_cap_allows(cluster):
+                continue
+            add(cluster)
 
     # A topic can require a minimum number of cards carrying a particular tag.
     # This is how the cyber brief guarantees a Hong Kong desk (tag HK) without
@@ -142,9 +169,9 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
                     continue
                 if counts[topic_id] >= topic_cap:
                     break
-                selected.append(cluster)
-                selected_ids.add(cluster["id"])
-                counts[topic_id] += 1
+                if not tag_cap_allows(cluster):
+                    continue
+                add(cluster)
                 current += 1
 
     rank_by_id = {cluster["id"]: rank for rank, cluster in candidates}
@@ -157,9 +184,9 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
         topic_cap = int(caps.get(topic_id, default_cap))
         if counts[topic_id] >= topic_cap:
             continue
-        selected.append(cluster)
-        selected_ids.add(cluster["id"])
-        counts[topic_id] += 1
+        if not tag_cap_allows(cluster):
+            continue
+        add(cluster)
 
     selected.sort(key=lambda cluster: rank_by_id.get(cluster["id"], 0), reverse=True)
     return selected

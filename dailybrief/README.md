@@ -4,8 +4,9 @@ A personal, installable daily brief for `bonzili.me/dailybrief/`.
 
 One URL, one PWA, two workspaces:
 
-- **Siu Gai Mo's Brief** — AI models, Hong Kong, Mayday, and cybersecurity with
-  both global stories and a Hong Kong desk for local breaches.
+- **Siu Gai Mo's Brief** — AI models and tools, Hong Kong, Mayday, cybersecurity
+  and red teaming, with both global stories and a Hong Kong desk for local
+  breaches and incidents.
 - **Siu Bak's Brief** — APAC legal (IP, privacy, fintech, cyber and AI law) with
   Hong Kong legal stories prioritised, Hong Kong news, and 易烊千璽.
 
@@ -36,15 +37,21 @@ again after installing, pick the brief once inside the installed app.
 ## What is in the app
 
 - **Today** — a finite brief: 12 cards for Siu Gai Mo's Brief, 8 for Siu Bak's Brief. No
-  infinite scroll.
+  infinite scroll. Siu Gai Mo's brief mixes AI models, benchmarks and new
+  tools; Hong Kong; Mayday; cybersecurity; and red teaming.
 - **Topics** — the deeper list for the day. APAC legal has a tag filter (HK,
-  IP, Privacy, Fintech, AI, Cyber); Cybersecurity has HK / Global tags.
+  IP, Privacy, Fintech, AI, Cyber); Cybersecurity has HK / Global tags; AI has
+  Model / Tool / Benchmark tags; Red Teaming has AI / Tool / Exploit tags.
 - **Saved** — stored on this phone, not synced.
 - **Archive** — morning and evening editions, kept for 30 days. Manual runs
   replace that day's matching slot instead of adding duplicate rows.
 - **Read state** — a card you opened in an earlier edition is hidden from the
   next Today brief; it stays available under Topics and Archive. The state is
   per browser, so it does not sync between phone and laptop.
+- **Not interested / mute** — an open card can be marked **Not interested**,
+  which hides it from Today and Topics on this device. A topic can be muted
+  from its page, which keeps it out of Today but leaves the topic browsable.
+  Both controls are local, undoable, and listed under Topics.
 - **Source health** — every source is fetched separately, so one broken feed
   never hides the rest of the brief.
 
@@ -133,8 +140,9 @@ python3 -m http.server 8000
 ```
 
 `?demo=1` loads `data/demo.json`, a fixed dataset that exercises both
-workspaces, the legal tag filter, Chinese text, long headlines and missing
-comments. `?demo=1&ws=her` opens directly in Siu Bak's workspace.
+workspaces, the legal and red-team tag filters, AI tool cards, Chinese text,
+long headlines and missing comments. `?demo=1&ws=her` opens directly in Siu
+Bak's workspace.
 
 Run the pipeline locally with extractive summaries (no key, no cost):
 
@@ -176,8 +184,21 @@ fields:
 ```
 
 Supported types: `rss`, `google_news`, `hn`, `openrouter`, `ptt`, `hko`,
-`kev`, `telegram`. Adding a topic means adding a `topics.<id>` block, then
+`kev`, `telegram`, `github_trending`, `github_search` and
+`artificial_analysis`. Adding a topic means adding a `topics.<id>` block, then
 listing it in the relevant workspace's `topics`.
+
+The AI desk also watches GitHub Trending, Product Hunt, Hugging Face, Google
+Open Source and open-source AI news for new tools and products. A benchmark
+card comes from the Artificial Analysis FAQ payload; it is emitted when the
+top-five changes, or once a week if the ranking is unchanged. Red Teaming uses
+Google News, the CISA KEV catalog, Google Project Zero and GitHub discovery
+queries for new red-team, LLM-security and CVE proof-of-concept repositories.
+
+Workspaces can use `tag_min` for a minimum number of cards carrying a tag
+(for example, two Hong Kong cyber cards) and `tag_caps` for a maximum (for
+example, at most one AI tool card so model and benchmark news still have
+space).
 
 ## Known limits
 
@@ -191,8 +212,15 @@ listing it in the relevant workspace's `topics`.
   report separately is safer than inventing a merged fact.
 - Some publishers are paywalled. The card links to the source; the summary is
   grounded in the feed snippet.
-- The app is public and unlisted. Read state and saved cards are local to the
-  browser and can be cleared by iOS. There is no cross-device sync in v1.
+- The app is public and unlisted. Read state, saved cards, muted cards and
+  muted topics are local to the browser and can be cleared by iOS. There is no
+  cross-device sync in v1.
+- GitHub search is a public API with a rate limit. The workflow passes its
+  `GITHUB_TOKEN` when available and falls back to unauthenticated search; a
+  rate-limited source is shown in Source health and never stops the brief.
+- A benchmark card is intentionally rare: it appears when the Artificial
+  Analysis top five changes, or at most once a week. A quiet AI day therefore
+  will not invent a benchmark story.
 - GitHub disables scheduled workflows in a public repo after 60 days without a
   commit. If the brief stops updating, push any commit or open **Actions →
   Daily Brief → Enable workflow / Run workflow**. The app will show the old

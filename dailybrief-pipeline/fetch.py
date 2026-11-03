@@ -8,8 +8,10 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import os
 import re
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus, urljoin
 
@@ -18,8 +20,9 @@ import httpx
 from bs4 import BeautifulSoup
 
 from util import (
-    HKT, clamp, clean_html, clean_title, iso, log, log_heat, now_hkt,
-    parse_datetime, title_similarity, truncate, url_key,
+    HKT, clamp, clean_html, clean_title, iso, load_json, log, log_heat,
+    now_hkt, parse_datetime, title_similarity, truncate, url_key,
+    write_json_atomic,
 )
 
 UA = "Mozilla/5.0 (compatible; BonziliBrief/1.0; +https://bonzili.me/dailybrief/)"
@@ -29,6 +32,8 @@ HEADERS = {
 }
 TIMEOUT = httpx.Timeout(30.0, connect=15.0)
 CONCURRENCY = 8
+CACHE_DIR = Path(__file__).resolve().parent / ".cache"
+BENCHMARK_CACHE = CACHE_DIR / "benchmark.json"
 
 
 def item_id(source_id: str, url: str, title: str) -> str:
@@ -40,6 +45,10 @@ def base_item(source: dict[str, Any], *, title: str, url: str, publisher: str,
               published: datetime | None, summary: str, now: datetime,
               heat: float | None = None, comments: list[dict] | None = None,
               extra: dict | None = None) -> dict[str, Any]:
+    # A few feeds publish future-dated items. Treat those as "now" rather than
+    # letting them win the freshness score.
+    if published is not None and published > now + timedelta(hours=6):
+        published = now
     source_tags = source.get("tags")
     if isinstance(source_tags, str):
         source_tags = [source_tags]
@@ -73,12 +82,17 @@ def base_item(source: dict[str, Any], *, title: str, url: str, publisher: str,
 
 
 def contains_keyword(haystack: str, keyword: str) -> bool:
+    haystack = str(haystack or "").casefold()
     word = str(keyword or "").casefold().strip()
     if not word:
         return False
     if re.search(r"[\u3400-\u9fff]", word):
         return word in haystack
-    return re.search(rf"(?<![a-z0-9]){re.escape(word)}(?![a-z0-9])", haystack) is not None
+    # Accept the common plural forms as well: model/models, patch/patches,
+    # CVE/CVEs. This keeps keyword filters from silently missing the story.
+    return re.search(
+        rf"(?<![a-z0-9]){re.escape(word)}(?:s|es)?(?![a-z0-9])", haystack
+    ) is not None
 
 
 def matches_filter(source: dict[str, Any], title: str, summary: str) -> bool:
@@ -164,6 +178,39 @@ async def fetch_rss(client: httpx.AsyncClient, source: dict[str, Any], now: date
         ))
         if len(items) >= max_items:
             break
+
+    # Some feeds (notably Hugging Face) publish titles only. Fetch the article
+    # metadata for a handful of items so the summarizer has something grounded
+    # to work with instead of a bare headline.
+    if source.get("fetch_content") and items:
+        limit = max(0, min(len(items), int(source.get("content_limit", 4))))
+        for item in items[:limit]:
+            if len(item.get("summary") or "") >= 80:
+                continue
+            try:
+                page = await get(
+                    client, item["url"],
+                    headers={"User-Agent": UA, "Accept": "text/html"},
+                    timeout=httpx.Timeout(12.0, connect=6.0),
+                )
+            except Exception as error:
+                log(f"  content fetch failed: {item.get('url', '')[:80]} ({type(error).__name__})")
+                continue
+            soup = BeautifulSoup(page.text, "html.parser")
+            description = ""
+            for selector in ('meta[name="description"]', 'meta[property="og:description"]'):
+                node = soup.select_one(selector)
+                if node and node.get("content"):
+                    description = clean_html(node.get("content"))
+                    break
+            if len(description) < 80:
+                for paragraph in soup.select("p"):
+                    text = clean_html(paragraph.get_text(" ", strip=True))
+                    if len(text) >= 80:
+                        description = text
+                        break
+            if description:
+                item["summary"] = truncate(description, 1400)
     return items
 
 
@@ -172,10 +219,13 @@ async def fetch_google_news(client: httpx.AsyncClient, source: dict[str, Any], n
     hl = source.get("hl", "en-US")
     gl = source.get("gl", "US")
     ceid = source.get("ceid", "US:en")
+    when = str(source.get("when") or "").strip()
     url = (
         "https://news.google.com/rss/search?"
         f"q={quote_plus(query)}&hl={quote_plus(hl)}&gl={quote_plus(gl)}&ceid={quote_plus(ceid)}"
     )
+    if when:
+        url += f"&when={quote_plus(when)}"
     local = dict(source)
     local["url"] = url
     local["name"] = source.get("name", "Google News")
@@ -267,6 +317,256 @@ async def fetch_openrouter(client: httpx.AsyncClient, source: dict[str, Any], no
             heat=0.62, extra={"model_id": base_id},
         ))
     return items
+
+
+def parse_count(value: Any) -> int:
+    digits = re.sub(r"[^0-9]", "", str(value or ""))
+    return int(digits) if digits else 0
+
+
+def github_headers() -> dict[str, str]:
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": UA,
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+async def fetch_github_trending(client: httpx.AsyncClient, source: dict[str, Any],
+                                now: datetime) -> list[dict]:
+    response = await get(
+        client,
+        source.get("url") or "https://github.com/trending?since=daily",
+        headers={"User-Agent": UA, "Accept": "text/html"},
+    )
+    soup = BeautifulSoup(response.text, "html.parser")
+    rows = soup.select("article.Box-row")
+    max_items = int(source.get("max_items", 6))
+    min_stars_today = int(source.get("min_stars_today", 0))
+    items: list[dict] = []
+    for row in rows:
+        link = row.select_one("h2 a")
+        href = (link.get("href") if link else "") or ""
+        full_name = href.strip("/")
+        if "/" not in full_name:
+            continue
+        desc_node = row.select_one("p")
+        description = clean_html(desc_node.get_text(" ", strip=True)) if desc_node else ""
+        lang_node = row.select_one('[itemprop="programmingLanguage"]')
+        language = clean_html(lang_node.get_text(" ", strip=True)) if lang_node else ""
+        stars_today = 0
+        for node in row.select("span"):
+            text = node.get_text(" ", strip=True)
+            if "stars today" in text.casefold():
+                stars_today = parse_count(text)
+                break
+        total_node = row.select_one('a[href$="/stargazers"]')
+        total_stars = parse_count(total_node.get_text(" ", strip=True) if total_node else "")
+        if stars_today < min_stars_today:
+            continue
+        title = f"{full_name}: {description}" if description else full_name
+        title = truncate(title, 140)
+        summary_parts = [description] if description else []
+        if language:
+            summary_parts.append(f"Language: {language}.")
+        if stars_today:
+            summary_parts.append(f"{stars_today:,} stars today.")
+        if total_stars:
+            summary_parts.append(f"{total_stars:,} total stars.")
+        summary = " ".join(summary_parts)
+        if not matches_filter(source, title, summary):
+            continue
+        heat = log_heat(stars_today + total_stars / 200.0, 5000)
+        items.append(base_item(
+            source, title=title, url=f"https://github.com/{full_name}",
+            publisher="GitHub", published=now, summary=summary, now=now,
+            heat=heat,
+            extra={"repo": full_name, "stars_today": stars_today, "stars_total": total_stars},
+        ))
+        if len(items) >= max_items:
+            break
+    return items
+
+
+async def fetch_github_search(client: httpx.AsyncClient, source: dict[str, Any],
+                              now: datetime) -> list[dict]:
+    query = str(source.get("query") or "").strip()
+    if not query:
+        return []
+    created_days = int(source.get("created_days", 0) or 0)
+    if created_days:
+        cutoff = (now - timedelta(days=created_days)).strftime("%Y-%m-%d")
+        query = f"{query} created:>{cutoff}"
+    params = {
+        "q": query,
+        "sort": source.get("sort", "stars"),
+        "order": source.get("order", "desc"),
+        "per_page": max(1, min(30, int(source.get("max_items", 5)))),
+    }
+    url = "https://api.github.com/search/repositories"
+    try:
+        response = await get(client, url, params=params, headers=github_headers())
+    except httpx.HTTPStatusError as error:
+        # A token without search access should not take the source down; retry
+        # unauthenticated once. Rate limits are still reported by source health.
+        if error.response.status_code in (401, 403) and github_headers().get("Authorization"):
+            response = await get(client, url, params=params)
+        else:
+            raise
+    payload = response.json()
+    max_items = int(source.get("max_items", 5))
+    min_stars = int(source.get("min_stars", 0))
+    seen_cves: set[str] = set()
+    items: list[dict] = []
+    for repo in payload.get("items", []):
+        if repo.get("archived") or repo.get("fork") or repo.get("disabled"):
+            continue
+        full_name = str(repo.get("full_name") or "").strip()
+        if "/" not in full_name:
+            continue
+        stars = int(repo.get("stargazers_count") or 0)
+        if stars < min_stars:
+            continue
+        description = clean_html(repo.get("description") or "")
+        language = clean_html(repo.get("language") or "")
+        topics = [str(topic) for topic in (repo.get("topics") or []) if topic]
+        created = parse_datetime(repo.get("created_at"), now)
+        pushed = parse_datetime(repo.get("pushed_at"), now)
+        title = f"{full_name}: {description}" if description else full_name
+        title = truncate(title, 140)
+        summary_parts = [description] if description else []
+        if language:
+            summary_parts.append(f"Language: {language}.")
+        summary_parts.append(f"{stars:,} stars.")
+        if created:
+            summary_parts.append(f"Created {created.strftime('%Y-%m-%d')}.")
+        if pushed:
+            summary_parts.append(f"Last push {pushed.strftime('%Y-%m-%d')}.")
+        if topics:
+            summary_parts.append("Topics: " + ", ".join(topics[:6]) + ".")
+        summary = " ".join(summary_parts)
+        if source.get("dedupe_cves"):
+            cves = {
+                cve.upper() for cve in re.findall(
+                    r"CVE-\d{4}-\d{4,}", f"{title} {summary}", re.I
+                )
+            }
+            if cves & seen_cves:
+                continue
+            seen_cves.update(cves)
+        # Filter on the repository name and description, not on the topic
+        # metadata. A useful tool can legitimately carry an "awesome-list"
+        # topic without being a list itself.
+        if not matches_filter(source, title, description):
+            continue
+        heat = log_heat(stars + 10, 50000)
+        items.append(base_item(
+            source, title=title,
+            url=repo.get("html_url") or f"https://github.com/{full_name}",
+            publisher="GitHub", published=created or now, summary=summary,
+            now=now, heat=heat,
+            extra={"repo": full_name, "stars": stars, "topics": topics},
+        ))
+        if len(items) >= max_items:
+            break
+    return items
+
+
+AA_TOP1_RE = re.compile(r"1\.\s*(.+?)\s*\((\d+)\)")
+
+
+def parse_artificial_analysis(html_text: str) -> dict[str, Any]:
+    """Read the leaderboard summary from Artificial Analysis' FAQ JSON-LD.
+
+    The page is a Next.js app, so the visible table is not stable to scrape.
+    The FAQ payload is semantic, public and small enough to parse reliably.
+    """
+    soup = BeautifulSoup(html_text or "", "html.parser")
+    for script in soup.select('script[type="application/ld+json"]'):
+        try:
+            payload = json.loads(script.string or script.get_text() or "{}")
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(payload, dict) or payload.get("@type") != "FAQPage":
+            continue
+        answers: dict[str, str] = {}
+        for entry in payload.get("mainEntity") or []:
+            if not isinstance(entry, dict):
+                continue
+            question = str(entry.get("name") or "")
+            answer = entry.get("acceptedAnswer") or {}
+            if isinstance(answer, dict):
+                answers[question] = str(answer.get("text") or "")
+        top = next((value for key, value in answers.items()
+                    if "top models" in key.casefold()), "")
+        top_one = next((value for key, value in answers.items()
+                        if "ranks #1" in key.casefold()), "")
+        open_weights = next((value for key, value in answers.items()
+                             if "best open weights" in key.casefold()), "")
+        if top or top_one:
+            return {
+                "top": top,
+                "top1": top_one,
+                "open_weights": open_weights,
+                "answers": answers,
+            }
+    raise ValueError("no Artificial Analysis FAQ payload found")
+
+
+def artificial_analysis_item(parsed: dict[str, Any], source: dict[str, Any],
+                             now: datetime) -> dict:
+    match = AA_TOP1_RE.search(parsed.get("top") or "")
+    name, score = (match.group(1), match.group(2)) if match else ("", "")
+    title = (
+        f"Benchmark: {name} tops Artificial Analysis ({score})"
+        if name else "Artificial Analysis leaderboard update"
+    )
+    summary = " ".join(part for part in (
+        parsed.get("top1") or "",
+        parsed.get("top") or "",
+        parsed.get("open_weights") or "",
+    ) if part)
+    signature = hashlib.sha1(
+        (parsed.get("top") or parsed.get("top1") or "").encode("utf-8")
+    ).hexdigest()
+    return base_item(
+        source, title=title, url=source.get("url") or "https://artificialanalysis.ai/leaderboards/models",
+        publisher="Artificial Analysis", published=now, summary=summary,
+        now=now, heat=0.55, extra={"benchmark_signature": signature},
+    )
+
+
+async def fetch_artificial_analysis(client: httpx.AsyncClient, source: dict[str, Any],
+                                    now: datetime) -> list[dict]:
+    response = await get(
+        client,
+        source.get("url") or "https://artificialanalysis.ai/leaderboards/models",
+        headers={"User-Agent": UA, "Accept": "text/html"},
+    )
+    parsed = parse_artificial_analysis(response.text)
+    signature = hashlib.sha1(
+        (parsed.get("top") or parsed.get("top1") or "").encode("utf-8")
+    ).hexdigest()
+    cache = load_json(BENCHMARK_CACHE, {})
+    last_signature = cache.get("signature") if isinstance(cache, dict) else None
+    last_updated = parse_datetime(cache.get("updated"), None) if isinstance(cache, dict) else None
+    refresh_days = float(source.get("refresh_days", 7))
+    due = last_updated is None or (now - last_updated).total_seconds() / 86400 >= refresh_days
+    if signature == last_signature and not due:
+        return []
+    try:
+        write_json_atomic(BENCHMARK_CACHE, {
+            "signature": signature,
+            "updated": iso(now),
+            "top": parsed.get("top") or "",
+        })
+    except OSError as error:
+        log(f"  benchmark cache write failed: {type(error).__name__}")
+    return [artificial_analysis_item(parsed, source, now)]
+
 
 
 PTT_SKIP = ("[公告]", "[交易]", "[買賣]", "[票務]", "[交換]", "[徵求]", "[檢舉]")
@@ -485,6 +785,12 @@ async def dispatch(client: httpx.AsyncClient, source: dict[str, Any], now: datet
         return await fetch_hn(client, source, now)
     if adapter == "openrouter":
         return await fetch_openrouter(client, source, now)
+    if adapter == "github_trending":
+        return await fetch_github_trending(client, source, now)
+    if adapter == "github_search":
+        return await fetch_github_search(client, source, now)
+    if adapter == "artificial_analysis":
+        return await fetch_artificial_analysis(client, source, now)
     if adapter == "ptt":
         return await fetch_ptt(client, source, now)
     if adapter == "hko":

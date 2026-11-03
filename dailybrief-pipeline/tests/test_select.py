@@ -63,6 +63,24 @@ class SelectionTests(unittest.TestCase):
         self.assertEqual(tags.count("HK"), 2)
         self.assertEqual(len(selected), 4)
 
+    def test_tag_cap_limits_tool_cards(self):
+        topics = {"ai": {"min_score": 0.0}}
+        workspace = {
+            "topics": ["ai"], "cap": 4, "topic_cap": 4,
+            "tag_caps": {"ai": {"Tool": 2}},
+        }
+        clusters = [
+            cluster("t1", "ai", 0.9), cluster("t2", "ai", 0.8),
+            cluster("t3", "ai", 0.7), cluster("t4", "ai", 0.6),
+            cluster("m1", "ai", 0.5), cluster("m2", "ai", 0.4),
+        ]
+        for row in clusters:
+            row["tags"] = ["Tool"] if row["id"].startswith("t") else ["Model"]
+        selected = select_for_workspace(clusters, workspace, topics, datetime(2026, 11, 4, 7, 0, tzinfo=HKT))
+        tools = [row for row in selected if "Tool" in row.get("tags", [])]
+        self.assertEqual(len(selected), 4)
+        self.assertLessEqual(len(tools), 2)
+
     def test_old_items_drop_out(self):
         topics = {"a": {"min_score": 0.0, "max_age_hours": 48, "half_life_hours": 18}}
         old = cluster("old", "a", 0.9)

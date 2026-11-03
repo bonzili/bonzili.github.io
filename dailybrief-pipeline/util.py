@@ -281,7 +281,11 @@ def text_has_keyword(text: str, keyword: str) -> bool:
         return False
     if re.search(r"[\u3400-\u9fff]", word):
         return word in haystack
-    return re.search(rf"(?<![a-z0-9]){re.escape(word)}(?![a-z0-9])", haystack) is not None
+    # Accept common plurals so "model" also matches "models" and "CVE"
+    # matches "CVEs". This matters for editorial boosts and filters.
+    return re.search(
+        rf"(?<![a-z0-9]){re.escape(word)}(?:s|es)?(?![a-z0-9])", haystack
+    ) is not None
 
 
 def age_hours(published: datetime | None, now: datetime) -> float:

@@ -787,6 +787,48 @@ a {
   border-top: 1px dashed var(--rule-strong);
 }
 
+.story__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.story__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted-2);
+  font: 600 9.5px/1 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.story__action svg {
+  width: 14px;
+  height: 14px;
+}
+
+.story__action:active {
+  transform: scale(0.98);
+  background: var(--surface-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .story__action:hover {
+    border-color: var(--rule);
+    color: var(--ink);
+  }
+}
+
 .bullets {
   display: grid;
   gap: 8px;
@@ -962,6 +1004,59 @@ a.comment__meta:active {
   text-underline-offset: 2px;
 }
 
+/* ---------- muted settings ---------- */
+
+.muted-settings {
+  margin-top: 26px;
+  padding: 16px 0 4px;
+  border-top: 1px solid var(--rule);
+}
+
+.muted-settings__title {
+  margin: 0 0 6px;
+  font: 500 19px/1.15 var(--font-serif);
+  letter-spacing: -0.015em;
+}
+
+.muted-settings__body {
+  margin: 0;
+  max-width: 54ch;
+  color: var(--muted);
+  font: 400 13px/1.55 var(--font-sans);
+  text-wrap: pretty;
+}
+
+.muted-settings__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.muted-settings__button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 9px/1 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.muted-settings__button:active {
+  transform: scale(0.98);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .muted-settings__button:hover {
+    border-color: var(--rule-strong);
+    color: var(--ink);
+  }
+}
+
 /* ---------- topic & archive lists ---------- */
 
 .list-page {
@@ -1008,6 +1103,14 @@ a.comment__meta:active {
   color: var(--muted);
   font: 400 9.5px/1.3 var(--font-mono);
   letter-spacing: 0.02em;
+}
+
+.topic-row.is-muted .topic-row__bar {
+  opacity: 0.4;
+}
+
+.topic-row.is-muted .topic-row__name {
+  color: var(--muted);
 }
 
 .topic-row__chevron,
@@ -1059,6 +1162,19 @@ a.comment__meta:active {
   font: 400 10px/1.4 var(--font-mono);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.topic-hero__mute {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--topic, var(--accent));
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .tag-filter {
@@ -1254,6 +1370,31 @@ a.comment__meta:active {
   color: var(--muted);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.muted-note {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0 0 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--muted);
+  font: 400 10.5px/1.5 var(--font-mono);
+}
+
+.muted-note button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 /* ---------- tab bar ---------- */
@@ -1629,6 +1770,9 @@ dialog.workspace-dialog::backdrop {
 }
 
 .toast__inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 14px;
   border-radius: 999px;
   background: var(--ink);
@@ -1636,6 +1780,20 @@ dialog.workspace-dialog::backdrop {
   font: 500 11px/1 var(--font-sans);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   animation: toast-in 180ms var(--ease);
+  pointer-events: auto;
+}
+
+.toast__action {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--bg);
+  font: 600 10px/1 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 @keyframes toast-in {

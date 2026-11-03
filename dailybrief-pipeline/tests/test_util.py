@@ -6,7 +6,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from util import clean_title, first_sentence, infer_jurisdiction, is_cjk_text, title_tokens
+from util import (
+    clean_title, first_sentence, infer_jurisdiction, is_cjk_text,
+    text_has_keyword, title_tokens,
+)
 
 
 class UtilTests(unittest.TestCase):
@@ -24,6 +27,11 @@ class UtilTests(unittest.TestCase):
 
     def test_first_sentence(self):
         self.assertEqual(first_sentence("One thing happened. Another followed."), "One thing happened.")
+
+    def test_editorial_keyword_matches_plurals(self):
+        self.assertTrue(text_has_keyword("New models shipped", "model"))
+        self.assertTrue(text_has_keyword("Two CVEs patched", "CVE"))
+        self.assertFalse(text_has_keyword("Modelled after a boat", "model"))
 
     def test_jurisdiction_inference(self):
         self.assertEqual(infer_jurisdiction("The UPC in Milan ruled on Sandoz", "US"), "EU")

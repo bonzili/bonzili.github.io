@@ -13,14 +13,14 @@
       "id": "ai",
       "short": "AI",
       "name": {
-        "en": "AI models",
-        "zh": "AI 模型"
+        "en": "AI models & tools",
+        "zh": "AI 模型與工具"
       },
       "color": "#3157D5",
       "color_dark": "#7F9BFF",
       "description": {
-        "en": "Releases, benchmarks and the arguments around them.",
-        "zh": "新模型、基準測試與相關討論。"
+        "en": "Model releases, benchmarks, new tools and products.",
+        "zh": "新模型、基準測試、新工具與產品。"
       }
     },
     {
@@ -92,6 +92,20 @@
         "en": "Exploited bugs, breaches and the fixes that matter.",
         "zh": "已遭利用的漏洞、外洩事故與修補。"
       }
+    },
+    {
+      "id": "rt",
+      "short": "RT",
+      "name": {
+        "en": "Red Teaming",
+        "zh": "紅隊測試"
+      },
+      "color": "#A33A4A",
+      "color_dark": "#FF8C9E",
+      "description": {
+        "en": "AI red teaming, offensive tooling, exploits and the CVEs that matter.",
+        "zh": "AI 紅隊測試、攻擊工具、漏洞利用與重要 CVE。"
+      }
     }
   ],
   "workspaces": {
@@ -102,8 +116,8 @@
         "zh": "Siu Gai Mo's Brief"
       },
       "description": {
-        "en": "AI, Hong Kong, Mayday, and cybersecurity with a HK desk.",
-        "zh": "AI、香港、五月天，以及全球與香港網絡安全。"
+        "en": "AI models and tools, Hong Kong, Mayday, cybersecurity and red teaming.",
+        "zh": "AI 模型與工具、香港、五月天、網絡安全與紅隊測試。"
       },
       "lang": "en",
       "accent": "#0B6B5D",
@@ -111,7 +125,8 @@
         "ai",
         "hk",
         "mayday",
-        "cyber"
+        "cyber",
+        "rt"
       ],
       "picks": [
         {
@@ -124,30 +139,31 @@
           ]
         },
         {
-          "card_id": "f6c5b8a7d9e03b4c",
-          "why": "A typhoon signal decision before lunch could change the commute; check the official warning before you go.",
-          "bullets": [
-            "The Observatory says it will consider raising the signal as the storm moves closer.",
-            "The current warning is being monitored; no timing has been confirmed.",
-            "Check the official warning page before travelling."
-          ]
-        },
-        {
-          "card_id": "e1b0a3f2c4d58091",
-          "why": "The Mayday rumour is loud, but the report is built on a social post. Read the source, not the headline.",
-          "bullets": [
-            "The report says 石頭 is leaving the band; the wording is based on a social post.",
-            "阿信 later posted a late-night message that fans are reading as a response.",
-            "No official statement from 相信音樂 has been linked in the report."
-          ]
-        },
-        {
           "card_id": "b2e1d4c3f5a69708",
           "why": "A weight-editing claim and a strong rebuttal in the same thread; the comments are the useful part.",
           "bullets": [
             "The post describes editing model weights directly to change behaviour without retraining.",
             "A rebuttal argues the demo is narrower than the headline suggests.",
             "The HN thread is unusually technical and worth reading past the first comment."
+          ]
+        },
+        {
+          "card_id": "a1b2c3d4e5f60718",
+          "why": "A new open-source tool shows how an AI coach and MCP can sit on top of a useful, non-AI product.",
+          "bullets": [
+            "openGym is a self-hosted gym and body-weight tracker with an optional AI coach.",
+            "The coach drafts routines and proposes changes; every change waits for user approval.",
+            "A separate read-only MCP server exposes training history to clients such as Claude Desktop."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "f6c5b8a7d9e03b4c",
+          "why": "A typhoon signal decision before lunch could change the commute; check the official warning before you go.",
+          "bullets": [
+            "The Observatory says it will consider raising the signal as the storm moves closer.",
+            "The current warning is being monitored; no timing has been confirmed.",
+            "Check the official warning page before travelling."
           ]
         },
         {
@@ -160,15 +176,6 @@
           ]
         },
         {
-          "card_id": "c3f2e5d4a6b70819",
-          "why": "A smaller on-device model may matter more for daily use than another leaderboard release.",
-          "bullets": [
-            "The model is positioned for local tool use and long-running agents.",
-            "The blog lists quantised variants and a permissive licence.",
-            "Early users are testing it on consumer hardware rather than data-centre GPUs."
-          ]
-        },
-        {
           "card_id": "b8e7d0c9f1a25d6e",
           "why": "A court challenge that could delay the waste-charging scheme every household is preparing for.",
           "bullets": [
@@ -178,12 +185,12 @@
           ]
         },
         {
-          "card_id": "f2c1b4a3d5e691a2",
-          "why": "The PTT thread is parsing Ashin's post in real time; no official statement yet.",
+          "card_id": "e1b0a3f2c4d58091",
+          "why": "The Mayday rumour is loud, but the report is built on a social post. Read the source, not the headline.",
           "bullets": [
-            "A board member posted a translation of Ashin's latest Threads update.",
-            "The thread is mostly fans comparing the wording with the official post.",
-            "No new tour dates were announced in the post."
+            "The report says 石頭 is leaving the band; the wording is based on a social post.",
+            "阿信 later posted a late-night message that fans are reading as a response.",
+            "No official statement from 相信音樂 has been linked in the report."
           ]
         },
         {
@@ -196,24 +203,6 @@
           ]
         },
         {
-          "card_id": "d4a3f6e5b7c8192a",
-          "why": "The model card is where the safety claims and the evaluation numbers meet.",
-          "bullets": [
-            "The new card adds evaluations for long-horizon agent tasks.",
-            "Anthropic says the model is available in the API today.",
-            "The release notes flag a higher price for the largest context tier."
-          ]
-        },
-        {
-          "card_id": "c9f8e1d0a2b36e7f",
-          "why": "Tax and residency details behind the family-office headline.",
-          "bullets": [
-            "The package includes tax concessions for qualifying family offices.",
-            "Officials say the application process will be streamlined.",
-            "The article does not yet give the full eligibility criteria."
-          ]
-        },
-        {
           "card_id": "a9d8c1b0e2f36820",
           "why": "A live phishing kit that proxies the real Microsoft login; the session-cookie detail is the tell.",
           "bullets": [
@@ -221,6 +210,36 @@
             "Attackers are using compromised business accounts to send the lures.",
             "The report lists the domains and the response steps."
           ]
+        },
+        {
+          "card_id": "b0e9d2c1f3a4792b",
+          "why": "A good reminder that the boring fix — patching the VPN — is the one that keeps being skipped.",
+          "bullets": [
+            "The crew is re-entering through an unpatched VPN appliance.",
+            "The report traces the same initial access across several victims.",
+            "The fix is available; the article explains why it is not always applied."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "b2c3d4e5f6071829",
+          "why": "A practical open-source way to test agent tool use before it is exposed to real users.",
+          "bullets": [
+            "The tool traces how untrusted text reaches an agent's tool calls and where it can change an action.",
+            "It ships with a small set of test cases for browser, email and file-reading agents.",
+            "The project is early and designed for authorised testing, not production scanning."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "c3d4e5f60718293a",
+          "why": "An actively exploited edge-device flaw is the kind of CVE that needs a patch decision this week, not next quarter.",
+          "bullets": [
+            "CISA added a new Ivanti Connect Secure vulnerability to the Known Exploited Vulnerabilities catalog.",
+            "The entry says exploitation has been observed and gives agencies a fixed remediation deadline.",
+            "The vendor advisory lists the affected versions and the mitigation path."
+          ],
+          "summary_source": "ai"
         }
       ]
     },
@@ -1155,6 +1174,112 @@
       "updated": "2026-11-03T16:41:00+08:00",
       "cluster_size": 1,
       "lang": "en"
+    },
+    {
+      "id": "a1b2c3d4e5f60718",
+      "topic": "ai",
+      "headline": "openGym adds an optional AI coach and an MCP server for your training log",
+      "headline_lang": "en",
+      "publisher": "GitHub",
+      "published": "2026-11-04T02:30:00+08:00",
+      "url": "https://github.com/DuarteSantos8/openGym",
+      "bullets": [
+        "openGym is a self-hosted gym and body-weight tracker with an optional AI coach.",
+        "The coach drafts routines and proposes changes; every change waits for user approval.",
+        "A separate read-only MCP server exposes training history to clients such as Claude Desktop."
+      ],
+      "why": "A new open-source tool shows how an AI coach and MCP can sit on top of a useful, non-AI product.",
+      "sources": [
+        {
+          "title": "DuarteSantos8/openGym",
+          "url": "https://github.com/DuarteSantos8/openGym",
+          "publisher": "GitHub",
+          "published": "2026-11-04T02:30:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.86,
+      "score": 0.81,
+      "first_seen": "2026-11-04T02:30:00+08:00",
+      "updated": "2026-11-04T02:30:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "Tool"
+      ]
+    },
+    {
+      "id": "b2c3d4e5f6071829",
+      "topic": "rt",
+      "headline": "New red-team tool maps prompt injection paths across agent tool calls",
+      "headline_lang": "en",
+      "publisher": "GitHub",
+      "published": "2026-11-04T02:30:00+08:00",
+      "url": "https://github.com/example/agent-redteam",
+      "bullets": [
+        "The tool traces how untrusted text reaches an agent's tool calls and where it can change an action.",
+        "It ships with a small set of test cases for browser, email and file-reading agents.",
+        "The project is early and designed for authorised testing, not production scanning."
+      ],
+      "why": "A practical open-source way to test agent tool use before it is exposed to real users.",
+      "sources": [
+        {
+          "title": "agent-redteam",
+          "url": "https://github.com/example/agent-redteam",
+          "publisher": "GitHub",
+          "published": "2026-11-04T02:30:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.74,
+      "score": 0.68,
+      "first_seen": "2026-11-04T02:30:00+08:00",
+      "updated": "2026-11-04T02:30:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "AI",
+        "Tool"
+      ]
+    },
+    {
+      "id": "c3d4e5f60718293a",
+      "topic": "rt",
+      "headline": "CISA adds an actively exploited Ivanti flaw to its must-patch list",
+      "headline_lang": "en",
+      "publisher": "CISA",
+      "published": "2026-11-04T02:30:00+08:00",
+      "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+      "bullets": [
+        "CISA added a new Ivanti Connect Secure vulnerability to the Known Exploited Vulnerabilities catalog.",
+        "The entry says exploitation has been observed and gives agencies a fixed remediation deadline.",
+        "The vendor advisory lists the affected versions and the mitigation path."
+      ],
+      "why": "An actively exploited edge-device flaw is the kind of CVE that needs a patch decision this week, not next quarter.",
+      "sources": [
+        {
+          "title": "Known Exploited Vulnerabilities Catalog",
+          "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+          "publisher": "CISA",
+          "published": "2026-11-04T02:30:00+08:00"
+        },
+        {
+          "title": "Ivanti security advisory",
+          "url": "https://forums.ivanti.com/s/",
+          "publisher": "Ivanti",
+          "published": "2026-11-04T02:30:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.88,
+      "score": 0.79,
+      "first_seen": "2026-11-04T02:30:00+08:00",
+      "updated": "2026-11-04T02:30:00+08:00",
+      "cluster_size": 2,
+      "lang": "en",
+      "tags": [
+        "Exploit"
+      ]
     }
   ],
   "source_status": [

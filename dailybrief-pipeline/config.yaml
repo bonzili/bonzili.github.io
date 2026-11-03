@@ -26,30 +26,38 @@ workspaces:
       en: "Siu Gai Mo's Brief"
       zh: "Siu Gai Mo's Brief"
     description:
-      en: "AI, Hong Kong, Mayday, and cybersecurity with a HK desk."
-      zh: "AI、香港、五月天，以及全球與香港網絡安全。"
+      en: "AI models and tools, Hong Kong, Mayday, cybersecurity and red teaming."
+      zh: "AI 模型與工具、香港、五月天、網絡安全與紅隊測試。"
     lang: en
     accent: "#0B6B5D"
     cap: 12
     topic_cap: 4
     topic_caps:
-      ai: 4
+      ai: 3
       hk: 3
-      cyber: 4
-      mayday: 2
+      cyber: 3
+      rt: 2
+      mayday: 1
     tag_min:
       cyber:
         HK: 2
-    topics: [ai, hk, mayday, cyber]
+      rt:
+        AI: 1
+    tag_caps:
+      ai:
+        Tool: 1
+    topics: [ai, hk, mayday, cyber, rt]
     topic_weights:
       ai: 1.0
       hk: 1.0
       mayday: 0.9
       cyber: 0.9
+      rt: 0.95
     persona: >-
-      a Hong Kong commuter who follows AI models, local news, Mayday and
-      security. He wants the concrete change and the practical consequence,
-      not the press release. Keep it tight enough to read on a train.
+      a Hong Kong commuter who follows AI models and tools, local news,
+      Mayday, security and red teaming. He wants the concrete change and the
+      practical consequence, not the press release. Keep it tight enough to
+      read on a train.
 
   her:
     name:
@@ -84,14 +92,14 @@ workspaces:
 topics:
   ai:
     name:
-      en: "AI models"
-      zh: "AI 模型"
+      en: "AI models & tools"
+      zh: "AI 模型與工具"
     short: AI
     color: "#3157D5"
     color_dark: "#7F9BFF"
     description:
-      en: "Releases, benchmarks and the arguments around them."
-      zh: "新模型、基準測試與相關討論。"
+      en: "Model releases, benchmarks, new tools and products."
+      zh: "新模型、基準測試、新工具與產品。"
     lang: en
     max_age_hours: 72
     half_life_hours: 18
@@ -110,6 +118,24 @@ topics:
       - "open source"
       - "weights"
       - "agent"
+      - "agents"
+      - "tool"
+      - "tools"
+      - "product"
+      - "products"
+      - "plugin"
+      - "MCP"
+      - "workflow"
+      - "coding agent"
+      - "assistant"
+      - "open-source"
+      - "open source"
+      - "leaderboard"
+      - "ships"
+      - "available"
+      - "SDK"
+      - "Hugging Face"
+      - "GitHub"
       - "fine-tune"
       - "distillation"
       - "evaluation"
@@ -140,6 +166,19 @@ topics:
       - "webinar"
       - "news we announced in"
       - "roundup"
+      - "funding"
+      - "valuation"
+      - "earnings"
+      - "stock"
+      - "survey"
+      - "podcast"
+      - "hiring"
+      - "appoints"
+      - "pentest"
+      - "penetration test"
+      - "red team"
+      - "red-team"
+      - "jailbreak"
     sources:
       - id: openai-news
         name: OpenAI news
@@ -232,6 +271,201 @@ topics:
         trust: 0.72
         lang: en
         max_items: 5
+      - id: producthunt-ai
+        name: Product Hunt · AI tools
+        type: rss
+        url: https://www.producthunt.com/feed
+        trust: 0.68
+        lang: en
+        max_items: 6
+        max_age_hours: 72
+        tag: Tool
+        filter_keywords:
+          - "AI"
+          - "agent"
+          - "agents"
+          - "LLM"
+          - "LLMs"
+          - "GPT"
+          - "Claude"
+          - "Gemini"
+          - "MCP"
+          - "model"
+          - "models"
+          - "prompt"
+          - "copilot"
+          - "assistant"
+          - "machine learning"
+          - "open source"
+          - "open-source"
+        exclude_keywords:
+          - "dating"
+          - "crypto"
+          - "NFT"
+          - "SEO"
+          - "sales"
+          - "marketing"
+          - "CRM"
+          - "template"
+          - "boilerplate"
+          - "real estate"
+          - "hiring"
+          - "job"
+      - id: github-trending-ai
+        name: GitHub Trending · AI
+        type: github_trending
+        url: https://github.com/trending?since=daily
+        trust: 0.72
+        lang: en
+        max_items: 6
+        min_stars_today: 80
+        tag: Tool
+        filter_keywords:
+          - "AI"
+          - "LLM"
+          - "LLMs"
+          - "GPT"
+          - "Claude"
+          - "Gemini"
+          - "MCP"
+          - "model"
+          - "models"
+          - "RAG"
+          - "prompt"
+          - "diffusion"
+          - "transformer"
+          - "openai"
+          - "anthropic"
+          - "deepseek"
+          - "qwen"
+          - "llama"
+          - "copilot"
+        exclude_keywords:
+          - "awesome"
+          - "curated"
+          - "interview"
+          - "course"
+          - "tutorial"
+          - "roadmap"
+          - "cheat sheet"
+          - "books"
+          - "papers"
+          - "notes"
+          - "examples"
+      - id: github-ai-agents
+        name: GitHub · new AI agent tools
+        type: github_search
+        query: "topic:ai-agents"
+        created_days: 7
+        min_stars: 150
+        sort: stars
+        order: desc
+        trust: 0.70
+        lang: en
+        max_items: 4
+        tag: Tool
+        exclude_keywords:
+          - "awesome"
+          - "curated"
+          - "course"
+          - "tutorial"
+          - "roadmap"
+          - "interview"
+          - "notes"
+          - "papers"
+          - "books"
+      - id: huggingface-blog
+        name: Hugging Face blog
+        type: rss
+        url: https://huggingface.co/blog/feed.xml
+        trust: 0.85
+        lang: en
+        max_items: 4
+        max_age_hours: 120
+        fetch_content: true
+        content_limit: 4
+        tag: Model
+        filter_keywords:
+          - "model"
+          - "models"
+          - "release"
+          - "agent"
+          - "agents"
+          - "benchmark"
+          - "inference"
+          - "open-weight"
+          - "open weights"
+          - "multimodal"
+          - "speech"
+          - "image"
+          - "diffusers"
+          - "ASR"
+        exclude_keywords:
+          - "course"
+          - "event"
+          - "webinar"
+          - "hiring"
+          - "case study"
+      - id: google-open-source
+        name: Google Open Source blog
+        type: rss
+        url: https://opensource.googleblog.com/feeds/posts/default
+        trust: 0.85
+        lang: en
+        max_items: 5
+        max_age_hours: 336
+        tag: Tool
+        filter_keywords:
+          - "AI"
+          - "model"
+          - "models"
+          - "agent"
+          - "agents"
+          - "plugin"
+          - "open source"
+          - "open-source"
+        exclude_keywords:
+          - "This Week in Open Source"
+          - "GSoC"
+          - "competition"
+          - "recap"
+          - "roundup"
+      - id: google-news-ai-tools
+        name: Google News · open AI tools
+        type: google_news
+        query: '"open-sources" (AI tool OR AI agent OR AI model)'
+        when: 7d
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.70
+        lang: en
+        max_items: 6
+        max_age_hours: 96
+        tag: Tool
+        exclude_keywords:
+          - "funding"
+          - "valuation"
+          - "earnings"
+          - "stock"
+          - "shares"
+          - "partnership"
+          - "survey"
+          - "webinar"
+          - "how to"
+          - "best "
+          - "listicle"
+          - "podcast"
+      - id: artificial-analysis
+        name: Artificial Analysis leaderboard
+        type: artificial_analysis
+        url: https://artificialanalysis.ai/leaderboards/models
+        trust: 0.88
+        lang: en
+        max_items: 1
+        tag: Benchmark
+        refresh_days: 7
+
   hk:
     name:
       en: "Hong Kong"
@@ -1321,14 +1555,6 @@ topics:
         lang: en
         max_items: 6
         tag: Global
-      - id: cisa-kev
-        name: CISA Known Exploited Vulnerabilities
-        type: kev
-        trust: 0.98
-        lang: en
-        max_items: 5
-        days: 7
-        tag: Global
       - id: google-news-hk-breach
         name: Google News · 香港資料外洩
         type: google_news
@@ -1400,3 +1626,212 @@ topics:
         lang: zh-HK
         max_items: 5
         tag: HK
+
+  rt:
+    name:
+      en: "Red Teaming"
+      zh: "紅隊測試"
+    short: RT
+    color: "#A33A4A"
+    color_dark: "#FF8C9E"
+    description:
+      en: "AI red teaming, offensive tooling, exploits and the CVEs that matter."
+      zh: "AI 紅隊測試、攻擊工具、漏洞利用與重要 CVE。"
+    lang: en
+    max_age_hours: 720
+    half_life_hours: 96
+    min_score: 0.08
+    boost_factor: 1.12
+    penalty_factor: 0.45
+    boost_keywords:
+      - "red team"
+      - "red-team"
+      - "red teaming"
+      - "adversarial"
+      - "jailbreak"
+      - "prompt injection"
+      - "exploit"
+      - "exploited"
+      - "zero-day"
+      - "CVE"
+      - "PoC"
+      - "proof-of-concept"
+      - "vulnerability"
+      - "RCE"
+      - "remote code execution"
+      - "privilege escalation"
+      - "pentest"
+      - "penetration test"
+      - "offensive security"
+      - "LLM security"
+      - "AI security"
+      - "agent security"
+      - "model evaluation"
+      - "紅隊"
+      - "越獄"
+      - "提示注入"
+      - "漏洞"
+      - "攻擊"
+    penalty_keywords:
+      - "survey"
+      - "webinar"
+      - "award"
+      - "tips"
+      - "awareness"
+      - "guide"
+      - "podcast"
+      - "course"
+      - "certification"
+      - "bootcamp"
+      - "conference"
+      - "summit"
+      - "hiring"
+    exclude_keywords:
+      - "Gartner Predicts"
+      - "predicts"
+      - "survey"
+      - "webinar"
+      - "award"
+      - "tips"
+      - "awareness"
+      - "how to"
+      - "guide"
+      - "listicle"
+      - "course"
+      - "bootcamp"
+      - "certification"
+      - "job"
+      - "hiring"
+      - "podcast"
+      - "sponsored"
+      - "advertisement"
+      - "press release"
+      - "top "
+      - "skills"
+      - "we are not ready"
+      - "opinion"
+      - "analysis"
+      - "what we"
+      - "needs a"
+      - "why "
+    sources:
+      - id: google-news-rt-ai
+        name: Google News · AI red teaming
+        type: google_news
+        query: '"AI red teaming" OR "LLM red team" OR "prompt injection" OR "jailbreak benchmark"'
+        when: 7d
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.72
+        lang: en
+        max_items: 6
+        max_age_hours: 168
+        tag: AI
+      - id: google-news-rt-exploit
+        name: Google News · exploits & CVEs
+        type: google_news
+        query: '"exploited vulnerability" OR "zero-day" OR "CVE-2026"'
+        when: 7d
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.74
+        lang: en
+        max_items: 6
+        max_age_hours: 168
+        tag: Exploit
+      - id: cisa-kev-rt
+        name: CISA Known Exploited Vulnerabilities
+        type: kev
+        trust: 0.98
+        lang: en
+        max_items: 4
+        days: 7
+        tag: Exploit
+      - id: project-zero
+        name: Google Project Zero
+        type: rss
+        url: https://googleprojectzero.blogspot.com/feeds/posts/default
+        trust: 0.90
+        lang: en
+        max_items: 4
+        max_age_hours: 336
+        tag: Exploit
+      - id: github-redteam-new
+        name: GitHub · new offensive-security tools
+        type: github_search
+        query: "topic:offensive-security"
+        created_days: 30
+        min_stars: 30
+        sort: stars
+        order: desc
+        trust: 0.72
+        lang: en
+        max_items: 4
+        tags: [Tool]
+        exclude_keywords:
+          - "awesome"
+          - "curated"
+          - "reference"
+          - "course"
+          - "tutorial"
+          - "roadmap"
+          - "interview"
+          - "notes"
+          - "papers"
+          - "books"
+          - "list"
+          - "dsh"
+          - "破甲"
+          - "training"
+          - "labs"
+      - id: github-llmsec-new
+        name: GitHub · LLM security tools
+        type: github_search
+        query: "topic:llm-security"
+        created_days: 14
+        min_stars: 20
+        sort: stars
+        order: desc
+        trust: 0.72
+        lang: en
+        max_items: 4
+        tags: [AI, Tool]
+        exclude_keywords:
+          - "awesome"
+          - "curated"
+          - "reference"
+          - "course"
+          - "tutorial"
+          - "roadmap"
+          - "interview"
+          - "notes"
+          - "papers"
+          - "books"
+          - "list"
+          - "dsh"
+          - "破甲"
+      - id: github-cve-poc
+        name: GitHub · new CVE PoCs
+        type: github_search
+        query: "CVE-2026 in:name,description"
+        created_days: 14
+        min_stars: 10
+        sort: stars
+        order: desc
+        trust: 0.70
+        lang: en
+        max_items: 4
+        dedupe_cves: true
+        tags: [Exploit, Tool]
+        exclude_keywords:
+          - "awesome"
+          - "curated"
+          - "course"
+          - "tutorial"
+          - "roadmap"
+          - "interview"
+          - "notes"
+          - "papers"
+          - "books"

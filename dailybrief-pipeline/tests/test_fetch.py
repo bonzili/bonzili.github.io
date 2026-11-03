@@ -1,0 +1,79 @@
+from __future__ import annotations
+
+import json
+import sys
+import unittest
+from datetime import datetime
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from fetch import (
+    artificial_analysis_item, contains_keyword, parse_artificial_analysis,
+    parse_count,
+)
+from util import HKT
+
+
+AA_HTML = """
+<html><head>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Which AI model ranks #1 on the LLM Leaderboard?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Gemini 4 Carbon (High) currently ranks #1 on the Artificial Analysis LLM Leaderboard with an Intelligence Index score of 59, out of 91 models ranked."}
+    },
+    {
+      "@type": "Question",
+      "name": "What are the top models on the LLM Leaderboard?",
+      "acceptedAnswer": {"@type": "Answer", "text": "The top models by Intelligence Index are: 1. Gemini 4 Carbon (High) (59), 2. Claude Opus 5.5 (Max, Default Fallback) (58), 3. Gemini 4 Carbon (Medium) (58)."}
+    },
+    {
+      "@type": "Question",
+      "name": "Which is the best open weights model on the leaderboard?",
+      "acceptedAnswer": {"@type": "Answer", "text": "DeepSeek V4.1 Flash is the highest-ranked open weights model with an Intelligence Index score of 32."}
+    }
+  ]
+}
+</script>
+</head><body></body></html>
+"""
+
+
+class FetchTests(unittest.TestCase):
+    def test_keyword_matches_common_plurals(self):
+        self.assertTrue(contains_keyword("two new models", "model"))
+        self.assertTrue(contains_keyword("three CVEs", "CVE"))
+        self.assertTrue(contains_keyword("patches released", "patch"))
+        self.assertFalse(contains_keyword("modelled data", "model"))
+
+    def test_parse_count(self):
+        self.assertEqual(parse_count("1,234 stars today"), 1234)
+        self.assertEqual(parse_count("no digits"), 0)
+
+    def test_artificial_analysis_faq_is_parsed(self):
+        parsed = parse_artificial_analysis(AA_HTML)
+        self.assertIn("Gemini 4 Carbon", parsed["top"])
+        self.assertIn("score of 59", parsed["top1"])
+        self.assertIn("DeepSeek", parsed["open_weights"])
+
+    def test_artificial_analysis_item_headline_uses_top_score(self):
+        parsed = parse_artificial_analysis(AA_HTML)
+        source = {
+            "id": "artificial-analysis", "name": "Artificial Analysis",
+            "topic": "ai", "tags": ["Benchmark"],
+            "url": "https://artificialanalysis.ai/leaderboards/models",
+        }
+        item = artificial_analysis_item(parsed, source, datetime(2026, 11, 4, 7, 0, tzinfo=HKT))
+        self.assertIn("Gemini 4 Carbon (High)", item["title"])
+        self.assertIn("(59)", item["title"])
+        self.assertIn("Benchmark", item["tags"])
+        self.assertIn("top models", item["summary"])
+
+
+if __name__ == "__main__":
+    unittest.main()
