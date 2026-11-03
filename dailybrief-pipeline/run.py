@@ -270,6 +270,7 @@ def build(args: argparse.Namespace) -> int:
                 "card_id": card["id"],
                 "why": result["why"],
                 "bullets": result["bullets"],
+                "summary_source": result.get("mode", "extractive"),
             })
         workspace_picks[workspace_id] = picks
 

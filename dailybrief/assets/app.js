@@ -66,6 +66,10 @@
       caughtUpKicker: 'Read',
       caughtUpTitle: "You're caught up.",
       caughtUpBody: 'Everything in this edition has already been read. New stories land with the next edition.',
+      source: 'source', sources: 'sources', comment: 'comment', comments: 'comments',
+      singleSource: 'Single source', excerpt: 'Excerpt',
+      howItWorks: 'How this works', aboutTitle: 'How this works',
+      aboutSub: 'Twice-daily collection, a finite brief, and a static app.',
       loaded: 'Loaded.',
       refreshed: 'Brief refreshed.',
       refreshFailed: "Couldn't refresh. Showing the last edition on this phone.",
@@ -125,6 +129,10 @@
       caughtUpKicker: '已讀',
       caughtUpTitle: '你已讀完。',
       caughtUpBody: '此版本的所有內容都已讀過。下一版會有新內容。',
+      source: '來源', sources: '來源', comment: '留言', comments: '留言',
+      singleSource: '單一來源', excerpt: '原文摘錄',
+      howItWorks: '運作方式', aboutTitle: '運作方式',
+      aboutSub: '每日兩次抓取、有限簡報、靜態應用程式。',
       loaded: '已載入。',
       refreshed: '簡報已更新。',
       refreshFailed: '無法更新，顯示這部手機上次的版本。',
@@ -373,7 +381,7 @@
     if (!parts.length) return { view: 'today' };
     if (parts[0] === 'topic') return { view: 'topic', param: decodeURIComponent(parts[1] || '') };
     if (parts[0] === 'archive') return { view: 'archive', param: parts[1] ? decodeURIComponent(parts[1]) : '' };
-    if (['today', 'topics', 'saved', 'archive', 'sources'].includes(parts[0])) {
+    if (['today', 'topics', 'saved', 'archive', 'sources', 'about'].includes(parts[0])) {
       return { view: parts[0] };
     }
     return { view: 'today' };
@@ -720,6 +728,7 @@
       case 'saved': return renderSaved();
       case 'archive': return route.param ? renderArchiveEdition() : renderArchive();
       case 'sources': return renderSources();
+      case 'about': return renderAbout();
       case 'today':
       default: return renderBrief({ archive: false });
     }
@@ -767,7 +776,12 @@
     }
 
     const stories = picks.map(({ card, pick }, index) => renderStory(card, pick, index)).join('');
-    return `${hero}<div class="stories">${stories}</div>${renderSourceFooter(failed)}`;
+    const hiddenNote = hiddenCount
+      ? `<p class="footer-note">${esc(isZH()
+        ? `${hiddenCount} 則先前已讀的故事未顯示於此版本。`
+        : `${hiddenCount} previously read ${hiddenCount === 1 ? 'story' : 'stories'} hidden from this edition.`)}</p>`
+      : '';
+    return `${hero}<div class="stories">${stories}</div>${hiddenNote}${renderSourceFooter(failed)}`;
   }
 
   function renderSourceFooter(failed) {
@@ -775,9 +789,11 @@
     if (!statuses.length) return '';
     const total = statuses.length;
     const text = failed
-      ? `${failed} ${esc(t('sourceFailures'))} / ${total} ${esc(t('sourcesChecked'))}`
+      ? (isZH()
+        ? `${failed} 個來源失敗 / ${total} 個來源已檢查`
+        : `${failed} ${failed === 1 ? 'source' : 'sources'} failed / ${total} sources checked`)
       : esc(t('allSources'));
-    return `<p class="footer-note">${text} · <a href="#/sources">${esc(t('sourceHealth'))}</a></p>`;
+    return `<p class="footer-note">${text} · <a href="#/sources">${esc(t('sourceHealth'))}</a> · <a href="#/about">${esc(t('howItWorks'))}</a></p>`;
   }
 
   function renderStory(card, pick, index) {
@@ -790,6 +806,9 @@
     const why = pick?.why || card.why || '';
     const comments = Array.isArray(card.comments) ? card.comments.slice(0, 5) : [];
     const sources = Array.isArray(card.sources) ? card.sources.slice(0, 5) : [];
+    const sourceCount = Number(card.cluster_size || sources.length || 0);
+    const commentCount = comments.length;
+    const summarySource = pick?.summary_source || (pick ? '' : 'extractive');
     const read = isRead(card.id);
     const open = false;
     const saved = isSaved(card.id);
@@ -835,6 +854,13 @@
         </a>`;
       }).join('')}</div>` : '';
 
+    const signalParts = [];
+    if (sourceCount) signalParts.push(`<span>${sourceCount} ${esc(sourceCount === 1 ? t('source') : t('sources'))}</span>`);
+    if (commentCount) signalParts.push(`<span>${commentCount} ${esc(commentCount === 1 ? t('comment') : t('comments'))}</span>`);
+    if (sourceCount === 1) signalParts.push(`<span class="signal signal--warn">${esc(t('singleSource'))}</span>`);
+    if (summarySource === 'extractive') signalParts.push(`<span class="signal signal--muted">${esc(t('excerpt'))}</span>`);
+    const signals = signalParts.join('<span class="signal-sep" aria-hidden="true">·</span>');
+
     const summary = `
       <button class="story__summary" type="button" data-action="toggle-story" data-card-id="${cardId}" aria-expanded="${open}" aria-controls="${esc(bodyId)}">
         <span class="story__top">
@@ -845,7 +871,10 @@
         </span>
         <span class="story__headline" role="heading" aria-level="2" lang="${esc(card.headline_lang || 'en')}" title="${esc(card.headline || '')}">${esc(card.headline || '')}</span>
         ${why ? `<span class="story__why" lang="${esc(contentLang)}"><span class="why-mark" aria-hidden="true">→</span>${esc(why)}</span>` : ''}
-        <span class="story__cue">${esc(t('open'))} ${icons.chevron}</span>
+        <span class="story__footline">
+          <span class="story__signals">${signals}</span>
+          <span class="story__cue">${esc(t('open'))} ${icons.chevron}</span>
+        </span>
       </button>`;
 
     return `
@@ -1030,9 +1059,46 @@
     </div>`;
   }
 
+  function renderAbout() {
+    return `<div class="list-page">
+      <a class="back-link" href="#/today">${icons.arrowLeft}${esc(t('backToday'))}</a>
+      <div class="page-head">
+        <p class="eyebrow"><span class="eyebrow__dot"></span>${esc(t('howItWorks'))}</p>
+        <h1 class="brief-title">${esc(t('aboutTitle'))}</h1>
+        <p class="brief-sub">${esc(t('aboutSub'))}</p>
+      </div>
+      <div class="about">
+        <section class="about__item">
+          <h2>Twice a day</h2>
+          <p>At 07:00 and 18:00 HKT, GitHub Actions fetches the public sources, selects the finite brief, and deploys a new static edition. A manual run does the same.</p>
+        </section>
+        <section class="about__item">
+          <h2>Refresh is not a fetch</h2>
+          <p>The refresh button only reloads the latest deployed edition. It does not fetch upstream sources, run GitHub Actions, or call Gemini.</p>
+        </section>
+        <section class="about__item">
+          <h2>Summaries</h2>
+          <p>Only the selected cards go to Gemini 3.8 Flash on the free tier. If a summary is unavailable or contains an unsupported number, that card falls back to a source excerpt. Headlines, bullets and takeaways stay in the source language; the interface is English.</p>
+        </section>
+        <section class="about__item">
+          <h2>Reading</h2>
+          <p>Opening a card marks it read on this device. Cards read in an earlier edition are hidden from the next Today, but remain under Topics, Archive and Saved. Read state is per browser and does not sync.</p>
+        </section>
+        <section class="about__item">
+          <h2>What gets prioritised</h2>
+          <p>Legal aims for at least three Hong Kong legal cards; cybersecurity aims for two Hong Kong and two global cards when available. Routine notices, vendor launches, event listings and soft news are damped.</p>
+        </section>
+        <section class="about__item">
+          <h2>Sources and trust</h2>
+          <p>Single-source cards are marked. There are no accounts, notifications, analytics, or Threads/Instagram scraping. Failed sources are listed under <a href="#/sources">Source health</a>.</p>
+        </section>
+      </div>
+    </div>`;
+  }
+
   function renderTabbar(route) {
     const active = (key) => {
-      if (key === 'today') return route.view === 'today' || route.view === 'sources' ? 'page' : null;
+      if (key === 'today') return ['today', 'sources', 'about'].includes(route.view) ? 'page' : null;
       if (key === 'topics') return route.view === 'topics' || route.view === 'topic' ? 'page' : null;
       if (key === 'saved') return route.view === 'saved' ? 'page' : null;
       if (key === 'archive') return route.view === 'archive' ? 'page' : null;

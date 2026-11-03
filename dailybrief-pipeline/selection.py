@@ -5,7 +5,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 from typing import Any
 
-from util import age_hours, clamp, iso, parse_datetime
+from util import age_hours, clamp, iso, parse_datetime, text_has_keyword
 
 
 def score_clusters(clusters: list[dict], seen: dict[str, Any], topics: dict[str, Any],
@@ -27,6 +27,15 @@ def score_clusters(clusters: list[dict], seen: dict[str, Any], topics: dict[str,
         size = min(1.0, float(cluster.get("cluster_size", 1)) / 4.0)
 
         base = 0.42 * freshness + 0.27 * trust + 0.20 * heat + 0.11 * size
+
+        # Editorial relevance: boost stories that read like developments, and
+        # damp routine notices, vendor launches, event listings and soft news.
+        text = f"{cluster.get('headline') or ''} {cluster.get('summary') or ''}"
+        if any(text_has_keyword(text, keyword) for keyword in topic.get("boost_keywords") or []):
+            base *= float(topic.get("boost_factor", 1.10))
+        if any(text_has_keyword(text, keyword) for keyword in topic.get("penalty_keywords") or []):
+            base *= float(topic.get("penalty_factor", 0.5))
+        base = clamp(base)
 
         previous = seen.get(cluster["id"])
         repeat_factor = 1.0

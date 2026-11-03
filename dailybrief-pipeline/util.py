@@ -274,6 +274,16 @@ def infer_jurisdiction(text: str, fallback: str = "") -> str:
     return fallback
 
 
+def text_has_keyword(text: str, keyword: str) -> bool:
+    haystack = str(text or "").casefold()
+    word = str(keyword or "").casefold().strip()
+    if not word:
+        return False
+    if re.search(r"[\u3400-\u9fff]", word):
+        return word in haystack
+    return re.search(rf"(?<![a-z0-9]){re.escape(word)}(?![a-z0-9])", haystack) is not None
+
+
 def age_hours(published: datetime | None, now: datetime) -> float:
     if published is None:
         return 1.0

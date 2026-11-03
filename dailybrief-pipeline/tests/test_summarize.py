@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from summarize import SummaryService
+from summarize import SummaryService, numbers_grounded
 
 
 class BrokenProvider:
@@ -18,6 +18,11 @@ class BrokenProvider:
 
 
 class SummaryFallbackTests(unittest.TestCase):
+    def test_numbers_must_appear_in_sources(self):
+        result = {"bullets": ["Revenue grew 42% this year."], "why": "A 42% jump."}
+        self.assertFalse(numbers_grounded(result, "Revenue grew 12% this year."))
+        self.assertTrue(numbers_grounded(result, "Revenue grew 42% this year."))
+
     def test_provider_crash_falls_back_to_extractive(self):
         with tempfile.TemporaryDirectory() as tmp:
             config = {"summarization": {"cache_path": str(Path(tmp) / "cache.json"), "max_calls": 4}}

@@ -73,6 +73,19 @@ def extract_json(text: str) -> dict:
         raise SummaryError(f"invalid JSON: {error}") from error
 
 
+NUMBER_RE = re.compile(r"(?<![A-Za-z0-9])(\d[\d,]*(?:\.\d+)?%?)(?![A-Za-z0-9])")
+
+
+def numbers_grounded(result: dict, source_text: str) -> bool:
+    source = str(source_text or "").casefold().replace(",", "")
+    for text in list(result.get("bullets") or []) + [result.get("why") or ""]:
+        for token in NUMBER_RE.findall(str(text)):
+            normalized = token.rstrip("%").replace(",", "")
+            if normalized and normalized not in source:
+                return False
+    return True
+
+
 def decode_response_json(response: httpx.Response, label: str) -> dict:
     try:
         return response.json()
@@ -470,17 +483,29 @@ class SummaryService:
         cached = self.cache.get(key)
         if isinstance(cached, dict) and cached.get("bullets") and cached.get("why"):
             self.cache_hits += 1
-            return {"bullets": cached["bullets"], "why": cached["why"], "cached": True}
+            return {"bullets": cached["bullets"], "why": cached["why"], "cached": True, "mode": "ai"}
 
         for provider in self.providers:
             try:
                 result = provider.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
+                source_text = " ".join(
+                    f"{item.get('title') or ''} {item.get('summary') or ''}"
+                    for item in cluster.get("items", [])
+                )
+                if not numbers_grounded(result, source_text):
+                    self.failures += 1
+                    self.provider_notes.append(f"{provider.name}: unsupported number in summary")
+                    log(f"  {provider.name} summary rejected for {card.get('id', '')}: unsupported number")
+                    fallback = self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
+                    fallback["mode"] = "extractive"
+                    return fallback
                 self.cache[key] = {
                     "bullets": result["bullets"],
                     "why": result["why"],
                     "provider": provider.name,
                     "generated_at": iso(now_hkt()),
                 }
+                result["mode"] = "ai"
                 return result
             except BudgetExceeded as error:
                 self.provider_notes.append(str(error))
@@ -506,7 +531,9 @@ class SummaryService:
                 self.providers = [p for p in self.providers if p is not provider]
                 continue
 
-        return self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
+        fallback = self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
+        fallback["mode"] = "extractive"
+        return fallback
 
     def save_cache(self) -> None:
         cutoff = now_hkt() - timedelta(days=30)
