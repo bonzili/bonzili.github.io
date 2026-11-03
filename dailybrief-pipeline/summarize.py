@@ -290,8 +290,14 @@ class GeminiProvider:
                   bullet_lang: str, why_lang: str) -> dict:
         system, user = prompt_for(card, cluster, topic, workspace, bullet_lang, why_lang)
         models = [self.model]
-        if self.model != "gemini-2.0-flash":
-            models.append("gemini-2.0-flash")
+        for candidate in (
+            "gemini-flash-latest",
+            "gemini-3-flash-preview",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+        ):
+            if candidate not in models:
+                models.append(candidate)
         last_error = None
         for model in models:
             for attempt in range(2):
