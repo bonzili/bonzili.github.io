@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-04T02:37:39+08:00",
+  "updated_at": "2026-11-04T03:43:45+08:00",
   "editions": [
     {
-      "file": "2026-11-04-0237.json",
-      "generated_at": "2026-11-04T02:37:39+08:00",
+      "file": "2026-11-04-0343.json",
+      "generated_at": "2026-11-04T03:43:45+08:00",
       "edition_label": {
         "en": "Night",
         "zh": "深夜"
