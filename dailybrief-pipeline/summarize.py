@@ -274,6 +274,17 @@ class GeminiProvider:
         self.model = model
         self.budget = budget
         self.client = httpx.Client(timeout=httpx.Timeout(45.0, connect=10.0))
+        self.last_request = 0.0
+        # Roughly 8 RPM, comfortably inside the Gemini free-tier per-minute
+        # limits while still finishing ~20 cards in about two minutes.
+        self.min_interval = 7.0
+
+    def _throttle(self) -> None:
+        now = time.monotonic()
+        wait = self.min_interval - (now - self.last_request)
+        if wait > 0:
+            time.sleep(wait)
+        self.last_request = time.monotonic()
 
     def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
                   bullet_lang: str, why_lang: str) -> dict:
@@ -285,6 +296,7 @@ class GeminiProvider:
         for model in models:
             for attempt in range(2):
                 self.budget.spend()
+                self._throttle()
                 url = (
                     "https://generativelanguage.googleapis.com/v1beta/models/"
                     f"{model}:generateContent"

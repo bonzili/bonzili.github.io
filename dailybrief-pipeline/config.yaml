@@ -10,7 +10,8 @@ summarization:
   # auto = GitHub Models first (built-in GITHUB_TOKEN, free and cannot bill),
   # then Gemini only if no GitHub token and a free key exists, else extractive.
   # There is no paid provider.
-  provider: auto
+  # This deployment is configured for the free AI Studio key (no billing).
+  provider: gemini
   # Hard stop. 20 picks normally needs ~20 calls; retries and shared cards can
   # use a few more. At 36 the pipeline stops calling and uses extractive text.
   max_calls: 36

@@ -91,6 +91,10 @@ can be charged. Use a free AI Studio key created without a billing account. If
 you are not sure, do not add the secret — the default GitHub Models path needs
 no extra key and cannot bill.
 
+This deployment is configured for **Gemini free tier only** (`provider: gemini`),
+with no paid fallback. If Gemini is unavailable or rate-limited, the brief uses
+extractive text instead.
+
 The post at `https://bonzili.me/dailybrief/` is public but `noindex,nofollow`.
 It is not authentication-protected. Do not put private data in the sources.
 There are no accounts, cookies, analytics, tracking scripts or third-party
