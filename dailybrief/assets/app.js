@@ -1078,7 +1078,7 @@
         </section>
         <section class="about__item">
           <h2>Summaries</h2>
-          <p>Only the selected cards go to Gemini 3.8 Flash on the free tier. If a summary is unavailable or contains an unsupported number, that card falls back to a source excerpt. Headlines, bullets and takeaways stay in the source language; the interface is English.</p>
+          <p>Only the selected cards go to Gemini 3.5 Flash-Lite on the free tier. If a summary is unavailable or contains an unsupported number, that card falls back to a source excerpt. Headlines, bullets and takeaways stay in the source language; the interface is English.</p>
         </section>
         <section class="about__item">
           <h2>Reading</h2>

@@ -96,7 +96,7 @@ you are not sure, do not add the secret — the default GitHub Models path needs
 no extra key and cannot bill.
 
 This deployment is configured for **Gemini free tier only** (`provider: gemini`),
-with no paid fallback. The current model is `gemini-3.8-flash`, which is a
+with no paid fallback. The current model is `gemini-3.5-flash-lite`, which is a
 free-tier model at the time of writing. If Gemini is unavailable or
 rate-limited, the brief uses extractive text instead.
 

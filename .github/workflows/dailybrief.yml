@@ -41,9 +41,9 @@ jobs:
             dailybrief-pipeline/.cache
             dailybrief/data/archive
             dailybrief/data/today.json
-          key: dailybrief-state-${{ github.run_id }}-${{ github.run_attempt }}
+          key: dailybrief-state-v2-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            dailybrief-state-
+            dailybrief-state-v2-
 
       - name: Install pipeline dependencies
         run: python -m pip install -r dailybrief-pipeline/requirements.txt
@@ -96,7 +96,7 @@ jobs:
             dailybrief-pipeline/.cache
             dailybrief/data/archive
             dailybrief/data/today.json
-          key: dailybrief-state-${{ github.run_id }}-${{ github.run_attempt }}
+          key: dailybrief-state-v2-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Set up Pages
         uses: actions/configure-pages@v5
