@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from util import (
     clean_title, first_sentence, infer_jurisdiction, is_cjk_text,
-    text_has_keyword, title_tokens,
+    summary_matches_title, text_has_keyword, title_tokens,
 )
 
 
@@ -32,6 +32,14 @@ class UtilTests(unittest.TestCase):
         self.assertTrue(text_has_keyword("New models shipped", "model"))
         self.assertTrue(text_has_keyword("Two CVEs patched", "CVE"))
         self.assertFalse(text_has_keyword("Modelled after a boat", "model"))
+
+    def test_summary_must_match_headline(self):
+        bad = ("Hong Kong seeks to balance finance growth against cyber risks",
+               "Chinese Vice-Premier He Lifeng said that building Hong Kong remains a key strategy for China as he outlined four ways for the city to boost its long-term prospects and support the country's development.")
+        good = ("Hong Kong records 15th straight quarter of growth as GDP rises 5.2%",
+                "Hong Kong's economy grew by 5.2 per cent year on year in the third quarter, marking its 15th consecutive quarter of expansion, while retail sales rose by 6.4 per cent in September.")
+        self.assertFalse(summary_matches_title(*bad))
+        self.assertTrue(summary_matches_title(*good))
 
     def test_jurisdiction_inference(self):
         self.assertEqual(infer_jurisdiction("The UPC in Milan ruled on Sandoz", "US"), "EU")

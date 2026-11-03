@@ -211,7 +211,9 @@ space).
 - Cross-language duplicates are not merged. Showing an English and a Chinese
   report separately is safer than inventing a merged fact.
 - Some publishers are paywalled. The card links to the source; the summary is
-  grounded in the feed snippet.
+  grounded in the feed snippet. SCMP feed items are checked for a mismatched
+  headline and teaser; an item whose teaser is clearly a different story is
+  dropped rather than summarised.
 - The app is public and unlisted. Read state, saved cards, muted cards and
   muted topics are local to the browser and can be cleared by iOS. There is no
   cross-device sync in v1.

@@ -185,6 +185,31 @@ def title_similarity(a: str, b: str) -> tuple[float, float]:
     return jaccard, ratio
 
 
+GENERIC_SUMMARY_TOKENS = {
+    "hong", "kong", "china", "chinese", "city", "new", "say", "says", "said",
+}
+
+
+def summary_matches_title(title: str, summary: str) -> bool:
+    """Reject feed items whose summary is clearly a different story.
+
+    RSS feeds occasionally attach a stale or unrelated teaser to a headline
+    (SCMP has done this). The LLM then writes a fluent summary of the wrong
+    text. For English news items we require at least two distinctive title
+    tokens to appear in the summary. Short product blurbs and CJK feeds are
+    left alone because their titles and summaries often paraphrase each other.
+    """
+    text = str(summary or "")
+    if len(text) < 120 or is_cjk_text(title):
+        return True
+    title_set = title_tokens(title)
+    if len(title_set) < 4:
+        return True
+    summary_set = title_tokens(text)
+    overlap = (title_set & summary_set) - GENERIC_SUMMARY_TOKENS
+    return len(overlap) >= 2
+
+
 def stable_id(topic: str, title: str) -> str:
     raw = f"{topic}|{normalize_title(title)}".encode("utf-8")
     return hashlib.sha1(raw).hexdigest()[:16]

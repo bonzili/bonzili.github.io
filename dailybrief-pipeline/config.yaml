@@ -620,6 +620,7 @@ topics:
         trust: 0.80
         lang: en
         max_items: 8
+        verify_summary: true
       - id: mingpao
         name: Ming Pao
         type: rss
@@ -1608,6 +1609,7 @@ topics:
         trust: 0.80
         lang: en
         max_items: 8
+        verify_summary: true
         tag: HK
       - id: hkfp-cyber
         name: HKFP · cyber

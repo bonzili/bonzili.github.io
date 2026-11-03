@@ -21,8 +21,8 @@ from bs4 import BeautifulSoup
 
 from util import (
     HKT, clamp, clean_html, clean_title, iso, load_json, log, log_heat,
-    now_hkt, parse_datetime, title_similarity, truncate, url_key,
-    write_json_atomic,
+    now_hkt, parse_datetime, summary_matches_title, title_similarity, truncate,
+    url_key, write_json_atomic,
 )
 
 UA = "Mozilla/5.0 (compatible; BonziliBrief/1.0; +https://bonzili.me/dailybrief/)"
@@ -163,6 +163,9 @@ async def fetch_rss(client: httpx.AsyncClient, source: dict[str, Any], now: date
             except (IndexError, AttributeError, TypeError):
                 summary = ""
         summary = clean_html(summary)
+        if source.get("verify_summary") and not summary_matches_title(title, summary):
+            log(f"  title/summary mismatch skipped: {title[:90]}")
+            continue
         published = parse_datetime(
             entry.get("published_parsed") or entry.get("updated_parsed")
             or entry.get("published") or entry.get("updated"),
