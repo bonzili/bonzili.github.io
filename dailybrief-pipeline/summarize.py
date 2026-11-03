@@ -288,9 +288,10 @@ class GeminiProvider:
         self.budget = budget
         self.client = httpx.Client(timeout=httpx.Timeout(45.0, connect=10.0))
         self.last_request = 0.0
-        # Roughly 8 RPM, comfortably inside the Gemini free-tier per-minute
-        # limits while still finishing ~20 cards in about two minutes.
+        # Roughly 5 RPM, comfortably inside the Gemini free-tier per-minute
+        # limits.
         self.min_interval = 12.0
+        self._resolved_model: str | None = None
 
     def _throttle(self) -> None:
         now = time.monotonic()
@@ -299,72 +300,99 @@ class GeminiProvider:
             time.sleep(wait)
         self.last_request = time.monotonic()
 
-    def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
-                  bullet_lang: str, why_lang: str) -> dict:
-        system, user = prompt_for(card, cluster, topic, workspace, bullet_lang, why_lang)
-        models = [self.model]
+    def _ensure_model(self) -> str:
+        if self._resolved_model:
+            return self._resolved_model
+        candidates = [self.model]
         for candidate in (
             "gemini-3.8-flash",
             "gemini-3.6-flash",
             "gemini-3.5-flash-lite",
             "gemini-3.1-flash-lite",
         ):
-            if candidate not in models:
-                models.append(candidate)
-        last_error = None
-        for model in models:
-            for attempt in range(2):
-                self.budget.spend()
-                self._throttle()
-                url = (
-                    "https://generativelanguage.googleapis.com/v1beta/models/"
-                    f"{model}:generateContent"
+            if candidate not in candidates:
+                candidates.append(candidate)
+        for candidate in candidates:
+            self.budget.spend()
+            self._throttle()
+            url = (
+                "https://generativelanguage.googleapis.com/v1beta/models/"
+                f"{candidate}:generateContent"
+            )
+            try:
+                response = self.client.post(
+                    url,
+                    headers={"x-goog-api-key": self.api_key, "Content-Type": "application/json"},
+                    json={
+                        "contents": [{"role": "user", "parts": [{"text": 'Return JSON: {"ok":true}'}]}],
+                        "generationConfig": {"temperature": 0, "maxOutputTokens": 20, "responseMimeType": "application/json"},
+                    },
                 )
-                try:
-                    response = self.client.post(
-                        url,
-                        headers={"x-goog-api-key": self.api_key, "Content-Type": "application/json"},
-                        json={
-                            "systemInstruction": {"parts": [{"text": system}]},
-                            "contents": [{"role": "user", "parts": [{"text": user}]}],
-                            "generationConfig": {
-                                "temperature": 0.2,
-                                "maxOutputTokens": 700,
-                                "responseMimeType": "application/json",
-                            },
+            except httpx.HTTPError:
+                continue
+            if response.status_code == 200:
+                self._resolved_model = candidate
+                log(f"  Gemini model selected: {candidate}")
+                return candidate
+            if response.status_code in (401, 403):
+                raise SummaryError(f"Gemini not permitted ({response.status_code})")
+            # 404: not available on this key/API; 429: try the next free model.
+        raise SummaryError("no available Gemini free-tier model")
+
+    def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
+                  bullet_lang: str, why_lang: str) -> dict:
+        system, user = prompt_for(card, cluster, topic, workspace, bullet_lang, why_lang)
+        model = self._ensure_model()
+        last_error = None
+        for attempt in range(2):
+            self.budget.spend()
+            self._throttle()
+            url = (
+                "https://generativelanguage.googleapis.com/v1beta/models/"
+                f"{model}:generateContent"
+            )
+            try:
+                response = self.client.post(
+                    url,
+                    headers={"x-goog-api-key": self.api_key, "Content-Type": "application/json"},
+                    json={
+                        "systemInstruction": {"parts": [{"text": system}]},
+                        "contents": [{"role": "user", "parts": [{"text": user}]}],
+                        "generationConfig": {
+                            "temperature": 0.2,
+                            "maxOutputTokens": 700,
+                            "responseMimeType": "application/json",
                         },
-                    )
-                    if response.status_code == 404:
-                        last_error = SummaryError(f"model {model} not available")
-                        break
-                    if response.status_code == 429:
-                        last_error = SummaryError("Gemini free-tier rate limit")
-                        if attempt == 0:
-                            time.sleep(8)
-                            continue
-                        raise last_error
-                    if response.status_code >= 500:
-                        last_error = SummaryError(f"Gemini HTTP {response.status_code}")
-                        if attempt == 0:
-                            time.sleep(3)
-                            continue
-                        raise last_error
-                    if response.status_code != 200:
-                        raise SummaryError(f"Gemini HTTP {response.status_code}: {response.text[:160]}")
-                    payload = decode_response_json(response, "Gemini")
-                    try:
-                        text = payload["candidates"][0]["content"]["parts"][0]["text"]
-                    except (KeyError, IndexError, TypeError) as error:
-                        raise SummaryError("Gemini returned no text") from error
-                    return validate_summary(extract_json(text))
-                except BudgetExceeded:
-                    raise
-                except (httpx.HTTPError, ValueError, SummaryError) as error:
-                    last_error = error
+                    },
+                )
+                if response.status_code == 429:
+                    last_error = SummaryError("Gemini free-tier rate limit")
                     if attempt == 0:
-                        time.sleep(2)
+                        time.sleep(8)
                         continue
-                    break
+                    raise last_error
+                if response.status_code >= 500:
+                    last_error = SummaryError(f"Gemini HTTP {response.status_code}")
+                    if attempt == 0:
+                        time.sleep(3)
+                        continue
+                    raise last_error
+                if response.status_code != 200:
+                    raise SummaryError(f"Gemini HTTP {response.status_code}: {response.text[:160]}")
+                payload = decode_response_json(response, "Gemini")
+                try:
+                    text = payload["candidates"][0]["content"]["parts"][0]["text"]
+                except (KeyError, IndexError, TypeError) as error:
+                    raise SummaryError("Gemini returned no text") from error
+                return validate_summary(extract_json(text))
+            except BudgetExceeded:
+                raise
+            except (httpx.HTTPError, ValueError, SummaryError) as error:
+                last_error = error
+                if attempt == 0:
+                    time.sleep(2)
+                    continue
+                break
         raise SummaryError(str(last_error or "Gemini failed"))
 
 
