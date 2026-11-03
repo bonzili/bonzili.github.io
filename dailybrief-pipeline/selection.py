@@ -47,11 +47,11 @@ def score_clusters(clusters: list[dict], seen: dict[str, Any], topics: dict[str,
             last_seen = parse_datetime(previous.get("last_seen"), None)
             hours_since = ((now - last_seen).total_seconds() / 3600.0) if last_seen else 999.0
             if new_sources:
-                repeat_factor = 0.92
+                repeat_factor = 0.95
             elif hours_since <= 36:
-                repeat_factor = 0.70
+                repeat_factor = 0.85
             else:
-                repeat_factor = 0.50
+                repeat_factor = 0.65
 
         score = clamp(base * repeat_factor)
         if score < 0.02:
