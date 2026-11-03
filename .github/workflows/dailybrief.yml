@@ -40,6 +40,7 @@ jobs:
           path: |
             dailybrief-pipeline/.cache
             dailybrief/data/archive
+            dailybrief/data/today.json
           key: dailybrief-state-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             dailybrief-state-
@@ -94,6 +95,7 @@ jobs:
           path: |
             dailybrief-pipeline/.cache
             dailybrief/data/archive
+            dailybrief/data/today.json
           key: dailybrief-state-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Set up Pages

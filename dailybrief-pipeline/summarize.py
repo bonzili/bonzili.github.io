@@ -277,7 +277,7 @@ class GeminiProvider:
         self.last_request = 0.0
         # Roughly 8 RPM, comfortably inside the Gemini free-tier per-minute
         # limits while still finishing ~20 cards in about two minutes.
-        self.min_interval = 7.0
+        self.min_interval = 12.0
 
     def _throttle(self) -> None:
         now = time.monotonic()

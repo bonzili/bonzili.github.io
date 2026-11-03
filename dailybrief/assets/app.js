@@ -63,6 +63,9 @@
       all: 'All',
       filterBy: 'Filter by practice area',
       loadingEdition: 'Loading edition…',
+      caughtUpKicker: 'Read',
+      caughtUpTitle: "You're caught up.",
+      caughtUpBody: 'Everything in this edition has already been read. New stories land with the next edition.',
       loaded: 'Loaded.',
       refreshed: 'Brief refreshed.',
       refreshFailed: "Couldn't refresh. Showing the last edition on this phone.",
@@ -119,6 +122,9 @@
       all: '全部',
       filterBy: '按範疇篩選',
       loadingEdition: '載入版本…',
+      caughtUpKicker: '已讀',
+      caughtUpTitle: '你已讀完。',
+      caughtUpBody: '此版本的所有內容都已讀過。下一版會有新內容。',
       loaded: '已載入。',
       refreshed: '簡報已更新。',
       refreshFailed: '無法更新，顯示這部手機上次的版本。',
@@ -313,6 +319,25 @@
   function isStale(iso) {
     const date = new Date(iso);
     return !Number.isNaN(date.getTime()) && Date.now() - date.getTime() > 24 * 3600 * 1000;
+  }
+
+  function briefPicks(edition, ws) {
+    return (ws?.picks || []).map((pick) => {
+      const card = edition?.cards?.find((item) => item.id === pick.card_id);
+      return card ? { card, pick } : null;
+    }).filter(Boolean);
+  }
+
+  function readInPreviousEdition(cardId, edition) {
+    const readAt = Number(state.read[cardId] || 0);
+    const editionAt = new Date(edition?.generated_at || 0).getTime();
+    return readAt > 0 && editionAt > 0 && readAt < editionAt;
+  }
+
+  function visibleBriefPicks(edition, ws, { archive = false } = {}) {
+    const all = briefPicks(edition, ws);
+    if (archive) return all;
+    return all.filter(({ card }) => !readInPreviousEdition(card.id, edition));
   }
 
   function sourceStatus() {
@@ -705,10 +730,9 @@
     if (!edition) return renderRouteLoading();
     const ws = edition.workspaces?.[state.workspaceId];
     if (!ws) return '';
-    const picks = (ws.picks || []).map((pick) => {
-      const card = edition.cards.find((item) => item.id === pick.card_id);
-      return card ? { card, pick } : null;
-    }).filter(Boolean);
+    const allPicks = briefPicks(edition, ws);
+    const picks = archive ? allPicks : allPicks.filter(({ card }) => !readInPreviousEdition(card.id, edition));
+    const hiddenCount = allPicks.length - picks.length;
     const names = topicNames(ws);
     const end = isZH() ? '。' : '.';
     const nextLine = edition.next_update
@@ -731,11 +755,13 @@
          </div>`;
 
     if (!total) {
+      const caughtUp = !archive && hiddenCount > 0;
       return `${hero}
         <div class="empty">
-          <p class="empty__kicker">${esc(t('today'))}</p>
-          <h2 class="empty__title">${esc(t('quietTitle'))}</h2>
-          <p class="empty__body">${esc(t('quietBody'))}</p>
+          <p class="empty__kicker">${esc(caughtUp ? t('caughtUpKicker') : t('today'))}</p>
+          <h2 class="empty__title">${esc(caughtUp ? t('caughtUpTitle') : t('quietTitle'))}</h2>
+          <p class="empty__body">${esc(caughtUp ? t('caughtUpBody') : t('quietBody'))}</p>
+          ${caughtUp ? `<a class="button button--quiet" href="#/topics">${esc(t('topics'))}</a>` : ''}
         </div>
         ${renderSourceFooter(failed)}`;
     }
@@ -1050,9 +1076,10 @@
   function updateProgress() {
     const edition = currentEdition();
     const ws = edition?.workspaces?.[state.workspaceId];
-    const picks = ws?.picks || [];
+    const route = parseHash();
+    const picks = visibleBriefPicks(edition, ws, { archive: route.view === 'archive' });
     const total = picks.length;
-    const read = picks.filter((pick) => isRead(pick.card_id)).length;
+    const read = picks.filter(({ card }) => isRead(card.id)).length;
     const pct = total ? Math.round((read / total) * 100) : 0;
     const fill = $('.progress__fill');
     const bar = $('.progress');

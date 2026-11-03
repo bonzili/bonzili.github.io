@@ -14,7 +14,7 @@ summarization:
   provider: gemini
   # Hard stop. 20 picks normally needs ~20 calls; retries and shared cards can
   # use a few more. At 36 the pipeline stops calling and uses extractive text.
-  max_calls: 36
+  max_calls: 48
   prompt_version: "2026-11-04.1"
   cache_path: dailybrief-pipeline/.cache/summaries.json
   gemini_model: gemini-3.8-flash

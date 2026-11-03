@@ -40,7 +40,11 @@ again after installing, pick the brief once inside the installed app.
 - **Topics** — the deeper list for the day. APAC legal has a tag filter (HK,
   IP, Privacy, Fintech, AI, Cyber); Cybersecurity has HK / Global tags.
 - **Saved** — stored on this phone, not synced.
-- **Archive** — morning and evening editions, kept for 30 days.
+- **Archive** — morning and evening editions, kept for 30 days. Manual runs
+  replace that day's matching slot instead of adding duplicate rows.
+- **Read state** — a card you opened in an earlier edition is hidden from the
+  next Today brief; it stays available under Topics and Archive. The state is
+  per browser, so it does not sync between phone and laptop.
 - **Source health** — every source is fetched separately, so one broken feed
   never hides the rest of the brief.
 
@@ -77,7 +81,7 @@ This project is deliberately built to avoid a surprise bill.
 | Cloudflare | Existing proxy | No Worker, KV, D1 or API token is used by this app. |
 | Sources | RSS / public APIs | No keys, no paid feeds, no authenticated scraping. |
 
-The pipeline also has a hard **36 LLM calls per run** budget. When it is
+The pipeline also has a hard **48 LLM calls per run** budget. When it is
 reached, or when the selected free provider fails, it falls back to extractive
 bullets and still deploys. There is no retry loop that can run forever. If
 GitHub Models is not enabled for the repository or organization, the run simply
@@ -92,8 +96,9 @@ you are not sure, do not add the secret — the default GitHub Models path needs
 no extra key and cannot bill.
 
 This deployment is configured for **Gemini free tier only** (`provider: gemini`),
-with no paid fallback. If Gemini is unavailable or rate-limited, the brief uses
-extractive text instead.
+with no paid fallback. The current model is `gemini-3.8-flash`, which is a
+free-tier model at the time of writing. If Gemini is unavailable or
+rate-limited, the brief uses extractive text instead.
 
 The post at `https://bonzili.me/dailybrief/` is public but `noindex,nofollow`.
 It is not authentication-protected. Do not put private data in the sources.

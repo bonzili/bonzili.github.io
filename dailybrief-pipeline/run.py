@@ -169,11 +169,19 @@ def update_archive_index(out_dir: Path, edition_path: Path, edition_data: dict[s
     editions.append(archive_index_entry(edition_path, edition_data))
     editions.sort(key=lambda entry: entry.get("generated_at") or "", reverse=True)
     cutoff = now - timedelta(days=30)
-    kept = []
+    # Keep one edition per HKT date + slot. A manual run replaces that day's
+    # Night edition instead of adding another duplicate row to the archive.
+    slots: dict[tuple[str, str], dict] = {}
     for entry in editions:
         stamp = parse_datetime(entry.get("generated_at"), None)
-        if stamp is None or stamp >= cutoff:
-            kept.append(entry)
+        if stamp is None or stamp < cutoff:
+            continue
+        label = (entry.get("edition_label") or {}).get("en") or ""
+        key = (stamp.astimezone(HKT).date().isoformat(), label)
+        current = slots.get(key)
+        if current is None or (entry.get("generated_at") or "") > (current.get("generated_at") or ""):
+            slots[key] = entry
+    kept = sorted(slots.values(), key=lambda entry: entry.get("generated_at") or "", reverse=True)
     write_json_atomic(index_path, {
         "schema": 1,
         "updated_at": iso(now),
