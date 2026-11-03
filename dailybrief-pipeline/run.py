@@ -242,6 +242,20 @@ def build(args: argparse.Namespace) -> int:
         reverse=True,
     )
 
+    # Two feeds can produce the same lead title with different URLs. The
+    # cluster id is title-based, so keep the higher-scored copy and drop the
+    # duplicate before it reaches the public card list.
+    deduped_pool = []
+    seen_pool_ids = set()
+    for cluster in pool:
+        cluster_id = cluster.get("id")
+        if cluster_id in seen_pool_ids:
+            log(f"  duplicate story id skipped: {cluster_id} ({str(cluster.get('headline') or '')[:80]})")
+            continue
+        seen_pool_ids.add(cluster_id)
+        deduped_pool.append(cluster)
+    pool = deduped_pool
+
     extractor = ExtractiveProvider()
     cards = [make_card(cluster, topics.get(cluster["topic"], {}), extractor) for cluster in pool]
     card_by_id = {card["id"]: card for card in cards}

@@ -39,6 +39,8 @@ workspaces:
       rt: 2
       mayday: 1
     tag_min:
+      ai:
+        Tool: 1
       cyber:
         HK: 2
       rt:
@@ -171,6 +173,9 @@ topics:
       - "earnings"
       - "stock"
       - "survey"
+      - "benchmark study"
+      - "study reveals"
+      - "study finds"
       - "podcast"
       - "hiring"
       - "appoints"
@@ -537,6 +542,16 @@ topics:
       - "生活援助"
       - "排名"
       - "女總裁"
+      - "支持"
+      - "融入"
+      - "發展策略"
+      - "民航發展"
+      - "表態"
+      - "祝賀"
+      - "歡迎"
+      - "拜訪"
+      - "考察"
+      - "合作備忘錄"
     exclude_keywords:
       - "#亞冠"
       - "足球"
