@@ -243,7 +243,10 @@ def build(args: argparse.Namespace) -> int:
     selected_cards = [card_by_id[cluster_id] for cluster_id in all_selected_ids if cluster_id in card_by_id]
     asyncio.run(enrich_comments(selected_cards, now, limit=6))
 
-    service = SummaryService(config, provider="extractive" if args.no_llm else (args.provider or "auto"))
+    # Pass None when no CLI override was given so the config's provider
+    # (currently gemini) is respected. Passing "auto" here would silently
+    # override the config and select GitHub Models instead.
+    service = SummaryService(config, provider="extractive" if args.no_llm else args.provider)
     workspace_picks: dict[str, list[dict]] = {}
     for workspace_id, workspace in workspaces.items():
         picks = []
