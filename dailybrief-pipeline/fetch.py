@@ -1,0 +1,617 @@
+"""Fetch and normalize public sources for the Daily Brief.
+
+Every source is isolated: a broken feed returns a status entry and never stops
+the rest of the run. No credentials are used for any source.
+"""
+from __future__ import annotations
+
+import asyncio
+import hashlib
+import json
+import re
+from datetime import datetime, timedelta
+from typing import Any
+from urllib.parse import quote_plus, urljoin
+
+import feedparser
+import httpx
+from bs4 import BeautifulSoup
+
+from util import (
+    HKT, clamp, clean_html, clean_title, iso, log, log_heat, now_hkt,
+    parse_datetime, title_similarity, truncate, url_key,
+)
+
+UA = "Mozilla/5.0 (compatible; BonziliBrief/1.0; +https://bonzili.me/dailybrief/)"
+HEADERS = {
+    "User-Agent": UA,
+    "Accept": "application/rss+xml, application/atom+xml, application/json, text/html;q=0.8, */*;q=0.5",
+}
+TIMEOUT = httpx.Timeout(30.0, connect=15.0)
+CONCURRENCY = 8
+
+
+def item_id(source_id: str, url: str, title: str) -> str:
+    raw = f"{source_id}|{url or title}".encode("utf-8")
+    return hashlib.sha1(raw).hexdigest()[:16]
+
+
+def base_item(source: dict[str, Any], *, title: str, url: str, publisher: str,
+              published: datetime | None, summary: str, now: datetime,
+              heat: float | None = None, comments: list[dict] | None = None,
+              extra: dict | None = None) -> dict[str, Any]:
+    source_tags = source.get("tags")
+    if isinstance(source_tags, str):
+        source_tags = [source_tags]
+    if not isinstance(source_tags, list):
+        source_tags = []
+    source_tags = [str(value) for value in source_tags if value]
+    if not source_tags and source.get("tag"):
+        source_tags = [str(source["tag"])]
+    item = {
+        "id": item_id(source["id"], url, title),
+        "source_id": source["id"],
+        "source_name": source.get("name") or source["id"],
+        "topic": source["topic"],
+        "title": clean_title(title, publisher),
+        "url": url,
+        "publisher": publisher or source.get("name") or source["id"],
+        "published": iso(published or now),
+        "summary": truncate(clean_html(summary), 1400),
+        "lang": source.get("lang", "en"),
+        "trust": float(source.get("trust", 0.5)),
+        "heat": clamp(float(heat if heat is not None else source.get("heat", 0.18))),
+        "comments": comments or [],
+        "tag": source.get("tag"),
+        "tags": source_tags,
+        "always_hk": bool(source.get("always_hk")),
+        "jurisdiction": source.get("jurisdiction"),
+    }
+    if extra:
+        item.update(extra)
+    return item
+
+
+def contains_keyword(haystack: str, keyword: str) -> bool:
+    word = str(keyword or "").casefold().strip()
+    if not word:
+        return False
+    if re.search(r"[\u3400-\u9fff]", word):
+        return word in haystack
+    return re.search(rf"(?<![a-z0-9]){re.escape(word)}(?![a-z0-9])", haystack) is not None
+
+
+def matches_filter(source: dict[str, Any], title: str, summary: str) -> bool:
+    haystack = f"{title} {summary}".casefold()
+    excludes = source.get("exclude_keywords") or []
+    if any(contains_keyword(haystack, keyword) for keyword in excludes):
+        return False
+    keywords = source.get("filter_keywords") or []
+    if not keywords:
+        return True
+    return any(contains_keyword(haystack, keyword) for keyword in keywords)
+
+
+def too_old(source: dict[str, Any], published: datetime | None, now: datetime) -> bool:
+    if published is None:
+        return False
+    max_hours = float(source.get("max_age_hours", 14 * 24))
+    return (now - published).total_seconds() / 3600.0 > max_hours
+
+
+async def get(client: httpx.AsyncClient, url: str, **kwargs) -> httpx.Response:
+    last_error = None
+    for attempt in range(2):
+        try:
+            response = await client.get(url, **kwargs)
+            response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError as error:
+            last_error = error
+            if attempt == 0 and error.response.status_code >= 500:
+                await asyncio.sleep(1.0)
+                continue
+            raise
+        except (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError) as error:
+            last_error = error
+            if attempt == 0:
+                await asyncio.sleep(1.0)
+                continue
+            raise
+    raise last_error or RuntimeError("request failed")
+
+
+async def fetch_rss(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    response = await get(client, source["url"])
+    parsed = feedparser.parse(response.content)
+    if parsed.bozo and not parsed.entries:
+        raise ValueError(f"feed parse error: {getattr(parsed, 'bozo_exception', 'unknown')}")
+    max_items = int(source.get("max_items", 10))
+    items: list[dict] = []
+    feed_title = clean_html(parsed.feed.get("title") if getattr(parsed, "feed", None) else "")
+    for entry in parsed.entries:
+        raw_title = entry.get("title") or ""
+        entry_source = entry.get("source")
+        entry_publisher = ""
+        if isinstance(entry_source, dict):
+            entry_publisher = clean_html(entry_source.get("title") or "")
+        publisher = entry_publisher or feed_title or source.get("name") or source["id"]
+        title = clean_title(raw_title, publisher)
+        if not title:
+            continue
+        url = entry.get("link") or entry.get("id") or ""
+        if not url:
+            continue
+        summary = entry.get("summary") or entry.get("description") or ""
+        if not summary and entry.get("content"):
+            try:
+                summary = entry["content"][0].get("value") or ""
+            except (IndexError, AttributeError, TypeError):
+                summary = ""
+        summary = clean_html(summary)
+        published = parse_datetime(
+            entry.get("published_parsed") or entry.get("updated_parsed")
+            or entry.get("published") or entry.get("updated"),
+            now - timedelta(minutes=30),
+        )
+        if too_old(source, published, now):
+            continue
+        if not matches_filter(source, title, summary):
+            continue
+        items.append(base_item(
+            source, title=title, url=url, publisher=publisher,
+            published=published, summary=summary, now=now,
+        ))
+        if len(items) >= max_items:
+            break
+    return items
+
+
+async def fetch_google_news(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    query = source["query"]
+    hl = source.get("hl", "en-US")
+    gl = source.get("gl", "US")
+    ceid = source.get("ceid", "US:en")
+    url = (
+        "https://news.google.com/rss/search?"
+        f"q={quote_plus(query)}&hl={quote_plus(hl)}&gl={quote_plus(gl)}&ceid={quote_plus(ceid)}"
+    )
+    local = dict(source)
+    local["url"] = url
+    local["name"] = source.get("name", "Google News")
+    return await fetch_rss(client, local, now)
+
+
+async def fetch_hn(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    response = await get(client, "https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=50")
+    payload = response.json()
+    keywords = [str(word).casefold() for word in (source.get("keywords") or [])]
+    min_points = int(source.get("min_points", 0))
+    max_items = int(source.get("max_items", 10))
+    items: list[dict] = []
+    for hit in payload.get("hits", []):
+        title = clean_html(hit.get("title") or "")
+        if not title:
+            continue
+        points = int(hit.get("points") or 0)
+        comments_count = int(hit.get("num_comments") or 0)
+        if points < min_points:
+            continue
+        haystack = title.casefold()
+        if keywords and not any(contains_keyword(haystack, word) for word in keywords):
+            continue
+        object_id = str(hit.get("objectID") or "")
+        url = hit.get("url") or f"https://news.ycombinator.com/item?id={object_id}"
+        published = parse_datetime(hit.get("created_at"), now)
+        if too_old(source, published, now):
+            continue
+        heat = log_heat(points + 2 * comments_count, 1200)
+        items.append(base_item(
+            source, title=title, url=url, publisher="Hacker News",
+            published=published, summary=clean_html(hit.get("story_text") or title),
+            now=now, heat=heat,
+            extra={
+                "hn_id": object_id,
+                "hn_points": points,
+                "hn_comments": comments_count,
+            },
+        ))
+        if len(items) >= max_items:
+            break
+    return items
+
+
+async def fetch_openrouter(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    response = await get(client, "https://openrouter.ai/api/v1/models")
+    payload = response.json()
+    days = float(source.get("days", 3))
+    cutoff = now - timedelta(days=days)
+    groups: dict[str, list[dict]] = {}
+    for model in payload.get("data", []):
+        created = parse_datetime(model.get("created"), None)
+        if created is None or created < cutoff:
+            continue
+        base_id = re.sub(r":(free|batch|thinking|online|extended|floor|nitro|beta)$", "", str(model.get("id") or ""))
+        if not base_id:
+            continue
+        groups.setdefault(base_id, []).append(model)
+
+    max_items = int(source.get("max_items", 6))
+    candidates = []
+    for base_id, variants in groups.items():
+        exact = next((variant for variant in variants if str(variant.get("id")) == base_id), variants[0])
+        created = parse_datetime(exact.get("created"), now) or now
+        candidates.append((created, base_id, exact))
+    candidates.sort(key=lambda row: row[0], reverse=True)
+
+    items: list[dict] = []
+    for created, base_id, model in candidates[:max_items]:
+        name = clean_html(model.get("name") or base_id)
+        context = model.get("context_length")
+        pricing = model.get("pricing") or {}
+        prompt_price = pricing.get("prompt")
+        completion_price = pricing.get("completion")
+        details = []
+        if context:
+            details.append(f"Context window: {int(context):,} tokens.")
+        if prompt_price not in (None, "", "0"):
+            details.append(f"Prompt price: {prompt_price} per token.")
+        if completion_price not in (None, "", "0"):
+            details.append(f"Completion price: {completion_price} per token.")
+        summary = clean_html(model.get("description") or "")
+        if details:
+            summary = f"{summary} {' '.join(details)}".strip()
+        items.append(base_item(
+            source, title=f"New on OpenRouter: {name}", url=f"https://openrouter.ai/{base_id}",
+            publisher="OpenRouter", published=created, summary=summary, now=now,
+            heat=0.62, extra={"model_id": base_id},
+        ))
+    return items
+
+
+PTT_SKIP = ("[公告]", "[交易]", "[買賣]", "[票務]", "[交換]", "[徵求]", "[檢舉]")
+PTT_KEEP = ("[情報]", "[心得]", "[討論]", "[新聞]", "[分享]", "[閒聊]", "[問題]")
+
+
+def parse_ptt_date(text: str, now: datetime) -> datetime | None:
+    text = (text or "").strip()
+    match = re.match(r"(\d{1,2})/(\d{1,2})", text)
+    if not match:
+        return None
+    month, day = int(match.group(1)), int(match.group(2))
+    year = now.year
+    if month > now.month + 1:
+        year -= 1
+    try:
+        return datetime(year, month, day, 12, 0, tzinfo=HKT)
+    except ValueError:
+        return None
+
+
+async def fetch_ptt(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    board = source.get("board", "MayDay")
+    index_url = f"https://www.ptt.cc/bbs/{board}/index.html"
+    response = await get(client, index_url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    rows = []
+    for row in soup.select("div.r-ent"):
+        link = row.select_one("div.title a")
+        if not link:
+            continue
+        title = clean_html(link.get_text(" ", strip=True))
+        href = link.get("href") or ""
+        if not title or not href.startswith("/bbs/") or "/M." not in href:
+            continue
+        if any(title.startswith(prefix) for prefix in PTT_SKIP):
+            continue
+        if PTT_KEEP and not any(title.startswith(prefix) for prefix in PTT_KEEP):
+            continue
+        date_text = row.select_one("div.date")
+        published = parse_ptt_date(date_text.get_text(strip=True) if date_text else "", now)
+        if published is None:
+            continue
+        rows.append((published, title, href))
+    rows.sort(key=lambda row: row[0], reverse=True)
+
+    max_items = int(source.get("max_items", 6))
+    items: list[dict] = []
+    for index_date, index_title, href in rows:
+        if len(items) >= max_items:
+            break
+        post_url = urljoin("https://www.ptt.cc", href)
+        try:
+            post_response = await get(client, post_url, headers={"Cookie": "over18=1"})
+        except Exception as error:  # one bad post should not kill the board
+            log(f"  ptt post failed: {href} ({type(error).__name__})")
+            continue
+        await asyncio.sleep(0.35)
+        post_soup = BeautifulSoup(post_response.text, "html.parser")
+        title = index_title
+        author = ""
+        published = index_date
+        for meta in post_soup.select("div.article-metaline"):
+            tag = meta.select_one("span.article-meta-tag")
+            value = meta.select_one("span.article-meta-value")
+            if not tag or not value:
+                continue
+            label = tag.get_text(strip=True)
+            if label == "標題":
+                title = clean_html(value.get_text(" ", strip=True)) or title
+            elif label == "作者":
+                author = clean_html(value.get_text(" ", strip=True))
+            elif label == "時間":
+                parsed_time = parse_datetime(value.get_text(" ", strip=True), None)
+                if parsed_time:
+                    published = parsed_time
+        main = post_soup.select_one("#main-content")
+        content = ""
+        if main:
+            for unwanted in main.select(".article-metaline, .article-metaline-right, .push, .article-footer"):
+                unwanted.decompose()
+            content = clean_html(main.get_text("\n", strip=True))
+        pushes = []
+        for push in post_soup.select("div.push"):
+            push_tag = push.select_one(".push-tag")
+            push_user = push.select_one(".push-userid")
+            push_content = push.select_one(".push-content")
+            tag_text = clean_html(push_tag.get_text(strip=True)) if push_tag else ""
+            user_text = clean_html(push_user.get_text(strip=True)) if push_user else ""
+            content_text = clean_html(push_content.get_text(" ", strip=True)) if push_content else ""
+            content_text = re.sub(r"^:\s*", "", content_text)
+            if not content_text:
+                continue
+            pushes.append({
+                "platform": "PTT",
+                "author": user_text,
+                "score": None,
+                "label": tag_text or "推",
+                "text": truncate(content_text, 320),
+                "url": post_url,
+            })
+        pushes.sort(key=lambda comment: comment.get("label") != "推")
+        heat = log_heat(len(pushes) * 4 + 1, 200)
+        items.append(base_item(
+            source, title=title, url=post_url, publisher=f"PTT {board}",
+            published=published, summary=content, now=now, heat=heat,
+            comments=pushes[:5], extra={"ptt_author": author},
+        ))
+    return items
+
+
+async def fetch_hko(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    response = await get(
+        client,
+        "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc",
+    )
+    payload = response.json()
+    if not isinstance(payload, dict) or not payload:
+        return []
+    items = []
+    for code, warning in payload.items():
+        if not isinstance(warning, dict):
+            continue
+        name = clean_html(warning.get("name") or code)
+        issued = parse_datetime(warning.get("issueTime"), now)
+        updated = parse_datetime(warning.get("updateTime"), issued or now) or issued or now
+        expires = parse_datetime(warning.get("expireTime"), None)
+        summary = f"{name} 現正生效。"
+        if issued:
+            summary += f" 發出時間：{issued.strftime('%H:%M')}。"
+        if expires:
+            summary += f" 預定屆滿：{expires.strftime('%m/%d %H:%M')}。"
+        items.append(base_item(
+            source, title=f"天氣警告：{name}", url="https://www.hko.gov.hk/tc/wxinfo/currwx/warning.htm",
+            publisher="香港天文台", published=updated, summary=summary, now=now,
+            heat=0.82, extra={"warning_code": code},
+        ))
+        if len(items) >= int(source.get("max_items", 3)):
+            break
+    return items
+
+
+async def fetch_kev(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    response = await get(
+        client,
+        "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+    )
+    payload = response.json()
+    days = float(source.get("days", 7))
+    cutoff = now - timedelta(days=days)
+    rows = []
+    for vulnerability in payload.get("vulnerabilities", []):
+        added = parse_datetime(vulnerability.get("dateAdded"), None)
+        if added is None or added < cutoff:
+            continue
+        rows.append((added, vulnerability))
+    rows.sort(key=lambda row: row[0], reverse=True)
+    items = []
+    for added, vulnerability in rows[: int(source.get("max_items", 5))]:
+        cve = vulnerability.get("cveID") or "Unknown CVE"
+        vendor = vulnerability.get("vendorProject") or ""
+        product = vulnerability.get("product") or ""
+        title = f"{cve} · {vendor} {product}".strip()
+        summary = " ".join(filter(None, [
+            vulnerability.get("vulnerabilityName"),
+            vulnerability.get("shortDescription"),
+            f"Required action: {vulnerability.get('requiredAction')}" if vulnerability.get("requiredAction") else "",
+        ]))
+        items.append(base_item(
+            source, title=title, url=f"https://nvd.nist.gov/vuln/detail/{cve}",
+            publisher="CISA", published=added, summary=summary, now=now,
+            heat=0.58, extra={"cve": cve},
+        ))
+    return items
+
+
+async def fetch_telegram(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    channel = source["channel"]
+    response = await get(client, f"https://t.me/s/{channel}")
+    soup = BeautifulSoup(response.text, "html.parser")
+    messages = soup.select("div.tgme_widget_message_wrap")
+    if not messages:
+        messages = soup.select("div.tgme_widget_message")
+    items = []
+    for message in reversed(messages):
+        text_node = message.select_one(".tgme_widget_message_text")
+        if not text_node:
+            continue
+        text = clean_html(text_node.get_text("\n", strip=True))
+        if not text:
+            continue
+        date_node = message.select_one("time[datetime]")
+        published = parse_datetime(date_node.get("datetime") if date_node else None, now)
+        post = message.get("data-post") or ""
+        url = f"https://t.me/{post}" if post else f"https://t.me/s/{channel}"
+        first_line = text.split("\n", 1)[0]
+        title = truncate(first_line, 110)
+        if not matches_filter(source, title, text):
+            continue
+        items.append(base_item(
+            source, title=title, url=url, publisher=f"Telegram · {channel}",
+            published=published, summary=text, now=now, heat=0.24,
+        ))
+        if len(items) >= int(source.get("max_items", 5)):
+            break
+    return items
+
+
+async def dispatch(client: httpx.AsyncClient, source: dict[str, Any], now: datetime) -> list[dict]:
+    adapter = source.get("type", "rss")
+    if adapter == "rss":
+        return await fetch_rss(client, source, now)
+    if adapter == "google_news":
+        return await fetch_google_news(client, source, now)
+    if adapter == "hn":
+        return await fetch_hn(client, source, now)
+    if adapter == "openrouter":
+        return await fetch_openrouter(client, source, now)
+    if adapter == "ptt":
+        return await fetch_ptt(client, source, now)
+    if adapter == "hko":
+        return await fetch_hko(client, source, now)
+    if adapter == "kev":
+        return await fetch_kev(client, source, now)
+    if adapter == "telegram":
+        return await fetch_telegram(client, source, now)
+    raise ValueError(f"unknown source type: {adapter}")
+
+
+async def fetch_all(config: dict[str, Any], active_topics: set[str], now: datetime) -> tuple[list[dict], list[dict]]:
+    topics = config.get("topics", {})
+    sources: list[dict] = []
+    for topic_id, topic in topics.items():
+        if topic_id not in active_topics:
+            continue
+        for source in topic.get("sources", []):
+            source = dict(source)
+            source.setdefault("topic", topic_id)
+            source.setdefault("name", source.get("id", "source"))
+            if not source.get("ignore_topic_filters"):
+                source["exclude_keywords"] = list(source.get("exclude_keywords") or []) + list(topic.get("exclude_keywords") or [])
+                source["filter_keywords"] = list(source.get("filter_keywords") or []) + list(topic.get("filter_keywords") or [])
+            if source.get("enabled", True):
+                sources.append(source)
+
+    semaphore = asyncio.Semaphore(CONCURRENCY)
+    statuses: list[dict] = [None] * len(sources)  # type: ignore[list-item]
+    all_items: list[dict] = []
+
+    async with httpx.AsyncClient(
+        headers=HEADERS, timeout=TIMEOUT, follow_redirects=True,
+        limits=httpx.Limits(max_connections=12, max_keepalive_connections=6),
+    ) as client:
+        async def run_one(index: int, source: dict[str, Any]) -> None:
+            async with semaphore:
+                try:
+                    items = await dispatch(client, source, now)
+                    statuses[index] = {
+                        "id": source["id"],
+                        "name": source.get("name", source["id"]),
+                        "topic": source.get("topic"),
+                        "ok": True,
+                        "items": len(items),
+                        "error": None,
+                        "fetched_at": iso(now),
+                    }
+                    all_items.extend(items)
+                except Exception as error:
+                    message = f"{type(error).__name__}: {error}"
+                    statuses[index] = {
+                        "id": source["id"],
+                        "name": source.get("name", source["id"]),
+                        "topic": source.get("topic"),
+                        "ok": False,
+                        "items": 0,
+                        "error": truncate(message, 180, ""),
+                        "fetched_at": iso(now),
+                    }
+
+        await asyncio.gather(*(run_one(index, source) for index, source in enumerate(sources)))
+
+    return all_items, [status for status in statuses if status is not None]
+
+
+async def fetch_hn_comments(client: httpx.AsyncClient, item_id_value: str, limit: int = 5) -> list[dict]:
+    response = await get(client, f"https://hn.algolia.com/api/v1/items/{item_id_value}")
+    payload = response.json()
+    comments = []
+    for child in (payload.get("children") or [])[:limit]:
+        text = clean_html(child.get("text") or "")
+        if not text:
+            continue
+        comment_id = child.get("id")
+        comments.append({
+            "platform": "HN",
+            "author": child.get("author") or "",
+            "score": None,
+            "text": truncate(text, 320),
+            "url": f"https://news.ycombinator.com/item?id={comment_id}" if comment_id else "",
+        })
+    return comments
+
+
+async def search_hn_comments(client: httpx.AsyncClient, title: str) -> list[dict]:
+    query = quote_plus(clean_title(title))
+    response = await get(
+        client,
+        f"https://hn.algolia.com/api/v1/search?query={query}&tags=story&hitsPerPage=5",
+    )
+    for hit in response.json().get("hits", []):
+        candidate = clean_html(hit.get("title") or "")
+        jaccard, ratio = title_similarity(title, candidate)
+        if max(jaccard, ratio * 0.86) >= 0.54 and hit.get("objectID"):
+            return await fetch_hn_comments(client, str(hit["objectID"]), limit=4)
+    return []
+
+
+async def enrich_comments(cards: list[dict], now: datetime, limit: int = 6) -> None:
+    """Add HN comments to selected cards, including AI stories not on the front page."""
+    targets = []
+    for card in cards:
+        for source in card.get("sources", []):
+            if source.get("hn_id"):
+                targets.append((card, source["hn_id"]))
+                break
+        if len(targets) >= limit:
+            break
+    ai_cards = [
+        card for card in cards
+        if card.get("topic") == "ai" and not card.get("comments")
+    ][:3]
+    if not targets and not ai_cards:
+        return
+    async with httpx.AsyncClient(headers=HEADERS, timeout=TIMEOUT, follow_redirects=True) as client:
+        for card, hn_id in targets:
+            if card.get("comments"):
+                continue
+            try:
+                card["comments"] = await fetch_hn_comments(client, hn_id)
+            except Exception as error:
+                log(f"  HN comments failed for {hn_id}: {type(error).__name__}")
+        for card in ai_cards:
+            if card.get("comments"):
+                continue
+            try:
+                card["comments"] = await search_hn_comments(client, card.get("headline") or "")
+            except Exception as error:
+                log(f"  HN search failed for {card.get('headline', '')[:50]}: {type(error).__name__}")

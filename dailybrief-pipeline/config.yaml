@@ -1,0 +1,1201 @@
+# Daily Brief — sources, feeds and the two finite briefs.
+# Everything here is free to fetch. No authenticated source, no paid API.
+
+timezone: Asia/Hong_Kong
+
+# Both briefs use an English interface. Article headlines, bullets and
+# takeaways stay in the language of the source (English or Traditional Chinese).
+
+summarization:
+  # auto = GitHub Models first (built-in GITHUB_TOKEN, free and cannot bill),
+  # then Gemini only if no GitHub token and a free key exists, else extractive.
+  # There is no paid provider.
+  provider: auto
+  # Hard stop. 20 picks normally needs ~20 calls; retries and shared cards can
+  # use a few more. At 36 the pipeline stops calling and uses extractive text.
+  max_calls: 36
+  prompt_version: "2026-11-04.1"
+  cache_path: dailybrief-pipeline/.cache/summaries.json
+  gemini_model: gemini-2.5-flash
+  github_model: openai/gpt-4o-mini
+
+workspaces:
+  me:
+    name:
+      en: "Siu Gai Mo's Brief"
+      zh: "Siu Gai Mo's Brief"
+    description:
+      en: "AI, Hong Kong, Mayday, and cybersecurity with a HK desk."
+      zh: "AI、香港、五月天，以及全球與香港網絡安全。"
+    lang: en
+    accent: "#0B6B5D"
+    cap: 12
+    topic_cap: 4
+    topic_caps:
+      ai: 4
+      hk: 3
+      cyber: 4
+      mayday: 2
+    tag_min:
+      cyber:
+        HK: 2
+    topics: [ai, hk, mayday, cyber]
+    topic_weights:
+      ai: 1.0
+      hk: 1.0
+      mayday: 0.9
+      cyber: 0.9
+    persona: >-
+      a Hong Kong commuter who follows AI models, local news, Mayday and
+      security. He wants the concrete change and the practical consequence,
+      not the press release. Keep it tight enough to read on a train.
+
+  her:
+    name:
+      en: "Siu Bak's Brief"
+      zh: "Siu Bak's Brief"
+    description:
+      en: "APAC legal with HK priority, Hong Kong news and 易烊千璽."
+      zh: "以香港優先的亞太法律、香港新聞與易烊千璽。"
+    lang: en
+    accent: "#8E3B4A"
+    cap: 8
+    topic_cap: 4
+    topic_caps:
+      legal: 5
+      hk: 2
+      jackson: 2
+    tag_min:
+      legal:
+        HK: 3
+    topics: [legal, hk, jackson]
+    topic_weights:
+      legal: 1.0
+      hk: 0.85
+      jackson: 0.8
+    persona: >-
+      a Hong Kong intellectual property lawyer who needs a scannable APAC
+      legal brief covering IP, data privacy, fintech, cybersecurity and AI.
+      Lead with the jurisdiction, the legal change, and the practical
+      consequence. Distinguish law from consultation and commentary. Her
+      易烊千璽 updates are a break, not work: keep them light and factual.
+
+topics:
+  ai:
+    name:
+      en: "AI models"
+      zh: "AI 模型"
+    short: AI
+    color: "#3157D5"
+    color_dark: "#7F9BFF"
+    description:
+      en: "Releases, benchmarks and the arguments around them."
+      zh: "新模型、基準測試與相關討論。"
+    lang: en
+    max_age_hours: 72
+    half_life_hours: 18
+    min_score: 0.12
+    exclude_keywords:
+      - "customer story"
+      - "case study"
+      - "is changing"
+      - "partnership"
+      - "sponsor"
+      - "webinar"
+      - "news we announced in"
+      - "roundup"
+    sources:
+      - id: openai-news
+        name: OpenAI news
+        type: rss
+        url: https://openai.com/news/rss.xml
+        trust: 0.95
+        lang: en
+        max_items: 8
+      - id: google-ai-blog
+        name: Google AI blog
+        type: rss
+        url: https://blog.google/technology/ai/rss/
+        trust: 0.90
+        lang: en
+        max_items: 8
+        exclude_keywords:
+          - "news we announced in"
+          - "roundup"
+          - "this week"
+          - "weekly"
+          - "monthly"
+
+      - id: deepmind-blog
+        name: Google DeepMind blog
+        type: rss
+        url: https://deepmind.google/blog/rss.xml
+        trust: 0.90
+        lang: en
+        max_items: 8
+      - id: qwen-blog
+        name: Qwen blog
+        type: rss
+        url: https://qwenlm.github.io/blog/index.xml
+        trust: 0.85
+        lang: en
+        max_items: 6
+      - id: research-google
+        name: Google Research blog
+        type: rss
+        url: https://research.google/blog/rss/
+        trust: 0.85
+        lang: en
+        max_items: 6
+      - id: openrouter-new
+        name: OpenRouter new models
+        type: openrouter
+        trust: 0.80
+        max_items: 6
+        days: 3
+      - id: hn-front
+        name: Hacker News front page
+        type: hn
+        trust: 0.65
+        max_items: 12
+        min_points: 60
+        keywords:
+          - OpenAI
+          - Anthropic
+          - Claude
+          - Gemini
+          - Llama
+          - Mistral
+          - Qwen
+          - DeepSeek
+          - LLM
+          - GPT
+          - "AI model"
+          - "machine learning"
+          - transformer
+          - agent
+          - benchmark
+          - "Hugging Face"
+      - id: google-news-anthropic
+        name: Google News · Anthropic
+        type: google_news
+        query: "Anthropic OR Claude"
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.75
+        lang: en
+        max_items: 5
+      - id: google-news-ai-vendors
+        name: Google News · AI vendors
+        type: google_news
+        query: "Mistral OR DeepSeek OR Qwen"
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.72
+        lang: en
+        max_items: 5
+  hk:
+    name:
+      en: "Hong Kong"
+      zh: "香港"
+    short: HK
+    color: "#0B7A5C"
+    color_dark: "#5FD3B2"
+    description:
+      en: "The local stories that change the day."
+      zh: "影響今日生活的本地新聞。"
+    lang: zh-HK
+    max_age_hours: 60
+    half_life_hours: 18
+    min_score: 0.08
+    exclude_keywords:
+      - "#亞冠"
+      - "足球"
+      - "籃球"
+      - "體育"
+      - "賽馬"
+      - "羽毛球"
+      - "乒乓球"
+      - "課程"
+      - "培訓"
+      - "交流"
+      - "座談"
+      - "研討會"
+      - "展覽"
+      - "首映"
+      - "比賽"
+      - "資料外洩"
+      - "資料外泄"
+      - "資料洩漏"
+      - "黑客"
+      - "網絡攻擊"
+      - "網絡安全"
+      - "網絡罪行"
+      - "科技罪案"
+      - "勒索"
+      - "釣魚"
+      - "惡意軟件"
+      - "breach"
+      - "hacked"
+      - "ransomware"
+      - "phishing"
+      - "malware"
+    sources:
+      - id: rthk-zh-local
+        name: RTHK 本地新聞
+        type: rss
+        url: https://rthk9.rthk.hk/rthk/news/rss/c_expressnews_clocal.xml
+        trust: 0.88
+        lang: zh-HK
+        max_items: 10
+      - id: rthk-en-local
+        name: RTHK English news
+        type: rss
+        url: https://rthk9.rthk.hk/rthk/news/rss/e_expressnews_elocal.xml
+        trust: 0.88
+        lang: en
+        max_items: 10
+      - id: hkfp
+        name: Hong Kong Free Press
+        type: rss
+        url: https://hongkongfp.com/feed/
+        trust: 0.82
+        lang: en
+        max_items: 8
+      - id: scmp-hk
+        name: South China Morning Post
+        type: rss
+        url: https://www.scmp.com/rss/2/feed
+        trust: 0.80
+        lang: en
+        max_items: 8
+      - id: mingpao
+        name: Ming Pao
+        type: rss
+        url: https://news.mingpao.com/rss/pns/s00001.xml
+        trust: 0.80
+        lang: zh-HK
+        max_items: 8
+      - id: info-gov-hk
+        name: info.gov.hk
+        type: rss
+        url: https://www.info.gov.hk/gia/rss/general_zh.xml
+        trust: 0.78
+        lang: zh-HK
+        max_items: 6
+        exclude_keywords:
+          - "附圖"
+      - id: google-news-hk
+        name: Google News · Hong Kong
+        type: google_news
+        query: "香港"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.70
+        lang: zh-HK
+        max_items: 12
+        exclude_keywords:
+          - "#亞冠"
+          - "足球"
+          - "籃球"
+          - "體育"
+          - "賽馬"
+          - "羽毛球"
+          - "乒乓球"
+          - "課程"
+          - "培訓"
+          - "交流"
+          - "座談"
+          - "研討會"
+          - "展覽"
+          - "首映"
+          - "比賽"
+      - id: hko-warnings
+        name: Hong Kong Observatory warnings
+        type: hko
+        trust: 0.99
+        lang: zh-HK
+        max_items: 3
+      - id: telegram-inmediahk
+        name: Telegram · InMediaHK
+        type: telegram
+        channel: inmediahknet
+        trust: 0.70
+        lang: zh-HK
+        max_items: 5
+        exclude_keywords:
+          - "#亞冠"
+          - "足球"
+          - "籃球"
+          - "體育"
+          - "賽馬"
+          - "羽毛球"
+          - "乒乓球"
+
+  mayday:
+    name:
+      en: "Mayday"
+      zh: "五月天"
+    short: Mayday
+    color: "#B83F2E"
+    color_dark: "#FF8A75"
+    description:
+      en: "Band news, tour dates and the fan wire."
+      zh: "樂團消息、演唱會與歌迷動態。"
+    lang: zh-Hant
+    max_age_hours: 720
+    half_life_hours: 168
+    min_score: 0.06
+    exclude_keywords:
+      - "八首歌"
+      - "歌單"
+      - "金曲"
+      - "回顧"
+      - "同志"
+      - "經典歌"
+      - "盤點"
+      - "沈伯洋"
+      - "車掃"
+      - "選舉"
+      - "政治"
+      - "造勢"
+      - "家家"
+      - "不只"
+      - "同框"
+      - "合唱"
+      - "熱搜"
+      - "神曲"
+      - "新劇"
+      - "電視劇"
+      - "角色"
+      - "演員"
+      - "海報"
+      - "電影"
+      - "戲劇"
+      - "現偶"
+      - "楊洋"
+      - "劉宇寧"
+      - "草蜢"
+    filter_keywords:
+      - "五月天"
+      - "阿信"
+      - "怪獸"
+      - "石頭"
+      - "瑪莎"
+      - "冠佑"
+      - "相信音樂"
+      - "MayDay"
+    sources:
+      - id: google-news-mayday-tw
+        name: Google News · 五月天 TW
+        type: google_news
+        query: "五月天"
+        hl: zh-TW
+        gl: TW
+        ceid: "TW:zh-Hant"
+        trust: 0.75
+        lang: zh-Hant
+        max_items: 12
+        exclude_keywords:
+          - "八首歌"
+          - "歌單"
+          - "金曲"
+          - "回顧"
+          - "同志"
+          - "經典歌"
+          - "盤點"
+      - id: google-news-mayday-hk
+        name: Google News · 五月天 HK
+        type: google_news
+        query: "五月天"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.72
+        lang: zh-Hant
+        max_items: 8
+        exclude_keywords:
+          - "八首歌"
+          - "歌單"
+          - "金曲"
+          - "回顧"
+          - "同志"
+          - "經典歌"
+          - "盤點"
+      - id: ltn-mayday
+        name: 自由娛樂 · 五月天
+        type: rss
+        url: https://news.ltn.com.tw/rss/entertainment.xml
+        trust: 0.70
+        lang: zh-Hant
+        max_items: 10
+        filter_keywords:
+          - "五月天"
+          - "阿信"
+          - "相信音樂"
+          - "石頭"
+          - "怪獸"
+          - "瑪莎"
+          - "冠佑"
+          - "五月天演唱會"
+      - id: ptt-mayday
+        name: PTT MayDay
+        type: ptt
+        board: MayDay
+        trust: 0.68
+        lang: zh-Hant
+        max_items: 6
+        ignore_topic_filters: true
+
+  legal:
+    name:
+      en: "APAC legal"
+      zh: "亞太法律"
+    short: LAW
+    color: "#8E3B4A"
+    color_dark: "#E58A9A"
+    description:
+      en: "IP, privacy, fintech, cyber and AI law, with a Hong Kong desk."
+      zh: "知識產權、私隱、金融科技、網絡與 AI 法律，並以香港為重點。"
+    lang: en
+    max_age_hours: 720
+    half_life_hours: 168
+    min_score: 0.08
+    exclude_keywords:
+      - "joins"
+      - "appointed"
+      - "appointment"
+      - "promotion"
+      - "award"
+      - "shortlist"
+      - "shortlisted"
+      - "ranked"
+      - "hires"
+      - "launches office"
+      - "opens office"
+      - "partner joins"
+      - "new partner"
+      - "law firm"
+      - "firm news"
+      - "wins award"
+      - "recognised"
+      - "recognized"
+      - "service availability"
+      - "service updates"
+      - "Form:"
+      - "renewal fee"
+      - "structure chart"
+      - "statistics"
+      - "recruitment"
+      - "Standing Counsel"
+      - "roadmap"
+      - "newsletter"
+      - "transparency data"
+      - "Guest Post"
+      - "Monday Miscellany"
+      - "Miscellany"
+      - "roundup"
+      - "weekly"
+      - "showcases"
+      - "solutions"
+      - "summit"
+      - "fintech week"
+      - "expo"
+      - "forum"
+      - "conference"
+      - "unveils"
+      - "events this week"
+      - "upcoming events"
+      - "Notice of References Cited"
+      - "form"
+      - "forms"
+      - "fee"
+      - "fees"
+      - "maintenance"
+      - "outage"
+      - "portal"
+      - "service update"
+      - "service updates"
+      - "office closure"
+      - "holiday closure"
+      - "VIEWPOINT"
+      - "frontline computing"
+      - "金融科技周"
+      - "參展"
+      - "亮相"
+      - "展會"
+      - "offering"
+      - "platform"
+      - "product"
+      - "SMB"
+      - "AI-powered"
+      - "launches"
+      - "takes"
+    sources:
+      - id: ipkat
+        name: IPKat
+        type: rss
+        url: https://ipkitten.blogspot.com/feeds/posts/default
+        trust: 0.85
+        lang: en
+        max_items: 8
+        tag: IP
+        jurisdiction: EU
+        exclude_keywords:
+          - "Monday Miscellany"
+          - "Miscellany"
+          - "roundup"
+          - "weekly"
+          - "ever-changing"
+          - "welcome"
+      - id: ipwatchdog
+        name: IPWatchdog
+        type: rss
+        url: https://www.ipwatchdog.com/feed/
+        trust: 0.75
+        lang: en
+        max_items: 6
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: IP
+        jurisdiction: US
+      - id: wipo-press
+        name: WIPO press room
+        type: rss
+        url: https://www.wipo.int/pressroom/en/rss.xml
+        trust: 0.95
+        lang: en
+        max_items: 5
+        tag: IP
+        jurisdiction: Global
+      - id: uspto
+        name: USPTO
+        type: rss
+        url: https://www.uspto.gov/rss.xml
+        trust: 0.95
+        lang: en
+        max_items: 6
+        tag: IP
+        jurisdiction: US
+      - id: us-copyright
+        name: US Copyright Office
+        type: rss
+        url: https://www.copyright.gov/rss.xml
+        trust: 0.95
+        lang: en
+        max_items: 5
+        tag: IP
+        jurisdiction: US
+      - id: govuk-ipo
+        name: GOV.UK Intellectual Property Office
+        type: rss
+        url: https://www.gov.uk/search/news-and-communications.atom?organisations%5B%5D=intellectual-property-office
+        trust: 0.82
+        lang: en
+        max_items: 5
+        tag: IP
+        jurisdiction: UK
+        exclude_keywords:
+          - "service availability"
+          - "service updates"
+          - "Form:"
+          - "renewal fee"
+          - "structure chart"
+          - "statistics"
+          - "recruitment"
+          - "Standing Counsel"
+          - "roadmap"
+          - "newsletter"
+          - "transparency data"
+      - id: hunton-privacy
+        name: Hunton Privacy & Information Security Law Blog
+        type: rss
+        url: https://www.huntonprivacyblog.com/feed/
+        trust: 0.80
+        lang: en
+        max_items: 6
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: Privacy
+        jurisdiction: US
+      - id: google-news-ip-apac
+        name: Google News · IP APAC
+        type: google_news
+        query: "intellectual property Asia"
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.72
+        lang: en
+        max_items: 6
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: IP
+        jurisdiction: APAC
+      - id: google-news-privacy-apac
+        name: Google News · privacy law APAC
+        type: google_news
+        query: "data privacy law OR regulation Asia"
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.72
+        lang: en
+        max_items: 6
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: Privacy
+        jurisdiction: APAC
+      - id: google-news-fintech-apac
+        name: Google News · fintech APAC
+        type: google_news
+        query: "fintech regulation Asia"
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.72
+        lang: en
+        max_items: 6
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: Fintech
+        jurisdiction: APAC
+      - id: google-news-ai-law-apac
+        name: Google News · AI law APAC
+        type: google_news
+        query: "AI regulation Asia"
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.72
+        lang: en
+        max_items: 6
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: AI
+        jurisdiction: APAC
+      - id: google-news-cyber-law-apac
+        name: Google News · cyber law APAC
+        type: google_news
+        query: "cybersecurity law Asia"
+        hl: en-US
+        gl: US
+        ceid: "US:en"
+        trust: 0.72
+        lang: en
+        max_items: 6
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: Cyber
+        jurisdiction: APAC
+      - id: google-news-hk-ip
+        name: Google News · 香港知識產權
+        type: google_news
+        query: "香港 知識產權"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.72
+        lang: zh-HK
+        max_items: 5
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: IP
+        tags: [IP, HK]
+        jurisdiction: Hong Kong
+      - id: google-news-hk-privacy
+        name: Google News · 香港私隱
+        type: google_news
+        query: "香港 私隱"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.72
+        lang: zh-HK
+        max_items: 5
+        exclude_keywords:
+          - "joins"
+          - "appointed"
+          - "appointment"
+          - "promotion"
+          - "award"
+          - "shortlist"
+          - "shortlisted"
+          - "ranked"
+          - "hires"
+          - "launches office"
+          - "opens office"
+          - "partner joins"
+          - "new partner"
+          - "law firm"
+          - "firm news"
+          - "wins award"
+          - "recognised"
+          - "recognized"
+
+        tag: Privacy
+        tags: [Privacy, HK]
+        jurisdiction: Hong Kong
+      - id: google-news-hk-fintech
+        name: Google News · 香港金融科技法規
+        type: google_news
+        query: "香港 金融科技 監管 OR 虛擬資產 OR 穩定幣"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.72
+        lang: zh-HK
+        max_items: 6
+        tag: Fintech
+        tags: [Fintech, HK]
+        jurisdiction: Hong Kong
+      - id: google-news-hk-ai-law
+        name: Google News · 香港 AI 法例
+        type: google_news
+        query: "香港 人工智能 監管 OR AI 法例"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.72
+        lang: zh-HK
+        max_items: 5
+        tag: AI
+        tags: [AI, HK]
+        jurisdiction: Hong Kong
+      - id: google-news-hk-cyber-law
+        name: Google News · 香港網絡罪行法例
+        type: google_news
+        query: "香港 網絡安全 法例 OR 網絡罪行"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.72
+        lang: zh-HK
+        max_items: 5
+        tag: Cyber
+        tags: [Cyber, HK]
+        jurisdiction: Hong Kong
+
+  jackson:
+    name:
+      en: "Jackson Yee"
+      zh: "易烊千璽"
+    short: YYQX
+    color: "#8F5A16"
+    color_dark: "#E0B36A"
+    description:
+      en: "News and appearances from 易烊千璽."
+      zh: "易烊千璽的消息與動態。"
+    lang: zh-Hant
+    max_age_hours: 2160
+    half_life_hours: 720
+    min_score: 0.05
+    exclude_keywords:
+      - "貌似"
+      - "撞臉"
+      - "翻版"
+      - "山寨"
+      - "模仿"
+      - "相似"
+    filter_keywords:
+      - "易烊千璽"
+      - "千璽"
+      - "易烊"
+    sources:
+      - id: google-news-jackson-tw
+        name: Google News · 易烊千璽 TW
+        type: google_news
+        query: "易烊千璽"
+        hl: zh-TW
+        gl: TW
+        ceid: "TW:zh-Hant"
+        trust: 0.75
+        lang: zh-Hant
+        max_items: 10
+        max_age_hours: 2160
+        exclude_keywords:
+          - "貌似"
+          - "撞臉"
+          - "翻版"
+          - "山寨"
+          - "模仿"
+          - "相似"
+
+      - id: google-news-jackson-hk
+        name: Google News · 易烊千璽 HK
+        type: google_news
+        query: "易烊千璽"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.72
+        lang: zh-HK
+        max_items: 8
+        max_age_hours: 2160
+        exclude_keywords:
+          - "貌似"
+          - "撞臉"
+          - "翻版"
+          - "山寨"
+          - "模仿"
+          - "相似"
+
+      - id: ltn-jackson
+        name: 自由娛樂 · 易烊千璽
+        type: rss
+        url: https://news.ltn.com.tw/rss/entertainment.xml
+        trust: 0.70
+        lang: zh-Hant
+        max_items: 10
+        exclude_keywords:
+          - "貌似"
+          - "撞臉"
+          - "翻版"
+          - "山寨"
+          - "模仿"
+          - "相似"
+
+        filter_keywords:
+          - "易烊千璽"
+          - "千璽"
+          - "易烊"
+
+  cyber:
+    name:
+      en: "Cybersecurity"
+      zh: "資訊安全"
+    short: Cyber
+    color: "#3F4B5B"
+    color_dark: "#9FB4C9"
+    description:
+      en: "Global incidents, with a Hong Kong desk for local breaches."
+      zh: "全球事故，並聚焦香港本地資料外洩與網絡事故。"
+    lang: en
+    max_age_hours: 168
+    half_life_hours: 24
+    min_score: 0.08
+    filter_keywords:
+      - "cyber"
+      - "breach"
+      - "breached"
+      - "hack"
+      - "hacked"
+      - "hacker"
+      - "ransomware"
+      - "malware"
+      - "phishing"
+      - "vulnerability"
+      - "vulnerabilities"
+      - "exploit"
+      - "exploited"
+      - "flaw"
+      - "flaws"
+      - "data leak"
+      - "資料外洩"
+      - "資料外泄"
+      - "資料洩漏"
+      - "外洩"
+      - "外泄"
+      - "洩漏"
+      - "黑客"
+      - "網絡攻擊"
+      - "網絡安全"
+      - "網絡罪行"
+      - "科技罪案"
+      - "勒索"
+      - "釣魚"
+      - "惡意軟件"
+      - "漏洞"
+      - "憑證"
+      - "入侵"
+      - "系統被入侵"
+      - "帳戶被盜"
+      - "安全警報"
+    exclude_keywords:
+      - "Gartner Predicts"
+      - "predicts"
+      - "survey"
+      - "webinar"
+      - "award"
+      - "report finds"
+      - "tips"
+      - "awareness"
+      - "how to"
+      - "guide"
+      - "listicle"
+      - "演練"
+      - "攻防"
+      - "論壇"
+      - "研討會"
+      - "講座"
+      - "展覽"
+      - "宣傳"
+      - "活動"
+      - "比賽"
+    sources:
+      - id: bleepingcomputer
+        name: BleepingComputer
+        type: rss
+        url: https://www.bleepingcomputer.com/feed/
+        trust: 0.80
+        lang: en
+        max_items: 8
+        tag: Global
+      - id: krebs
+        name: Krebs on Security
+        type: rss
+        url: https://krebsonsecurity.com/feed/
+        trust: 0.85
+        lang: en
+        max_items: 6
+        tag: Global
+      - id: thehackernews
+        name: The Hacker News
+        type: rss
+        url: https://feeds.feedburner.com/TheHackersNews
+        trust: 0.75
+        lang: en
+        max_items: 8
+        tag: Global
+      - id: darkreading
+        name: Dark Reading
+        type: rss
+        url: https://www.darkreading.com/rss.xml
+        trust: 0.75
+        lang: en
+        max_items: 6
+        tag: Global
+      - id: securityweek
+        name: SecurityWeek
+        type: rss
+        url: https://www.securityweek.com/feed/
+        trust: 0.75
+        lang: en
+        max_items: 6
+        tag: Global
+      - id: cisa-kev
+        name: CISA Known Exploited Vulnerabilities
+        type: kev
+        trust: 0.98
+        lang: en
+        max_items: 5
+        days: 7
+        tag: Global
+      - id: google-news-hk-breach
+        name: Google News · 香港資料外洩
+        type: google_news
+        query: "香港 資料外洩 OR 資料外泄 OR 資料洩漏"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.74
+        lang: zh-HK
+        max_items: 10
+        tag: HK
+      - id: google-news-hk-hkcert
+        name: Google News · HKCERT
+        type: google_news
+        query: "site:hkcert.org"
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.85
+        lang: zh-HK
+        max_items: 8
+        tag: HK
+        always_hk: true
+      - id: rthk-cyber
+        name: RTHK · cyber
+        type: rss
+        url: https://rthk9.rthk.hk/rthk/news/rss/c_expressnews_clocal.xml
+        trust: 0.85
+        lang: zh-HK
+        max_items: 8
+        tag: HK
+      - id: scmp-cyber
+        name: SCMP · cyber
+        type: rss
+        url: https://www.scmp.com/rss/2/feed
+        trust: 0.80
+        lang: en
+        max_items: 8
+        tag: HK
+      - id: hkfp-cyber
+        name: HKFP · cyber
+        type: rss
+        url: https://hongkongfp.com/feed/
+        trust: 0.80
+        lang: en
+        max_items: 6
+        tag: HK
+      - id: unwire-cyber
+        name: Unwire HK · cyber
+        type: rss
+        url: https://unwire.hk/feed/
+        trust: 0.65
+        lang: zh-HK
+        max_items: 6
+        tag: HK
+      - id: telegram-cyber
+        name: Telegram · InMediaHK cyber
+        type: telegram
+        channel: inmediahknet
+        trust: 0.70
+        lang: zh-HK
+        max_items: 5
+        tag: HK
+      - id: info-gov-cyber
+        name: info.gov.hk · cyber
+        type: rss
+        url: https://www.info.gov.hk/gia/rss/general_zh.xml
+        trust: 0.82
+        lang: zh-HK
+        max_items: 5
+        tag: HK

@@ -1,0 +1,35 @@
+{
+  "id": "/dailybrief/",
+  "name": "Daily Brief",
+  "short_name": "Daily Brief",
+  "description": "A personal daily brief for AI, Hong Kong, Mayday, APAC legal, cybersecurity and 易烊千璽.",
+  "lang": "en",
+  "start_url": "/dailybrief/",
+  "scope": "/dailybrief/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#F2EFE6",
+  "theme_color": "#F2EFE6",
+  "categories": ["news", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

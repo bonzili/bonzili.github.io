@@ -1,0 +1,494 @@
+"""LLM summaries with strict free-tier guardrails.
+
+Only two providers are ever called:
+  * Google Gemini API, using a free AI Studio key (no billing account).
+  * GitHub Models, using the workflow's built-in GITHUB_TOKEN.
+
+There is no paid provider, no automatic upgrade, and no retry loop that can
+run forever. A hard call budget stops the run and falls back to extractive
+bullets. The static site never receives an API key.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import time
+from datetime import timedelta
+from typing import Any
+
+import httpx
+
+from util import (
+    clean_html, first_sentence, iso, label_lang, load_json, log, normalize_title,
+    now_hkt, truncate, write_json_atomic,
+)
+
+PROMPT_VERSION = "2026-11-04.1"
+DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
+DEFAULT_GITHUB_MODEL = "openai/gpt-4o-mini"
+MAX_SOURCE_CHARS = 900
+MAX_SOURCES = 5
+MAX_BULLETS = 3
+MAX_BULLET_CHARS = 230
+MAX_WHY_CHARS = 190
+
+
+class SummaryError(RuntimeError):
+    pass
+
+
+class BudgetExceeded(SummaryError):
+    pass
+
+
+class CallBudget:
+    def __init__(self, limit: int):
+        self.limit = max(0, int(limit))
+        self.used = 0
+
+    def spend(self) -> None:
+        if self.used >= self.limit:
+            raise BudgetExceeded(f"LLM call budget reached ({self.used}/{self.limit})")
+        self.used += 1
+
+    def remaining(self) -> int:
+        return max(0, self.limit - self.used)
+
+
+def extract_json(text: str) -> dict:
+    value = (text or "").strip()
+    if not value:
+        raise SummaryError("empty model response")
+    value = re.sub(r"^```(?:json)?\s*", "", value, flags=re.I)
+    value = re.sub(r"\s*```$", "", value)
+    start = value.find("{")
+    end = value.rfind("}")
+    if start < 0 or end <= start:
+        raise SummaryError("model response was not JSON")
+    try:
+        return json.loads(value[start:end + 1])
+    except json.JSONDecodeError as error:
+        raise SummaryError(f"invalid JSON: {error}") from error
+
+
+def validate_summary(payload: dict) -> dict:
+    bullets = payload.get("bullets")
+    why = payload.get("why")
+    if not isinstance(bullets, list):
+        raise SummaryError("bullets is not a list")
+    clean_bullets = []
+    for bullet in bullets[:MAX_BULLETS]:
+        text = re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", str(bullet or "")).strip()
+        text = re.sub(r"\s+", " ", text)
+        if not text:
+            continue
+        clean_bullets.append(truncate(text, MAX_BULLET_CHARS))
+    if len(clean_bullets) < 2:
+        raise SummaryError("not enough bullets")
+    why_text = re.sub(r"\s+", " ", str(why or "")).strip().strip('"“”')
+    if not why_text:
+        raise SummaryError("missing why")
+    return {"bullets": clean_bullets[:MAX_BULLETS], "why": truncate(why_text, MAX_WHY_CHARS)}
+
+
+def source_blocks(card: dict, cluster: dict) -> str:
+    item_by_url = {}
+    for item in cluster.get("items", []):
+        item_by_url[item.get("url")] = item
+    blocks = []
+    for source in (card.get("sources") or [])[:MAX_SOURCES]:
+        item = item_by_url.get(source.get("url")) or {}
+        text = item.get("summary") or source.get("title") or ""
+        text = truncate(clean_html(text), MAX_SOURCE_CHARS)
+        title = source.get("title") or item.get("title") or ""
+        publisher = source.get("publisher") or item.get("publisher") or ""
+        published = source.get("published") or item.get("published") or ""
+        blocks.append(
+            f"- [{publisher}] {title}\n  Published: {published}\n  {text}"
+        )
+    return "\n\n".join(blocks)
+
+
+def prompt_for(card: dict, cluster: dict, topic: dict, workspace: dict,
+               bullet_lang: str, why_lang: str) -> tuple[str, str]:
+    topic_name = (topic.get("name") or {}).get("en") or card.get("topic") or ""
+    persona = workspace.get("persona") or "a busy reader in Hong Kong."
+    system = (
+        "You are the editor of a personal daily brief. You compress public reporting into a "
+        "scannable, factual brief. Use only the supplied source text. Do not invent facts, "
+        "numbers, dates, quotes, or legal conclusions. If the sources are thin or disagree, "
+        "say so. No hype, no filler, no markdown, no bold. Plain text only."
+    )
+    legal_rules = ""
+    if card.get("topic") == "legal":
+        legal_rules = (
+            "\n- This is a legal story. Lead with the jurisdiction and the practice area. "
+            "State what changed, who it binds, and the practical consequence. Distinguish "
+            "law from consultation, proposal, and commentary."
+        )
+    if card.get("topic") == "jackson":
+        legal_rules = (
+            "\n- This is entertainment news about 易烊千璽. Say what happened, whether it is "
+            "official, and which project or event it relates to. Do not present fan speculation "
+            "as fact."
+        )
+    if card.get("topic") == "mayday":
+        legal_rules = (
+            "\n- This is Mayday news. Separate confirmed news from rumours and social posts."
+        )
+    user = (
+        f"Topic: {topic_name}\n"
+        f"Headline: {card.get('headline')}\n"
+        f"Publisher: {card.get('publisher')}\n"
+        f"Sources:\n{source_blocks(card, cluster)}\n\n"
+        f"Write for {persona}\n"
+        f"Bullet language: {label_lang(bullet_lang)}\n"
+        f"Takeaway language: {label_lang(why_lang)}\n\n"
+        "Return JSON with exactly these keys: {\"bullets\": [\"...\"], \"why\": \"...\"}.\n"
+        "Rules:\n"
+        "- 3 bullets maximum; each is one concrete fact, 230 characters or fewer.\n"
+        "- The one-line takeaway is 190 characters or fewer and says why this matters to the reader.\n"
+        "- Quote at most 12 words from a source. No markdown. No emoji."
+        f"{legal_rules}"
+    )
+    return system, user
+
+
+def _summary_sentence(item: dict) -> str:
+    summary = clean_html(item.get("summary") or "")
+    title = clean_html(item.get("title") or "")
+    publisher = clean_html(item.get("publisher") or "")
+    if summary and title and summary.casefold().startswith(title.casefold()):
+        summary = summary[len(title):].strip(" .:-—|")
+    if summary and publisher and summary.casefold().endswith(publisher.casefold()):
+        summary = summary[:-len(publisher)].strip(" .:-—|")
+    if len(summary) < 30 or summary.casefold() == title.casefold():
+        return ""
+    return first_sentence(summary, 220)
+
+
+ZH_JURISDICTION = {
+    "Hong Kong": "香港",
+    "Singapore": "新加坡",
+    "Japan": "日本",
+    "Australia": "澳洲",
+    "India": "印度",
+    "China": "中國",
+    "EU": "歐盟",
+    "UK": "英國",
+    "US": "美國",
+    "APAC": "亞太",
+}
+
+
+class ExtractiveProvider:
+    name = "extractive"
+
+    def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
+                  bullet_lang: str, why_lang: str) -> dict:
+        bullets = []
+        seen = set()
+        items = sorted(
+            cluster.get("items", []),
+            key=lambda item: (float(item.get("trust", 0)), item.get("published") or ""),
+            reverse=True,
+        )
+        lead_title = clean_html(card.get("headline") or "")
+        for item in items:
+            sentence = _summary_sentence(item)
+            if sentence:
+                candidate = sentence
+            else:
+                title = item.get("title") or ""
+                if normalize_title(title) == normalize_title(lead_title):
+                    continue
+                publisher = item.get("publisher") or ""
+                candidate = f"{publisher}: {title}" if publisher else title
+            candidate = truncate(candidate, MAX_BULLET_CHARS)
+            key = candidate.casefold()
+            if not candidate or key in seen:
+                continue
+            seen.add(key)
+            bullets.append(candidate)
+            if len(bullets) >= MAX_BULLETS:
+                break
+        source_lang = str(card.get("headline_lang") or "en").lower()
+        is_zh = source_lang.startswith("zh")
+        publisher = card.get("publisher") or ("the source" if not is_zh else "來源")
+        if not bullets:
+            fallback = (
+                f"{publisher} 報導：詳情請看原文。"
+                if is_zh else
+                f"Reported by {publisher}. Open the source for the confirmed details."
+            )
+            bullets = [truncate(fallback, MAX_BULLET_CHARS)]
+        lead_item = items[0] if items else {}
+        lead_sentence = _summary_sentence(lead_item) if lead_item else ""
+        jurisdiction = card.get("jurisdiction") or ""
+        prefix = ""
+        if jurisdiction:
+            prefix = (
+                f"{ZH_JURISDICTION.get(jurisdiction, jurisdiction)}："
+                if is_zh else
+                f"{jurisdiction}: "
+            )
+        if lead_sentence:
+            why = f"{prefix}{lead_sentence}"
+        elif card.get("topic") == "legal":
+            why = (
+                f"{publisher} 報導：請看原文了解對實務的影響。"
+                if is_zh else
+                f"Reported by {publisher}. Check the source for the practical effect."
+            )
+        elif card.get("topic") == "mayday":
+            why = (
+                f"{publisher} 報導：請看原文了解已確認的內容。"
+                if is_zh else
+                f"Reported by {publisher}. Check the source for what is confirmed."
+            )
+        else:
+            why = (
+                f"{publisher} 報導：詳情請看原文。"
+                if is_zh else
+                f"Reported by {publisher}. Open the source for the details."
+            )
+        return {"bullets": bullets[:MAX_BULLETS], "why": truncate(why, MAX_WHY_CHARS)}
+
+
+class GeminiProvider:
+    name = "gemini"
+
+    def __init__(self, api_key: str, model: str, budget: CallBudget):
+        self.api_key = api_key
+        self.model = model
+        self.budget = budget
+        self.client = httpx.Client(timeout=httpx.Timeout(45.0, connect=10.0))
+
+    def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
+                  bullet_lang: str, why_lang: str) -> dict:
+        system, user = prompt_for(card, cluster, topic, workspace, bullet_lang, why_lang)
+        models = [self.model]
+        if self.model != "gemini-2.0-flash":
+            models.append("gemini-2.0-flash")
+        last_error = None
+        for model in models:
+            for attempt in range(2):
+                self.budget.spend()
+                url = (
+                    "https://generativelanguage.googleapis.com/v1beta/models/"
+                    f"{model}:generateContent"
+                )
+                try:
+                    response = self.client.post(
+                        url,
+                        headers={"x-goog-api-key": self.api_key, "Content-Type": "application/json"},
+                        json={
+                            "systemInstruction": {"parts": [{"text": system}]},
+                            "contents": [{"role": "user", "parts": [{"text": user}]}],
+                            "generationConfig": {
+                                "temperature": 0.2,
+                                "maxOutputTokens": 700,
+                                "responseMimeType": "application/json",
+                            },
+                        },
+                    )
+                    if response.status_code == 404:
+                        last_error = SummaryError(f"model {model} not available")
+                        break
+                    if response.status_code == 429:
+                        last_error = SummaryError("Gemini free-tier rate limit")
+                        if attempt == 0:
+                            time.sleep(8)
+                            continue
+                        raise last_error
+                    if response.status_code >= 500:
+                        last_error = SummaryError(f"Gemini HTTP {response.status_code}")
+                        if attempt == 0:
+                            time.sleep(3)
+                            continue
+                        raise last_error
+                    if response.status_code != 200:
+                        raise SummaryError(f"Gemini HTTP {response.status_code}: {response.text[:160]}")
+                    payload = response.json()
+                    try:
+                        text = payload["candidates"][0]["content"]["parts"][0]["text"]
+                    except (KeyError, IndexError, TypeError) as error:
+                        raise SummaryError("Gemini returned no text") from error
+                    return validate_summary(extract_json(text))
+                except BudgetExceeded:
+                    raise
+                except (httpx.HTTPError, SummaryError) as error:
+                    last_error = error
+                    if attempt == 0:
+                        time.sleep(2)
+                        continue
+                    break
+        raise SummaryError(str(last_error or "Gemini failed"))
+
+
+class GitHubModelsProvider:
+    name = "github-models"
+
+    def __init__(self, token: str, model: str, budget: CallBudget):
+        self.token = token
+        self.model = model
+        self.budget = budget
+        self.client = httpx.Client(timeout=httpx.Timeout(45.0, connect=10.0))
+
+    def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
+                  bullet_lang: str, why_lang: str) -> dict:
+        system, user = prompt_for(card, cluster, topic, workspace, bullet_lang, why_lang)
+        last_error = None
+        for attempt in range(2):
+            self.budget.spend()
+            try:
+                response = self.client.post(
+                    "https://models.github.ai/inference/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.token}",
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": self.model,
+                        "temperature": 0.2,
+                        "max_tokens": 700,
+                        "response_format": {"type": "json_object"},
+                        "messages": [
+                            {"role": "system", "content": system},
+                            {"role": "user", "content": user},
+                        ],
+                    },
+                )
+                if response.status_code in (401, 403):
+                    raise SummaryError(f"GitHub Models not permitted ({response.status_code})")
+                if response.status_code == 429:
+                    last_error = SummaryError("GitHub Models free-tier rate limit")
+                    if attempt == 0:
+                        time.sleep(8)
+                        continue
+                    raise last_error
+                if response.status_code >= 500:
+                    last_error = SummaryError(f"GitHub Models HTTP {response.status_code}")
+                    if attempt == 0:
+                        time.sleep(3)
+                        continue
+                    raise last_error
+                if response.status_code != 200:
+                    raise SummaryError(f"GitHub Models HTTP {response.status_code}: {response.text[:160]}")
+                payload = response.json()
+                text = payload["choices"][0]["message"]["content"]
+                return validate_summary(extract_json(text))
+            except BudgetExceeded:
+                raise
+            except (httpx.HTTPError, KeyError, IndexError, TypeError, SummaryError) as error:
+                last_error = error
+                if attempt == 0:
+                    time.sleep(2)
+                    continue
+                break
+        raise SummaryError(str(last_error or "GitHub Models failed"))
+
+
+class SummaryService:
+    def __init__(self, config: dict, provider: str = "auto"):
+        self.config = config
+        summary_config = config.get("summarization") or {}
+        self.cache_path = summary_config.get("cache_path", "dailybrief-pipeline/.cache/summaries.json")
+        self.prompt_version = str(summary_config.get("prompt_version", PROMPT_VERSION))
+        max_calls = int(summary_config.get("max_calls", 36))
+        self.budget = CallBudget(max_calls)
+        self.extractive = ExtractiveProvider()
+        self.providers = []
+        self.cache = load_json(self.cache_path, {})
+        if not isinstance(self.cache, dict):
+            self.cache = {}
+        self.cache_hits = 0
+        self.failures = 0
+        self.provider_notes = []
+
+        chosen = (provider or summary_config.get("provider") or "auto").lower()
+        gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+        github_token = os.environ.get("GITHUB_TOKEN", "").strip()
+        gemini_model = os.environ.get("GEMINI_MODEL", "").strip() or summary_config.get("gemini_model", DEFAULT_GEMINI_MODEL)
+        github_model = os.environ.get("GITHUB_MODELS_MODEL", "").strip() or summary_config.get("github_model", DEFAULT_GITHUB_MODEL)
+
+        # In auto mode GitHub Models goes first: it uses the built-in
+        # GITHUB_TOKEN, is free, and cannot produce a Google bill. Gemini is
+        # opt-in only (provider: gemini or --provider gemini).
+        if chosen in ("auto", "github", "github-models") and github_token:
+            self.providers.append(GitHubModelsProvider(github_token, github_model, self.budget))
+        if chosen == "gemini" and gemini_key:
+            self.providers.append(GeminiProvider(gemini_key, gemini_model, self.budget))
+        elif chosen == "auto" and gemini_key and not self.providers:
+            # Local use without a GITHUB_TOKEN can use a free Gemini key.
+            self.providers.append(GeminiProvider(gemini_key, gemini_model, self.budget))
+        if chosen == "extractive" or not self.providers:
+            self.providers = []
+
+    def _cache_key(self, card: dict, workspace: dict, bullet_lang: str, why_lang: str) -> str:
+        persona = workspace.get("persona") or ""
+        raw = "|".join([
+            card.get("id", ""), bullet_lang, why_lang,
+            hashlib.sha1(persona.encode("utf-8")).hexdigest()[:12],
+            self.prompt_version,
+        ])
+        return hashlib.sha1(raw.encode("utf-8")).hexdigest()
+
+    def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
+                  bullet_lang: str, why_lang: str) -> dict:
+        key = self._cache_key(card, workspace, bullet_lang, why_lang)
+        cached = self.cache.get(key)
+        if isinstance(cached, dict) and cached.get("bullets") and cached.get("why"):
+            self.cache_hits += 1
+            return {"bullets": cached["bullets"], "why": cached["why"], "cached": True}
+
+        for provider in self.providers:
+            try:
+                result = provider.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
+                self.cache[key] = {
+                    "bullets": result["bullets"],
+                    "why": result["why"],
+                    "provider": provider.name,
+                    "generated_at": iso(now_hkt()),
+                }
+                return result
+            except BudgetExceeded as error:
+                self.provider_notes.append(str(error))
+                log(f"  free LLM call budget reached: {error}")
+                self.providers = []
+                break
+            except SummaryError as error:
+                self.failures += 1
+                self.provider_notes.append(f"{provider.name}: {error}")
+                log(f"  {provider.name} disabled for this run: {error}")
+                # A bad key, a missing model, or a rate limit should not be
+                # retried once per card. Move to the next free provider.
+                self.providers = [p for p in self.providers if p is not provider]
+                continue
+
+        return self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
+
+    def save_cache(self) -> None:
+        cutoff = now_hkt() - timedelta(days=30)
+        pruned = {}
+        for key, value in self.cache.items():
+            if not isinstance(value, dict):
+                continue
+            stamp = value.get("generated_at")
+            if not stamp:
+                pruned[key] = value
+                continue
+            from util import parse_datetime
+            parsed = parse_datetime(stamp, None)
+            if parsed is None or parsed >= cutoff:
+                pruned[key] = value
+        write_json_atomic(self.cache_path, pruned)
+
+    def report(self) -> str:
+        return (
+            f"LLM calls: {self.budget.used}/{self.budget.limit}; "
+            f"cache hits: {self.cache_hits}; failures: {self.failures}"
+        )

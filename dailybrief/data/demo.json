@@ -1,0 +1,1296 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-04T00:11:00+08:00",
+  "edition": "2026-11-04T00:11:00+08:00",
+  "edition_label": {
+    "en": "Night",
+    "zh": "深夜"
+  },
+  "next_update": "2026-11-04T07:00:00+08:00",
+  "timezone": "Asia/Hong_Kong",
+  "topics": [
+    {
+      "id": "ai",
+      "short": "AI",
+      "name": {
+        "en": "AI models",
+        "zh": "AI 模型"
+      },
+      "color": "#3157D5",
+      "color_dark": "#7F9BFF",
+      "description": {
+        "en": "Releases, benchmarks and the arguments around them.",
+        "zh": "新模型、基準測試與相關討論。"
+      }
+    },
+    {
+      "id": "hk",
+      "short": "HK",
+      "name": {
+        "en": "Hong Kong",
+        "zh": "香港"
+      },
+      "color": "#0B7A5C",
+      "color_dark": "#5FD3B2",
+      "description": {
+        "en": "The local stories that change the day.",
+        "zh": "影響今日生活的本地新聞。"
+      }
+    },
+    {
+      "id": "mayday",
+      "short": "Mayday",
+      "name": {
+        "en": "Mayday",
+        "zh": "五月天"
+      },
+      "color": "#B83F2E",
+      "color_dark": "#FF8A75",
+      "description": {
+        "en": "Band news, tour dates and the fan wire.",
+        "zh": "樂團消息、演唱會與歌迷動態。"
+      }
+    },
+    {
+      "id": "legal",
+      "short": "LAW",
+      "name": {
+        "en": "APAC legal",
+        "zh": "亞太法律"
+      },
+      "color": "#8E3B4A",
+      "color_dark": "#E58A9A",
+      "description": {
+        "en": "IP, privacy, fintech, cyber and AI law, with a Hong Kong desk.",
+        "zh": "知識產權、私隱、金融科技、網絡與 AI 法律，並以香港為重點。"
+      }
+    },
+    {
+      "id": "jackson",
+      "short": "YYQX",
+      "name": {
+        "en": "Jackson Yee",
+        "zh": "易烊千璽"
+      },
+      "color": "#8F5A16",
+      "color_dark": "#E0B36A",
+      "description": {
+        "en": "News and appearances from 易烊千璽.",
+        "zh": "易烊千璽的消息與動態。"
+      }
+    },
+    {
+      "id": "cyber",
+      "short": "Cyber",
+      "name": {
+        "en": "Cybersecurity",
+        "zh": "資訊安全"
+      },
+      "color": "#3F4B5B",
+      "color_dark": "#9FB4C9",
+      "description": {
+        "en": "Exploited bugs, breaches and the fixes that matter.",
+        "zh": "已遭利用的漏洞、外洩事故與修補。"
+      }
+    }
+  ],
+  "workspaces": {
+    "me": {
+      "id": "me",
+      "name": {
+        "en": "Siu Gai Mo's Brief",
+        "zh": "Siu Gai Mo's Brief"
+      },
+      "description": {
+        "en": "AI, Hong Kong, Mayday, and cybersecurity with a HK desk.",
+        "zh": "AI、香港、五月天，以及全球與香港網絡安全。"
+      },
+      "lang": "en",
+      "accent": "#0B6B5D",
+      "topic_ids": [
+        "ai",
+        "hk",
+        "mayday",
+        "cyber"
+      ],
+      "picks": [
+        {
+          "card_id": "a1f0c3d2e4b5a697",
+          "why": "A new frontier model with a 1M context window; the price and the missing evals are the story.",
+          "bullets": [
+            "GPT-6.1 Terra is listed on OpenRouter with a 1,048,576-token context window.",
+            "The listing shows separate Terra and Terra Pro variants; pricing starts at the listed per-token rate.",
+            "No independent benchmark results are attached to the OpenRouter listing yet."
+          ]
+        },
+        {
+          "card_id": "f6c5b8a7d9e03b4c",
+          "why": "A typhoon signal decision before lunch could change the commute; check the official warning before you go.",
+          "bullets": [
+            "The Observatory says it will consider raising the signal as the storm moves closer.",
+            "The current warning is being monitored; no timing has been confirmed.",
+            "Check the official warning page before travelling."
+          ]
+        },
+        {
+          "card_id": "e1b0a3f2c4d58091",
+          "why": "The Mayday rumour is loud, but the report is built on a social post. Read the source, not the headline.",
+          "bullets": [
+            "The report says 石頭 is leaving the band; the wording is based on a social post.",
+            "阿信 later posted a late-night message that fans are reading as a response.",
+            "No official statement from 相信音樂 has been linked in the report."
+          ]
+        },
+        {
+          "card_id": "b2e1d4c3f5a69708",
+          "why": "A weight-editing claim and a strong rebuttal in the same thread; the comments are the useful part.",
+          "bullets": [
+            "The post describes editing model weights directly to change behaviour without retraining.",
+            "A rebuttal argues the demo is narrower than the headline suggests.",
+            "The HN thread is unusually technical and worth reading past the first comment."
+          ]
+        },
+        {
+          "card_id": "a7d6c9b8e0f14c5d",
+          "why": "A consultation with a real deadline and a direct effect on short-term rentals.",
+          "bullets": [
+            "The consultation runs for six weeks and covers registration and enforcement.",
+            "Operators would need to display a registration number in listings.",
+            "The paper asks whether platforms should share data with the regulator."
+          ]
+        },
+        {
+          "card_id": "c3f2e5d4a6b70819",
+          "why": "A smaller on-device model may matter more for daily use than another leaderboard release.",
+          "bullets": [
+            "The model is positioned for local tool use and long-running agents.",
+            "The blog lists quantised variants and a permissive licence.",
+            "Early users are testing it on consumer hardware rather than data-centre GPUs."
+          ]
+        },
+        {
+          "card_id": "b8e7d0c9f1a25d6e",
+          "why": "A court challenge that could delay the waste-charging scheme every household is preparing for.",
+          "bullets": [
+            "The court granted leave for a judicial review of the scheme.",
+            "The challenge focuses on the consultation process, not the policy itself.",
+            "A hearing date has not been set."
+          ]
+        },
+        {
+          "card_id": "f2c1b4a3d5e691a2",
+          "why": "The PTT thread is parsing Ashin's post in real time; no official statement yet.",
+          "bullets": [
+            "A board member posted a translation of Ashin's latest Threads update.",
+            "The thread is mostly fans comparing the wording with the official post.",
+            "No new tour dates were announced in the post."
+          ]
+        },
+        {
+          "card_id": "f8c7b0a9d1e25709",
+          "why": "A known-exploited vulnerability with a must-patch deadline; check your stack.",
+          "bullets": [
+            "CISA added the flaw to the Known Exploited Vulnerabilities catalogue.",
+            "The required action is to apply the vendor update by the listed due date.",
+            "The catalogue entry includes the affected product and the exploitation status."
+          ]
+        },
+        {
+          "card_id": "d4a3f6e5b7c8192a",
+          "why": "The model card is where the safety claims and the evaluation numbers meet.",
+          "bullets": [
+            "The new card adds evaluations for long-horizon agent tasks.",
+            "Anthropic says the model is available in the API today.",
+            "The release notes flag a higher price for the largest context tier."
+          ]
+        },
+        {
+          "card_id": "c9f8e1d0a2b36e7f",
+          "why": "Tax and residency details behind the family-office headline.",
+          "bullets": [
+            "The package includes tax concessions for qualifying family offices.",
+            "Officials say the application process will be streamlined.",
+            "The article does not yet give the full eligibility criteria."
+          ]
+        },
+        {
+          "card_id": "a9d8c1b0e2f36820",
+          "why": "A live phishing kit that proxies the real Microsoft login; the session-cookie detail is the tell.",
+          "bullets": [
+            "The kit proxies the real Microsoft login page to capture session cookies.",
+            "Attackers are using compromised business accounts to send the lures.",
+            "The report lists the domains and the response steps."
+          ]
+        }
+      ]
+    },
+    "her": {
+      "id": "her",
+      "name": {
+        "en": "Siu Bak's Brief",
+        "zh": "Siu Bak's Brief"
+      },
+      "description": {
+        "en": "APAC legal with HK priority, Hong Kong news and 易烊千璽.",
+        "zh": "以香港優先的亞太法律、香港新聞與易烊千璽。"
+      },
+      "lang": "en",
+      "accent": "#8E3B4A",
+      "topic_ids": [
+        "legal",
+        "hk",
+        "jackson"
+      ],
+      "picks": [
+        {
+          "card_id": "b4e3d6c5f7a813c4",
+          "why": "新指引區分 AI 輔助作品與無人類作者的作品，實務上要先看人類創作的部分。",
+          "bullets": [
+            "The guidance separates AI-assisted works from works generated without human authorship.",
+            "It confirms that human creativity remains the test for copyright protection.",
+            "The IPO says the guidance is not a change in the law."
+          ]
+        },
+        {
+          "card_id": "c5f4e7d6a8b924d5",
+          "why": "新加坡 PDPC 的執法決定聚焦存取控制與身份文件保留，是可用的合規參考。",
+          "bullets": [
+            "The PDPC found the firm failed to put reasonable security arrangements in place.",
+            "The decision focuses on access controls and the retention of identity documents.",
+            "The financial penalty and the remediation order are set out in the decision."
+          ]
+        },
+        {
+          "card_id": "f6c5b8a7d9e03b4c",
+          "why": "天氣警告可能影響今日安排，出門前先看官方最新消息。",
+          "bullets": [
+            "The Observatory says it will consider raising the signal as the storm moves closer.",
+            "The current warning is being monitored; no timing has been confirmed.",
+            "Check the official warning page before travelling."
+          ]
+        },
+        {
+          "card_id": "d6a5f8e7b9c035e6",
+          "why": "MAS 穩定幣框架進入過渡期，發行與分銷安排要按新要求檢視。",
+          "bullets": [
+            "The framework covers reserve backing, disclosure and redemption rights.",
+            "Issuers have a transition period before the new requirements apply.",
+            "The consultation response explains the changes from the draft rules."
+          ]
+        },
+        {
+          "card_id": "a9d8c1b0e2f36819",
+          "why": "香港 PCPD 的 AI 指引把現有六項原則套用到採購與部署，適合用來檢查內部流程。",
+          "bullets": [
+            "The guidance applies the existing six data-protection principles to AI systems.",
+            "It asks organisations to assess the risk before using personal data for training.",
+            "The PCPD says it will publish further sector-specific notes."
+          ]
+        },
+        {
+          "card_id": "b8e7d0c9f1a25d6e",
+          "why": "司法覆核可能延後垃圾徵費，值得留意聆訊日期。",
+          "bullets": [
+            "The court granted leave for a judicial review of the scheme.",
+            "The challenge focuses on the consultation process, not the policy itself.",
+            "A hearing date has not been set."
+          ]
+        },
+        {
+          "card_id": "e7b6a9f8c0d146f7",
+          "why": "日本 AI 法案的透明度義務是企業需要落實的部分，不只是政策口號。",
+          "bullets": [
+            "The bill introduces transparency obligations for high-impact AI systems.",
+            "It stops short of a standalone AI regulator.",
+            "The bill now moves to the upper house."
+          ]
+        },
+        {
+          "card_id": "c1d2e3f4a5b60718",
+          "why": "易烊千璽新片入圍東京影展，導演訪問透露了角色與拍攝細節。",
+          "bullets": [
+            "The film has been selected for the Tokyo International Film Festival.",
+            "The director says the role was written with 易烊千璽 in mind.",
+            "No general release date has been announced."
+          ]
+        }
+      ]
+    }
+  },
+  "cards": [
+    {
+      "id": "a1f0c3d2e4b5a697",
+      "topic": "ai",
+      "headline": "OpenAI releases GPT-6.1 Terra with a 1M-token context window",
+      "headline_lang": "en",
+      "publisher": "OpenAI",
+      "published": "2026-11-03T22:41:00+08:00",
+      "url": "https://openrouter.ai/openai/gpt-6.1-terra",
+      "bullets": [
+        "GPT-6.1 Terra is listed on OpenRouter with a 1,048,576-token context window.",
+        "The listing shows separate Terra and Terra Pro variants; pricing starts at the listed per-token rate.",
+        "No independent benchmark results are attached to the OpenRouter listing yet."
+      ],
+      "why": "A new frontier model lands with a bigger context window and no public benchmark table yet.",
+      "sources": [
+        {
+          "title": "GPT-6.1 Terra",
+          "url": "https://openrouter.ai/openai/gpt-6.1-terra",
+          "publisher": "OpenRouter",
+          "published": "2026-11-03T22:53:00+08:00"
+        },
+        {
+          "title": "OpenAI news",
+          "url": "https://openai.com/news/",
+          "publisher": "OpenAI",
+          "published": "2026-11-03T21:53:00+08:00"
+        }
+      ],
+      "comments": [
+        {
+          "platform": "HN",
+          "author": "tosh",
+          "score": null,
+          "text": "The context number is the headline, but I want to see the evals before I move anything. The price is the part that decides it.",
+          "url": "https://news.ycombinator.com/item?id=50340001"
+        },
+        {
+          "platform": "HN",
+          "author": "pg",
+          "score": null,
+          "text": "Every release now has a ‘pro’ tier with the same name and a different price. Naming is becoming the hard part.",
+          "url": "https://news.ycombinator.com/item?id=50340002"
+        }
+      ],
+      "heat": 0.92,
+      "score": 0.822,
+      "first_seen": "2026-11-03T22:41:00+08:00",
+      "updated": "2026-11-03T22:41:00+08:00",
+      "cluster_size": 3,
+      "lang": "en"
+    },
+    {
+      "id": "b2e1d4c3f5a69708",
+      "topic": "ai",
+      "headline": "Astra can read and write weights to improve Qwen",
+      "headline_lang": "en",
+      "publisher": "rikiyat.github.io",
+      "published": "2026-11-03T21:47:00+08:00",
+      "url": "https://rikiyat.github.io/blog/weight-space-programming/",
+      "bullets": [
+        "The post describes editing model weights directly to change behaviour without retraining.",
+        "A rebuttal argues the demo is narrower than the headline suggests.",
+        "The HN thread is unusually technical and worth reading past the first comment."
+      ],
+      "why": "A viral weight-space claim is being tested by the people best placed to break it.",
+      "sources": [
+        {
+          "title": "Astra can read and write weights to improve Qwen",
+          "url": "https://rikiyat.github.io/blog/weight-space-programming/",
+          "publisher": "rikiyat.github.io",
+          "published": "2026-11-03T21:47:00+08:00"
+        },
+        {
+          "title": "The Astra post is misleading",
+          "url": "https://honnibal.dev/blog/astra-read-write-misleading",
+          "publisher": "honnibal.dev",
+          "published": "2026-11-03T22:35:00+08:00"
+        }
+      ],
+      "comments": [
+        {
+          "platform": "HN",
+          "author": "jbellis",
+          "score": null,
+          "text": "The interesting part is the failure mode: it works on the examples shown and then quietly stops working on anything slightly different.",
+          "url": "https://news.ycombinator.com/item?id=50341111"
+        }
+      ],
+      "heat": 0.88,
+      "score": 0.808,
+      "first_seen": "2026-11-03T21:47:00+08:00",
+      "updated": "2026-11-03T21:47:00+08:00",
+      "cluster_size": 2,
+      "lang": "en"
+    },
+    {
+      "id": "c3f2e5d4a6b70819",
+      "topic": "ai",
+      "headline": "Qwen ships a smaller model aimed at on-device agents",
+      "headline_lang": "en",
+      "publisher": "Qwen",
+      "published": "2026-11-03T18:29:00+08:00",
+      "url": "https://qwenlm.github.io/blog/",
+      "bullets": [
+        "The model is positioned for local tool use and long-running agents.",
+        "The blog lists quantised variants and a permissive licence.",
+        "Early users are testing it on consumer hardware rather than data-centre GPUs."
+      ],
+      "why": "A smaller release that matters more for phones and laptops than another leaderboard win.",
+      "sources": [
+        {
+          "title": "Qwen3.5 small model",
+          "url": "https://qwenlm.github.io/blog/",
+          "publisher": "Qwen",
+          "published": "2026-11-03T18:29:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.55,
+      "score": 0.693,
+      "first_seen": "2026-11-03T18:29:00+08:00",
+      "updated": "2026-11-03T18:29:00+08:00",
+      "cluster_size": 1,
+      "lang": "en"
+    },
+    {
+      "id": "d4a3f6e5b7c8192a",
+      "topic": "ai",
+      "headline": "Anthropic publishes a new Claude model card",
+      "headline_lang": "en",
+      "publisher": "Anthropic",
+      "published": "2026-11-03T15:53:00+08:00",
+      "url": "https://www.anthropic.com/news",
+      "bullets": [
+        "The new card adds evaluations for long-horizon agent tasks.",
+        "Anthropic says the model is available in the API today.",
+        "The release notes flag a higher price for the largest context tier."
+      ],
+      "why": "The model card is where the safety claims and the actual evaluation numbers meet.",
+      "sources": [
+        {
+          "title": "Claude model card",
+          "url": "https://www.anthropic.com/news",
+          "publisher": "Anthropic",
+          "published": "2026-11-03T15:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.45,
+      "score": 0.657,
+      "first_seen": "2026-11-03T15:53:00+08:00",
+      "updated": "2026-11-03T15:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "en"
+    },
+    {
+      "id": "e5b4a7f6c8d92a3b",
+      "topic": "ai",
+      "headline": "Mistral's new model is cheap, fast and unusually quiet about benchmarks",
+      "headline_lang": "en",
+      "publisher": "Mistral",
+      "published": "2026-11-03T09:53:00+08:00",
+      "url": "https://mistral.ai/news",
+      "bullets": [
+        "The release leads with tokens per second and price, not benchmark scores.",
+        "The context window is smaller than the current frontier default.",
+        "Independent testing is still thin."
+      ],
+      "why": "A price-first release that asks you to trust the latency numbers instead of the eval table.",
+      "sources": [
+        {
+          "title": "Mistral news",
+          "url": "https://mistral.ai/news",
+          "publisher": "Mistral",
+          "published": "2026-11-03T09:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.35,
+      "score": 0.622,
+      "first_seen": "2026-11-03T09:53:00+08:00",
+      "updated": "2026-11-03T09:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "en"
+    },
+    {
+      "id": "f6c5b8a7d9e03b4c",
+      "topic": "hk",
+      "headline": "RTHK: Observatory considers raising the typhoon signal as storm edges closer",
+      "headline_lang": "zh-HK",
+      "publisher": "RTHK",
+      "published": "2026-11-03T23:05:00+08:00",
+      "url": "https://rthk9.rthk.hk/rthk/news/rss/c_expressnews_clocal.xml",
+      "bullets": [
+        "The Observatory says it will consider raising the signal as the storm moves closer.",
+        "The current warning is being monitored; no timing has been confirmed.",
+        "Check the official warning page before travelling."
+      ],
+      "why": "A weather decision that could change the commute and the school run before lunch.",
+      "sources": [
+        {
+          "title": "Observatory considers raising typhoon signal",
+          "url": "https://rthk9.rthk.hk/rthk/news/rss/c_expressnews_clocal.xml",
+          "publisher": "RTHK",
+          "published": "2026-11-03T23:05:00+08:00"
+        },
+        {
+          "title": "Weather warning bulletin",
+          "url": "https://www.hko.gov.hk/en/wxinfo/currwx/warning.htm",
+          "publisher": "Hong Kong Observatory",
+          "published": "2026-11-03T22:59:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.62,
+      "score": 0.717,
+      "first_seen": "2026-11-03T23:05:00+08:00",
+      "updated": "2026-11-03T23:05:00+08:00",
+      "cluster_size": 2,
+      "lang": "zh-HK"
+    },
+    {
+      "id": "a7d6c9b8e0f14c5d",
+      "topic": "hk",
+      "headline": "Government opens consultation on new rules for short-term rentals",
+      "headline_lang": "zh-HK",
+      "publisher": "info.gov.hk",
+      "published": "2026-11-03T20:53:00+08:00",
+      "url": "https://www.info.gov.hk/gia/general/",
+      "bullets": [
+        "The consultation runs for six weeks and covers registration and enforcement.",
+        "Operators would need to display a registration number in listings.",
+        "The paper asks whether platforms should share data with the regulator."
+      ],
+      "why": "A consultation with a real deadline and a direct effect on anyone renting a flat short-term.",
+      "sources": [
+        {
+          "title": "Consultation on short-term rental rules",
+          "url": "https://www.info.gov.hk/gia/general/",
+          "publisher": "info.gov.hk",
+          "published": "2026-11-03T20:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.3,
+      "score": 0.605,
+      "first_seen": "2026-11-03T20:53:00+08:00",
+      "updated": "2026-11-03T20:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK"
+    },
+    {
+      "id": "b8e7d0c9f1a25d6e",
+      "topic": "hk",
+      "headline": "HKFP: Court clears the way for a challenge to the new waste-charging scheme",
+      "headline_lang": "en",
+      "publisher": "Hong Kong Free Press",
+      "published": "2026-11-03T19:41:00+08:00",
+      "url": "https://hongkongfp.com/",
+      "bullets": [
+        "The court granted leave for a judicial review of the scheme.",
+        "The challenge focuses on the consultation process, not the policy itself.",
+        "A hearing date has not been set."
+      ],
+      "why": "A legal challenge that could delay a scheme every household is preparing for.",
+      "sources": [
+        {
+          "title": "Court clears way for waste-charging challenge",
+          "url": "https://hongkongfp.com/",
+          "publisher": "Hong Kong Free Press",
+          "published": "2026-11-03T19:41:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.4,
+      "score": 0.64,
+      "first_seen": "2026-11-03T19:41:00+08:00",
+      "updated": "2026-11-03T19:41:00+08:00",
+      "cluster_size": 1,
+      "lang": "en"
+    },
+    {
+      "id": "c9f8e1d0a2b36e7f",
+      "topic": "hk",
+      "headline": "Ming Pao: Hong Kong unveils new measures to attract family offices",
+      "headline_lang": "zh-HK",
+      "publisher": "Ming Pao",
+      "published": "2026-11-03T17:47:00+08:00",
+      "url": "https://news.mingpao.com/",
+      "bullets": [
+        "The package includes tax concessions for qualifying family offices.",
+        "Officials say the application process will be streamlined.",
+        "The article does not yet give the full eligibility criteria."
+      ],
+      "why": "A policy push with tax and residency details that matter beyond the headline.",
+      "sources": [
+        {
+          "title": "New measures to attract family offices",
+          "url": "https://news.mingpao.com/",
+          "publisher": "Ming Pao",
+          "published": "2026-11-03T17:47:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.25,
+      "score": 0.588,
+      "first_seen": "2026-11-03T17:47:00+08:00",
+      "updated": "2026-11-03T17:47:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK"
+    },
+    {
+      "id": "e1b0a3f2c4d58091",
+      "topic": "mayday",
+      "headline": "五月天石頭爆退團 阿信深夜感性說話了",
+      "headline_lang": "zh-Hant",
+      "publisher": "噓！星聞",
+      "published": "2026-11-03T22:17:00+08:00",
+      "url": "https://stars.udn.com",
+      "bullets": [
+        "The report says 石頭 is leaving the band; the wording is based on a social post.",
+        "阿信 later posted a late-night message that fans are reading as a response.",
+        "No official statement from 相信音樂 has been linked in the report."
+      ],
+      "why": "A late-night post from Ashin is doing the rounds; read the source before believing the headline.",
+      "sources": [
+        {
+          "title": "五月天石頭爆退團 阿信深夜感性說話了",
+          "url": "https://stars.udn.com",
+          "publisher": "噓！星聞",
+          "published": "2026-11-03T22:17:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.8,
+      "score": 0.78,
+      "first_seen": "2026-11-03T22:17:00+08:00",
+      "updated": "2026-11-03T22:17:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant"
+    },
+    {
+      "id": "f2c1b4a3d5e691a2",
+      "topic": "mayday",
+      "headline": "[情報] 阿信 Threads 更新",
+      "headline_lang": "zh-Hant",
+      "publisher": "PTT MayDay",
+      "published": "2026-11-03T21:29:00+08:00",
+      "url": "https://www.ptt.cc/bbs/MayDay/index.html",
+      "bullets": [
+        "A board member posted a translation of Ashin's latest Threads update.",
+        "The thread is mostly fans comparing the wording with the official post.",
+        "No new tour dates were announced in the post."
+      ],
+      "why": "The fan board is already parsing the post; the thread is the useful part.",
+      "sources": [
+        {
+          "title": "[情報] 阿信 Threads 更新",
+          "url": "https://www.ptt.cc/bbs/MayDay/index.html",
+          "publisher": "PTT MayDay",
+          "published": "2026-11-03T21:29:00+08:00"
+        }
+      ],
+      "comments": [
+        {
+          "platform": "PTT",
+          "author": "gi781415",
+          "score": 8,
+          "label": "推",
+          "text": "看起來只是日常分享，不像在預告什麼。不過這種語氣通常都還是有事。",
+          "url": "https://www.ptt.cc/bbs/MayDay/index.html"
+        },
+        {
+          "platform": "PTT",
+          "author": "maydayfans",
+          "score": 5,
+          "label": "推",
+          "text": "先卡一個，等官方。",
+          "url": "https://www.ptt.cc/bbs/MayDay/index.html"
+        }
+      ],
+      "heat": 0.7,
+      "score": 0.745,
+      "first_seen": "2026-11-03T21:29:00+08:00",
+      "updated": "2026-11-03T21:29:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant"
+    },
+    {
+      "id": "a3d2c5b4e6f702b3",
+      "topic": "mayday",
+      "headline": "五月天5525巡迴演唱會台中場傳出加場",
+      "headline_lang": "zh-Hant",
+      "publisher": "自由娛樂",
+      "published": "2026-11-03T15:23:00+08:00",
+      "url": "https://news.ltn.com.tw/rss/entertainment.xml",
+      "bullets": [
+        "The report says an extra Taichung date is being discussed.",
+        "No official on-sale date or ticket link is included.",
+        "Fans on PTT are treating it as unconfirmed."
+      ],
+      "why": "A rumour about a Taichung extra date; the ticket page is the only confirmation that counts.",
+      "sources": [
+        {
+          "title": "五月天5525巡迴演唱會台中場傳出加場",
+          "url": "https://news.ltn.com.tw/rss/entertainment.xml",
+          "publisher": "自由娛樂",
+          "published": "2026-11-03T15:23:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.45,
+      "score": 0.657,
+      "first_seen": "2026-11-03T15:23:00+08:00",
+      "updated": "2026-11-03T15:23:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant"
+    },
+    {
+      "id": "b4e3d6c5f7a813c4",
+      "topic": "legal",
+      "headline": "UK IPO publishes new guidance on AI-generated works and copyright",
+      "headline_lang": "en",
+      "publisher": "GOV.UK — Intellectual Property Office",
+      "published": "2026-11-03T21:05:00+08:00",
+      "url": "https://www.gov.uk/government/organisations/intellectual-property-office.atom",
+      "bullets": [
+        "The guidance separates AI-assisted works from works generated without human authorship.",
+        "It confirms that human creativity remains the test for copyright protection.",
+        "The IPO says the guidance is not a change in the law."
+      ],
+      "why": "New guidance for practitioners on where copyright sits when AI is in the production chain.",
+      "sources": [
+        {
+          "title": "AI-generated works and copyright: guidance",
+          "url": "https://www.gov.uk/government/organisations/intellectual-property-office.atom",
+          "publisher": "GOV.UK — IPO",
+          "published": "2026-11-03T21:05:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.35,
+      "score": 0.622,
+      "first_seen": "2026-11-03T21:05:00+08:00",
+      "updated": "2026-11-03T21:05:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "IP"
+      ],
+      "jurisdiction": "UK"
+    },
+    {
+      "id": "c5f4e7d6a8b924d5",
+      "topic": "legal",
+      "headline": "Singapore PDPC fines a financial services firm over a customer data breach",
+      "headline_lang": "en",
+      "publisher": "Personal Data Protection Commission",
+      "published": "2026-11-03T19:23:00+08:00",
+      "url": "https://www.pdpc.gov.sg/",
+      "bullets": [
+        "The PDPC found the firm failed to put reasonable security arrangements in place.",
+        "The decision focuses on access controls and the retention of identity documents.",
+        "The financial penalty and the remediation order are set out in the decision."
+      ],
+      "why": "A recent enforcement decision on access controls, retention and the practical steps the regulator expected.",
+      "sources": [
+        {
+          "title": "PDPC enforcement decision",
+          "url": "https://www.pdpc.gov.sg/",
+          "publisher": "PDPC Singapore",
+          "published": "2026-11-03T19:23:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.3,
+      "score": 0.605,
+      "first_seen": "2026-11-03T19:23:00+08:00",
+      "updated": "2026-11-03T19:23:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "Privacy"
+      ],
+      "jurisdiction": "Singapore"
+    },
+    {
+      "id": "d6a5f8e7b9c035e6",
+      "topic": "legal",
+      "headline": "MAS publishes new rules for stablecoin issuers",
+      "headline_lang": "en",
+      "publisher": "Monetary Authority of Singapore",
+      "published": "2026-11-03T16:53:00+08:00",
+      "url": "https://www.mas.gov.sg/",
+      "bullets": [
+        "The framework covers reserve backing, disclosure and redemption rights.",
+        "Issuers have a transition period before the new requirements apply.",
+        "The consultation response explains the changes from the draft rules."
+      ],
+      "why": "A practical compliance deadline for anyone issuing or distributing stablecoins in Singapore.",
+      "sources": [
+        {
+          "title": "Stablecoin regulatory framework",
+          "url": "https://www.mas.gov.sg/",
+          "publisher": "MAS",
+          "published": "2026-11-03T16:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.3,
+      "score": 0.605,
+      "first_seen": "2026-11-03T16:53:00+08:00",
+      "updated": "2026-11-03T16:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "Fintech"
+      ],
+      "jurisdiction": "Singapore"
+    },
+    {
+      "id": "e7b6a9f8c0d146f7",
+      "topic": "legal",
+      "headline": "Japan's AI promotion bill clears committee with new transparency duties",
+      "headline_lang": "en",
+      "publisher": "Nikkei Asia",
+      "published": "2026-11-03T14:23:00+08:00",
+      "url": "https://asia.nikkei.com/",
+      "bullets": [
+        "The bill introduces transparency obligations for high-impact AI systems.",
+        "It stops short of a standalone AI regulator.",
+        "The bill now moves to the upper house."
+      ],
+      "why": "The transparency duties are the part in-house teams will need to operationalise.",
+      "sources": [
+        {
+          "title": "Japan AI promotion bill",
+          "url": "https://asia.nikkei.com/",
+          "publisher": "Nikkei Asia",
+          "published": "2026-11-03T14:23:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.35,
+      "score": 0.622,
+      "first_seen": "2026-11-03T14:23:00+08:00",
+      "updated": "2026-11-03T14:23:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "AI"
+      ],
+      "jurisdiction": "Japan"
+    },
+    {
+      "id": "f8c7b0a9d1e25708",
+      "topic": "legal",
+      "headline": "IPKat: The CJEU's latest copyright ruling is narrower than it looks",
+      "headline_lang": "en",
+      "publisher": "IPKat",
+      "published": "2026-11-03T10:23:00+08:00",
+      "url": "https://ipkitten.blogspot.com/feeds/posts/default",
+      "bullets": [
+        "The court found infringement on the specific facts but avoided a broad new test.",
+        "The judgment leaves the existing fair-dealing framework intact.",
+        "The blog post flags two paragraphs that will do most of the work in future cases."
+      ],
+      "why": "A careful read of a ruling that will be cited far beyond its facts.",
+      "sources": [
+        {
+          "title": "The CJEU's latest copyright ruling",
+          "url": "https://ipkitten.blogspot.com/feeds/posts/default",
+          "publisher": "IPKat",
+          "published": "2026-11-03T10:23:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.25,
+      "score": 0.588,
+      "first_seen": "2026-11-03T10:23:00+08:00",
+      "updated": "2026-11-03T10:23:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "IP"
+      ],
+      "jurisdiction": "EU"
+    },
+    {
+      "id": "a9d8c1b0e2f36819",
+      "topic": "legal",
+      "headline": "Hong Kong PCPD issues guidance on AI and personal data",
+      "headline_lang": "en",
+      "publisher": "PCPD Hong Kong",
+      "published": "2026-11-03T08:53:00+08:00",
+      "url": "https://www.pcpd.org.hk/",
+      "bullets": [
+        "The guidance applies the existing six data-protection principles to AI systems.",
+        "It asks organisations to assess the risk before using personal data for training.",
+        "The PCPD says it will publish further sector-specific notes."
+      ],
+      "why": "Guidance that maps the existing data-protection principles onto AI procurement and deployment.",
+      "sources": [
+        {
+          "title": "AI and personal data guidance",
+          "url": "https://www.pcpd.org.hk/",
+          "publisher": "PCPD Hong Kong",
+          "published": "2026-11-03T08:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.25,
+      "score": 0.588,
+      "first_seen": "2026-11-03T08:53:00+08:00",
+      "updated": "2026-11-03T08:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "Privacy",
+        "AI"
+      ],
+      "jurisdiction": "Hong Kong"
+    },
+    {
+      "id": "b0e9d2c1f3a4792a",
+      "topic": "legal",
+      "headline": "Australia's privacy regulator opens an investigation into a fintech data-sharing arrangement",
+      "headline_lang": "en",
+      "publisher": "OAIC",
+      "published": "2026-11-03T05:53:00+08:00",
+      "url": "https://www.oaic.gov.au/",
+      "bullets": [
+        "The OAIC is investigating whether consent was valid for the data sharing.",
+        "The case involves a fintech and a major bank.",
+        "No findings have been made at this stage."
+      ],
+      "why": "A data-sharing case that tests how consent and open-banking rules interact.",
+      "sources": [
+        {
+          "title": "OAIC investigation",
+          "url": "https://www.oaic.gov.au/",
+          "publisher": "OAIC",
+          "published": "2026-11-03T05:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.2,
+      "score": 0.57,
+      "first_seen": "2026-11-03T05:53:00+08:00",
+      "updated": "2026-11-03T05:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "tags": [
+        "Privacy",
+        "Fintech"
+      ],
+      "jurisdiction": "Australia"
+    },
+    {
+      "id": "c1d2e3f4a5b60718",
+      "topic": "jackson",
+      "headline": "易烊千璽新片入圍東京國際影展 導演透露拍攝幕後",
+      "headline_lang": "zh-Hant",
+      "publisher": "自由娛樂",
+      "published": "2026-11-03T21:53:00+08:00",
+      "url": "https://news.ltn.com.tw/rss/entertainment.xml",
+      "bullets": [
+        "The film has been selected for the Tokyo International Film Festival.",
+        "The director says the role was written with 易烊千璽 in mind.",
+        "No general release date has been announced."
+      ],
+      "why": "A festival selection and a rare director interview; the film's release date is still unconfirmed.",
+      "sources": [
+        {
+          "title": "易烊千璽新片入圍東京國際影展",
+          "url": "https://news.ltn.com.tw/rss/entertainment.xml",
+          "publisher": "自由娛樂",
+          "published": "2026-11-03T21:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.55,
+      "score": 0.693,
+      "first_seen": "2026-11-03T21:53:00+08:00",
+      "updated": "2026-11-03T21:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant"
+    },
+    {
+      "id": "d2e3f4a5b6c71829",
+      "topic": "jackson",
+      "headline": "易烊千璽出席品牌活動 生圖狀態成熱搜",
+      "headline_lang": "zh-Hant",
+      "publisher": "新浪娛樂",
+      "published": "2026-11-03T17:23:00+08:00",
+      "url": "https://ent.sina.com.cn/",
+      "bullets": [
+        "The actor attended a brand event in Shanghai.",
+        "Fan accounts are sharing unedited event photos.",
+        "No new film or music project was announced."
+      ],
+      "why": "A fan-account staple: the event photos are the story, the outfit details are in the post.",
+      "sources": [
+        {
+          "title": "易烊千璽出席品牌活動",
+          "url": "https://ent.sina.com.cn/",
+          "publisher": "新浪娛樂",
+          "published": "2026-11-03T17:23:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.5,
+      "score": 0.675,
+      "first_seen": "2026-11-03T17:23:00+08:00",
+      "updated": "2026-11-03T17:23:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant"
+    },
+    {
+      "id": "e3f4a5b6c7d8293a",
+      "topic": "jackson",
+      "headline": "易烊千璽工作室發布九月行程圖",
+      "headline_lang": "zh-Hant",
+      "publisher": "易烊千璽工作室",
+      "published": "2026-11-03T03:53:00+08:00",
+      "url": "https://weibo.com/",
+      "bullets": [
+        "The studio published the September schedule.",
+        "The calendar lists two public events and one magazine shoot.",
+        "Fan clubs are coordinating support for the public events."
+      ],
+      "why": "The monthly schedule is the reliable place to check before planning around a public appearance.",
+      "sources": [
+        {
+          "title": "九月行程圖",
+          "url": "https://weibo.com/",
+          "publisher": "易烊千璽工作室",
+          "published": "2026-11-03T03:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.35,
+      "score": 0.622,
+      "first_seen": "2026-11-03T03:53:00+08:00",
+      "updated": "2026-11-03T03:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant"
+    },
+    {
+      "id": "f8c7b0a9d1e25709",
+      "topic": "cyber",
+      "headline": "CISA adds a new exploited vulnerability to its must-patch list",
+      "headline_lang": "en",
+      "publisher": "CISA",
+      "published": "2026-11-03T22:53:00+08:00",
+      "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+      "bullets": [
+        "CISA added the flaw to the Known Exploited Vulnerabilities catalogue.",
+        "The required action is to apply the vendor update by the listed due date.",
+        "The catalogue entry includes the affected product and the exploitation status."
+      ],
+      "why": "A vulnerability with known exploitation and a federal deadline; check whether you run the product.",
+      "sources": [
+        {
+          "title": "Known Exploited Vulnerabilities catalogue",
+          "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+          "publisher": "CISA",
+          "published": "2026-11-03T22:53:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.4,
+      "score": 0.64,
+      "first_seen": "2026-11-03T22:53:00+08:00",
+      "updated": "2026-11-03T22:53:00+08:00",
+      "cluster_size": 1,
+      "lang": "en"
+    },
+    {
+      "id": "a9d8c1b0e2f36820",
+      "topic": "cyber",
+      "headline": "BleepingComputer: New phishing kit targets Microsoft 365 sign-ins",
+      "headline_lang": "en",
+      "publisher": "BleepingComputer",
+      "published": "2026-11-03T20:17:00+08:00",
+      "url": "https://www.bleepingcomputer.com/feed/",
+      "bullets": [
+        "The kit proxies the real Microsoft login page to capture session cookies.",
+        "Attackers are using compromised business accounts to send the lures.",
+        "The report lists the domains and the response steps."
+      ],
+      "why": "A practical phishing campaign that is already in the wild; the tell is in the login flow.",
+      "sources": [
+        {
+          "title": "New phishing kit targets Microsoft 365",
+          "url": "https://www.bleepingcomputer.com/feed/",
+          "publisher": "BleepingComputer",
+          "published": "2026-11-03T20:17:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.35,
+      "score": 0.622,
+      "first_seen": "2026-11-03T20:17:00+08:00",
+      "updated": "2026-11-03T20:17:00+08:00",
+      "cluster_size": 1,
+      "lang": "en"
+    },
+    {
+      "id": "b0e9d2c1f3a4792b",
+      "topic": "cyber",
+      "headline": "Krebs: The ransomware crew that keeps coming back through the same VPN",
+      "headline_lang": "en",
+      "publisher": "Krebs on Security",
+      "published": "2026-11-03T16:41:00+08:00",
+      "url": "https://krebsonsecurity.com/feed/",
+      "bullets": [
+        "The crew is re-entering through an unpatched VPN appliance.",
+        "The report traces the same initial access across several victims.",
+        "The fix is available; the article explains why it is not always applied."
+      ],
+      "why": "A good reminder that the boring fix — patching the VPN — is the one that keeps being skipped.",
+      "sources": [
+        {
+          "title": "Ransomware crew returns through the same VPN",
+          "url": "https://krebsonsecurity.com/feed/",
+          "publisher": "Krebs on Security",
+          "published": "2026-11-03T16:41:00+08:00"
+        }
+      ],
+      "comments": [],
+      "heat": 0.3,
+      "score": 0.605,
+      "first_seen": "2026-11-03T16:41:00+08:00",
+      "updated": "2026-11-03T16:41:00+08:00",
+      "cluster_size": 1,
+      "lang": "en"
+    }
+  ],
+  "source_status": [
+    {
+      "id": "openai-news",
+      "name": "OpenAI news",
+      "topic": "ai",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "google-ai-blog",
+      "name": "Google AI blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "hn-front",
+      "name": "Hacker News front page",
+      "topic": "ai",
+      "ok": true,
+      "items": 11,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "rthk-zh-local",
+      "name": "RTHK 本地新聞",
+      "topic": "hk",
+      "ok": true,
+      "items": 9,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "hkfp",
+      "name": "Hong Kong Free Press",
+      "topic": "hk",
+      "ok": true,
+      "items": 7,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "google-news-hk",
+      "name": "Google News Hong Kong",
+      "topic": "hk",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "hko-warnings",
+      "name": "HKO weather warnings",
+      "topic": "hk",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "ptt-mayday",
+      "name": "PTT MayDay",
+      "topic": "mayday",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "google-news-mayday",
+      "name": "Google News 五月天",
+      "topic": "mayday",
+      "ok": false,
+      "items": 0,
+      "error": "HTTP 503",
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "ipkat",
+      "name": "IPKat",
+      "topic": "legal",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "govuk-ipo",
+      "name": "GOV.UK IPO",
+      "topic": "legal",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "google-news-privacy-apac",
+      "name": "Google News privacy APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "google-news-jackson",
+      "name": "Google News 易烊千璽",
+      "topic": "jackson",
+      "ok": true,
+      "items": 9,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    },
+    {
+      "id": "cisa-kev",
+      "name": "CISA KEV",
+      "topic": "cyber",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-03T23:53:00+08:00"
+    }
+  ],
+  "stats": {
+    "fetched": 93,
+    "clusters": 25,
+    "brief_cards": {
+      "me": 12,
+      "her": 8
+    }
+  }
+}

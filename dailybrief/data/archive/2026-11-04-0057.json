@@ -1,0 +1,1491 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-04T00:57:48+08:00",
+  "edition": "2026-11-04T00:57:48+08:00",
+  "edition_label": {
+    "en": "Night",
+    "zh": "深夜"
+  },
+  "next_update": "2026-11-04T07:00:00+08:00",
+  "timezone": "Asia/Hong_Kong",
+  "topics": [
+    {
+      "id": "ai",
+      "short": "AI",
+      "name": {
+        "en": "AI models",
+        "zh": "AI 模型"
+      },
+      "color": "#3157D5",
+      "color_dark": "#7F9BFF",
+      "description": {
+        "en": "Releases, benchmarks and the arguments around them.",
+        "zh": "新模型、基準測試與相關討論。"
+      }
+    },
+    {
+      "id": "hk",
+      "short": "HK",
+      "name": {
+        "en": "Hong Kong",
+        "zh": "香港"
+      },
+      "color": "#0B7A5C",
+      "color_dark": "#5FD3B2",
+      "description": {
+        "en": "The local stories that change the day.",
+        "zh": "影響今日生活的本地新聞。"
+      }
+    },
+    {
+      "id": "mayday",
+      "short": "Mayday",
+      "name": {
+        "en": "Mayday",
+        "zh": "五月天"
+      },
+      "color": "#B83F2E",
+      "color_dark": "#FF8A75",
+      "description": {
+        "en": "Band news, tour dates and the fan wire.",
+        "zh": "樂團消息、演唱會與歌迷動態。"
+      }
+    },
+    {
+      "id": "legal",
+      "short": "LAW",
+      "name": {
+        "en": "APAC legal",
+        "zh": "亞太法律"
+      },
+      "color": "#8E3B4A",
+      "color_dark": "#E58A9A",
+      "description": {
+        "en": "IP, privacy, fintech, cyber and AI law, with a Hong Kong desk.",
+        "zh": "知識產權、私隱、金融科技、網絡與 AI 法律，並以香港為重點。"
+      }
+    },
+    {
+      "id": "jackson",
+      "short": "YYQX",
+      "name": {
+        "en": "Jackson Yee",
+        "zh": "易烊千璽"
+      },
+      "color": "#8F5A16",
+      "color_dark": "#E0B36A",
+      "description": {
+        "en": "News and appearances from 易烊千璽.",
+        "zh": "易烊千璽的消息與動態。"
+      }
+    },
+    {
+      "id": "cyber",
+      "short": "Cyber",
+      "name": {
+        "en": "Cybersecurity",
+        "zh": "資訊安全"
+      },
+      "color": "#3F4B5B",
+      "color_dark": "#9FB4C9",
+      "description": {
+        "en": "Global incidents, with a Hong Kong desk for local breaches.",
+        "zh": "全球事故，並聚焦香港本地資料外洩與網絡事故。"
+      }
+    }
+  ],
+  "workspaces": {
+    "me": {
+      "name": {
+        "en": "Siu Gai Mo's Brief",
+        "zh": "Siu Gai Mo's Brief"
+      },
+      "description": {
+        "en": "AI, Hong Kong, Mayday, and cybersecurity with a HK desk.",
+        "zh": "AI、香港、五月天，以及全球與香港網絡安全。"
+      },
+      "lang": "en",
+      "accent": "#0B6B5D",
+      "topic_ids": [
+        "ai",
+        "hk",
+        "mayday",
+        "cyber"
+      ],
+      "cap": 12,
+      "picks": [
+        {
+          "card_id": "d3aa48d62260dc73",
+          "why": "Reported by Hacker News. Open the source for the details.",
+          "bullets": [
+            "Reported by Hacker News. Open the source for the confirmed details."
+          ]
+        },
+        {
+          "card_id": "a825d105bd2183c9",
+          "why": "My company is pretty paranoid about leaking IP to the frontier labs through prompts, so we've all been diligent about disabling data sharing in Codex/Claude Code/etc.",
+          "bullets": [
+            "My company is pretty paranoid about leaking IP to the frontier labs through prompts, so we've all been diligent about disabling data sharing in Codex/Claude Code/etc."
+          ]
+        },
+        {
+          "card_id": "2f19ad59b4cd399e",
+          "why": "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生防護中心提醒市民採取適當預防措施。",
+          "bullets": [
+            "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生防護中心提醒市民採取適當預防措施。",
+            "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生署衞生防護中心（中心）今日（十一月三日）提醒計劃外遊的市民，在出發前瀏覽衞生署 旅遊健康服務網站…"
+          ]
+        },
+        {
+          "card_id": "7fa8607839334be5",
+          "why": "水務署表示，承建商下午在佐敦德成街進行緊急鹹水管維修工程時，一條毗連施工位置的老舊石棉水泥食水管突然出現爆裂情況 ，該食水管用作供應食水予高景臺及康源閣，經工程團隊搶修後，相關屋苑的食水供應已於今晚約9時起陸續恢復正常。",
+          "bullets": [
+            "水務署表示，承建商下午在佐敦德成街進行緊急鹹水管維修工程時，一條毗連施工位置的老舊石棉水泥食水管突然出現爆裂情況 ，該食水管用作供應食水予高景臺及康源閣，經工程團隊搶修後，相關屋苑的食水供應已於今晚約9時起陸續恢復正常。",
+            "位於佐敦的高景臺和康源閣暫停食水供應，水務署預計明天早上6時恢復供水。"
+          ]
+        },
+        {
+          "card_id": "821d9c117b4f8bbe",
+          "why": "選舉管理委員會主席陸啟康晚上在選委會界別分組一般選舉候選人簡介會，向候選人講解選舉安排、選舉活動指引內容及進行競選活動時應注意的重要事項，以確保選舉在公開、誠實及公平的情況下進行。",
+          "bullets": [
+            "選舉管理委員會主席陸啟康晚上在選委會界別分組一般選舉候選人簡介會，向候選人講解選舉安排、選舉活動指引內容及進行競選活動時應注意的重要事項，以確保選舉在公開、誠實及公平的情況下進行。"
+          ]
+        },
+        {
+          "card_id": "7e170775c45908a4",
+          "why": "Reported by The Information. Open the source for the details.",
+          "bullets": [
+            "Reported by The Information. Open the source for the confirmed details."
+          ]
+        },
+        {
+          "card_id": "cc729a30a751e54b",
+          "why": "Cybersecurity company Barracuda Networks warned customers to patch two vulnerabilities that can let attackers run commands with root privileges.",
+          "bullets": [
+            "Cybersecurity company Barracuda Networks warned customers to patch two vulnerabilities that can let attackers run commands with root privileges."
+          ]
+        },
+        {
+          "card_id": "a086367e65652e7a",
+          "why": "Google on Monday warned that threat actors are hijacking enterprise access to Large Language Models (LLMs) to fraudulently leverage expensive computing resources and AI services.",
+          "bullets": [
+            "Google on Monday warned that threat actors are hijacking enterprise access to Large Language Models (LLMs) to fraudulently leverage expensive computing resources and AI services."
+          ]
+        },
+        {
+          "card_id": "cac76414c1835d87",
+          "why": "大紀元時報香港 報導：詳情請看原文。",
+          "bullets": [
+            "商業電台: MoneySmart系統被入侵 部分香港和新加坡客戶資料外洩"
+          ]
+        },
+        {
+          "card_id": "4cb64ef30b86a575",
+          "why": "Reported by Geopolitechs. Open the source for the details.",
+          "bullets": [
+            "Reported by Geopolitechs. Open the source for the confirmed details."
+          ]
+        },
+        {
+          "card_id": "07dd196b2cf35d79",
+          "why": "Chinese Vice-Premier He Lifeng said that building Hong Kong “remains a key strategy for China” as he outlined four ways for the city to boost its long-term prospects and support the…",
+          "bullets": [
+            "Chinese Vice-Premier He Lifeng said that building Hong Kong “remains a key strategy for China” as he outlined four ways for the city to boost its long-term prospects and support the country’s development."
+          ]
+        },
+        {
+          "card_id": "496b27d59742de6e",
+          "why": "香港01 報導：請看原文了解已確認的內容。",
+          "bullets": [
+            "噓！星聞: 五月天石頭爆退團 阿信深夜感性說話了",
+            "東森電視: 五月天石頭爆退團！阿信深夜感性發聲：再見面時位置還在",
+            "華視新聞網: 五月天石頭爆「想退團」 阿信深夜「溫柔宣言」弄哭粉絲- 娛樂"
+          ]
+        }
+      ]
+    },
+    "her": {
+      "name": {
+        "en": "Siu Bak's Brief",
+        "zh": "Siu Bak's Brief"
+      },
+      "description": {
+        "en": "APAC legal with HK priority, Hong Kong news and 易烊千璽.",
+        "zh": "以香港優先的亞太法律、香港新聞與易烊千璽。"
+      },
+      "lang": "en",
+      "accent": "#8E3B4A",
+      "topic_ids": [
+        "legal",
+        "hk",
+        "jackson"
+      ],
+      "cap": 8,
+      "picks": [
+        {
+          "card_id": "90cc9ce631c05ea9",
+          "why": "EU: This morning, Advocate General (AG) Szpunar delivered his long-awaited Opinion in Like Company, C-250/25, the first referral to reach the Court of Justice of the European Union (CJEU)…",
+          "bullets": [
+            "This morning, Advocate General (AG) Szpunar delivered his long-awaited Opinion in Like Company, C-250/25, the first referral to reach the Court of Justice of the European Union (CJEU) regarding the interplay between…"
+          ]
+        },
+        {
+          "card_id": "4da2d6cf08e20da8",
+          "why": "香港經濟日報HKET 報導：請看原文了解對實務的影響。",
+          "bullets": [
+            "香港經濟日報HKET 報導：詳情請看原文。"
+          ]
+        },
+        {
+          "card_id": "9f72c68c0376cda9",
+          "why": "Yahoo 財經 報導：請看原文了解對實務的影響。",
+          "bullets": [
+            "Yahoo 財經 報導：詳情請看原文。"
+          ]
+        },
+        {
+          "card_id": "91c63bf88a191d57",
+          "why": "TradingView 報導：請看原文了解對實務的影響。",
+          "bullets": [
+            "TradingView 報導：詳情請看原文。"
+          ]
+        },
+        {
+          "card_id": "ff4c1c9b4def05fe",
+          "why": "Reported by Asia News Network. Check the source for the practical effect.",
+          "bullets": [
+            "Reported by Asia News Network. Open the source for the confirmed details."
+          ]
+        },
+        {
+          "card_id": "2f19ad59b4cd399e",
+          "why": "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生防護中心提醒市民採取適當預防措施。",
+          "bullets": [
+            "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生防護中心提醒市民採取適當預防措施。",
+            "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生署衞生防護中心（中心）今日（十一月三日）提醒計劃外遊的市民，在出發前瀏覽衞生署 旅遊健康服務網站…"
+          ]
+        },
+        {
+          "card_id": "7fa8607839334be5",
+          "why": "水務署表示，承建商下午在佐敦德成街進行緊急鹹水管維修工程時，一條毗連施工位置的老舊石棉水泥食水管突然出現爆裂情況 ，該食水管用作供應食水予高景臺及康源閣，經工程團隊搶修後，相關屋苑的食水供應已於今晚約9時起陸續恢復正常。",
+          "bullets": [
+            "水務署表示，承建商下午在佐敦德成街進行緊急鹹水管維修工程時，一條毗連施工位置的老舊石棉水泥食水管突然出現爆裂情況 ，該食水管用作供應食水予高景臺及康源閣，經工程團隊搶修後，相關屋苑的食水供應已於今晚約9時起陸續恢復正常。",
+            "位於佐敦的高景臺和康源閣暫停食水供應，水務署預計明天早上6時恢復供水。"
+          ]
+        },
+        {
+          "card_id": "092bebf6b4538838",
+          "why": "三立新聞網SETN.com 報導：詳情請看原文。",
+          "bullets": [
+            "三立新聞網SETN.com 報導：詳情請看原文。"
+          ]
+        }
+      ]
+    }
+  },
+  "cards": [
+    {
+      "id": "d3aa48d62260dc73",
+      "topic": "ai",
+      "headline": "The 'Astra can read and write weights to improve Qwen' post is misleading",
+      "headline_lang": "en",
+      "publisher": "Hacker News",
+      "published": "2026-11-03T20:21:17+08:00",
+      "url": "https://honnibal.dev/blog/astra-read-write-misleading",
+      "sources": [
+        {
+          "title": "The 'Astra can read and write weights to improve Qwen' post is misleading",
+          "url": "https://honnibal.dev/blog/astra-read-write-misleading",
+          "publisher": "Hacker News",
+          "published": "2026-11-03T20:21:17+08:00"
+        }
+      ],
+      "comments": [
+        {
+          "platform": "HN",
+          "author": "phoghed",
+          "score": null,
+          "text": "Wasn’t all that obvious to anyone who read the original post when they got to the section that explicitly explained what the author of this post is now summarizing? Sure if you only read the title and brief at the top you’d walk away without the full picture though. This is a better response imo:",
+          "url": "https://news.ycombinator.com/item?id=50351571"
+        },
+        {
+          "platform": "HN",
+          "author": "hollowturtle",
+          "score": null,
+          "text": "Wow that was fast",
+          "url": "https://news.ycombinator.com/item?id=50351577"
+        },
+        {
+          "platform": "HN",
+          "author": "kenjackson",
+          "score": null,
+          "text": "The original post explains what they did and why better than this post. This post taught me nothing that wasn’t in the original.",
+          "url": "https://news.ycombinator.com/item?id=50351578"
+        },
+        {
+          "platform": "HN",
+          "author": "sheepscreek",
+          "score": null,
+          "text": "> The “just by looking at the raw weights” setting (raw floats in context, no tools, no running the network) only appears in experiments 1, 2 and 4, on networks of 17K–172K weights. The author is being equally disingenuous. That piece by itself is insightful. Meaning, LLMs are capable of deciphering what a model can…",
+          "url": "https://news.ycombinator.com/item?id=50351611"
+        },
+        {
+          "platform": "HN",
+          "author": "GavinAnderegg",
+          "score": null,
+          "text": "I'm still impressed by the \"Weight-Space Programming\" idea. Perhaps its because I didn't know that LLMs could understand or successfully modify weights at all previous to reading it. However, I think the examples provided in the original piece were eye-opening. Yes, humans can build tooling to modify weights, but…",
+          "url": "https://news.ycombinator.com/item?id=50351619"
+        }
+      ],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.9624,
+      "score": 0.7472,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Reported by Hacker News. Open the source for the confirmed details."
+      ],
+      "why": "Reported by Hacker News. Open the source for the details."
+    },
+    {
+      "id": "a825d105bd2183c9",
+      "topic": "ai",
+      "headline": "OpenAI seems to be silently re-enabling model training on Codex chats",
+      "headline_lang": "en",
+      "publisher": "Hacker News",
+      "published": "2026-11-03T22:53:41+08:00",
+      "url": "https://news.ycombinator.com/item?id=50352757",
+      "sources": [
+        {
+          "title": "OpenAI seems to be silently re-enabling model training on Codex chats",
+          "url": "https://news.ycombinator.com/item?id=50352757",
+          "publisher": "Hacker News",
+          "published": "2026-11-03T22:53:41+08:00"
+        }
+      ],
+      "comments": [
+        {
+          "platform": "HN",
+          "author": "spwa4",
+          "score": null,
+          "text": "OpenAI is also now hiding your usage. Not accessible anymore in the menu, and /usage in the codex app now also gives a lot of stats, but the one stat you do want to know, how much limit left, is no longer there. I'm guessing another big usage reduction is coming soon.",
+          "url": "https://news.ycombinator.com/item?id=50353296"
+        },
+        {
+          "platform": "HN",
+          "author": "monster_truck",
+          "score": null,
+          "text": "If your company actually cared about this they would be running their own inference instead of leaving fate to a couple of checkboxes.",
+          "url": "https://news.ycombinator.com/item?id=50353398"
+        },
+        {
+          "platform": "HN",
+          "author": "CEOatMindfries",
+          "score": null,
+          "text": "May be the coding agents should build a layer when they don't leak any IP, treat them like environment variables, which must be handled deterministically.",
+          "url": "https://news.ycombinator.com/item?id=50353408"
+        },
+        {
+          "platform": "HN",
+          "author": "edot",
+          "score": null,
+          "text": "Turn on advanced account security. You should be doing this anyways (requires hardware keys). But it also locks data sharing off.",
+          "url": "https://news.ycombinator.com/item?id=50353526"
+        },
+        {
+          "platform": "HN",
+          "author": "bentt",
+          "score": null,
+          "text": "Don't trust this company.",
+          "url": "https://news.ycombinator.com/item?id=50353588"
+        }
+      ],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.6979,
+      "score": 0.7304,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "My company is pretty paranoid about leaking IP to the frontier labs through prompts, so we've all been diligent about disabling data sharing in Codex/Claude Code/etc."
+      ],
+      "why": "My company is pretty paranoid about leaking IP to the frontier labs through prompts, so we've all been diligent about disabling data sharing in Codex/Claude Code/etc."
+    },
+    {
+      "id": "2f19ad59b4cd399e",
+      "topic": "hk",
+      "headline": "全球多地出現麻疹疫情 當局呼籲市民採取預防措施",
+      "headline_lang": "zh-HK",
+      "publisher": "rthk.hk - 即時新聞: 本地",
+      "published": "2026-11-03T22:46:31+08:00",
+      "url": "https://news.rthk.hk/rthk/ch/component/k2/1876440-20261103.htm",
+      "sources": [
+        {
+          "title": "全球多地出現麻疹疫情 當局呼籲市民採取預防措施",
+          "url": "https://news.rthk.hk/rthk/ch/component/k2/1876440-20261103.htm",
+          "publisher": "rthk.hk - 即時新聞: 本地",
+          "published": "2026-11-03T22:46:31+08:00"
+        },
+        {
+          "title": "多國因疫苗接種率低爆發麻疹疫情 衞生署提醒市民採取適當預防措施",
+          "url": "https://www.info.gov.hk/gia/general/202611/03/P2026110300636.htm",
+          "publisher": "香港特區政府新聞公報",
+          "published": "2026-11-03T19:20:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.22,
+      "score": 0.7281,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 2,
+      "lang": "zh-HK",
+      "bullets": [
+        "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生防護中心提醒市民採取適當預防措施。",
+        "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生署衞生防護中心（中心）今日（十一月三日）提醒計劃外遊的市民，在出發前瀏覽衞生署 旅遊健康服務網站…"
+      ],
+      "why": "鑑於近期全球多個地區因疫苗接種率偏低而持續出現麻疹疫情，衞生防護中心提醒市民採取適當預防措施。"
+    },
+    {
+      "id": "7fa8607839334be5",
+      "topic": "hk",
+      "headline": "經水務署搶修 佐敦高景臺及康源閣食水恢復",
+      "headline_lang": "zh-HK",
+      "publisher": "rthk.hk - 即時新聞: 本地",
+      "published": "2026-11-03T21:32:52+08:00",
+      "url": "https://news.rthk.hk/rthk/ch/component/k2/1876433-20261103.htm",
+      "sources": [
+        {
+          "title": "經水務署搶修 佐敦高景臺及康源閣食水恢復",
+          "url": "https://news.rthk.hk/rthk/ch/component/k2/1876433-20261103.htm",
+          "publisher": "rthk.hk - 即時新聞: 本地",
+          "published": "2026-11-03T21:32:52+08:00"
+        },
+        {
+          "title": "佐敦高景臺康源閣暫停食水供應 水務署料明早6時恢復供水",
+          "url": "https://news.rthk.hk/rthk/ch/component/k2/1876421-20261103.htm",
+          "publisher": "rthk.hk - 即時新聞: 本地",
+          "published": "2026-11-03T19:47:25+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.22,
+      "score": 0.7102,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 2,
+      "lang": "zh-HK",
+      "bullets": [
+        "水務署表示，承建商下午在佐敦德成街進行緊急鹹水管維修工程時，一條毗連施工位置的老舊石棉水泥食水管突然出現爆裂情況 ，該食水管用作供應食水予高景臺及康源閣，經工程團隊搶修後，相關屋苑的食水供應已於今晚約9時起陸續恢復正常。",
+        "位於佐敦的高景臺和康源閣暫停食水供應，水務署預計明天早上6時恢復供水。"
+      ],
+      "why": "水務署表示，承建商下午在佐敦德成街進行緊急鹹水管維修工程時，一條毗連施工位置的老舊石棉水泥食水管突然出現爆裂情況 ，該食水管用作供應食水予高景臺及康源閣，經工程團隊搶修後，相關屋苑的食水供應已於今晚約9時起陸續恢復正常。"
+    },
+    {
+      "id": "90cc9ce631c05ea9",
+      "topic": "legal",
+      "headline": "AG Szpunar’s Opinion in Like Company is here: a landmark take on several questions facing AI and copyright/related rights, even though the CJEU is advised not to answer the questions on LLM training",
+      "headline_lang": "en",
+      "publisher": "The IPKat",
+      "published": "2026-11-03T22:27:34+08:00",
+      "url": "http://ipkitten.blogspot.com/2026/11/ag-szpunars-opinion-in-like-company-is.html",
+      "sources": [
+        {
+          "title": "AG Szpunar’s Opinion in Like Company is here: a landmark take on several questions facing AI and copyright/related rights, even though the CJEU is advised not to answer the questions on LLM training",
+          "url": "http://ipkitten.blogspot.com/2026/11/ag-szpunars-opinion-in-like-company-is.html",
+          "publisher": "The IPKat",
+          "published": "2026-11-03T22:27:34+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "IP"
+      ],
+      "jurisdiction": "EU",
+      "heat": 0.18,
+      "score": 0.7087,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "This morning, Advocate General (AG) Szpunar delivered his long-awaited Opinion in Like Company, C-250/25, the first referral to reach the Court of Justice of the European Union (CJEU) regarding the interplay between…"
+      ],
+      "why": "EU: This morning, Advocate General (AG) Szpunar delivered his long-awaited Opinion in Like Company, C-250/25, the first referral to reach the Court of Justice of the European Union (CJEU)…"
+    },
+    {
+      "id": "821d9c117b4f8bbe",
+      "topic": "hk",
+      "headline": "陸啟康在選委會界別分組一般選舉候選人簡介會講解選舉安排",
+      "headline_lang": "zh-HK",
+      "publisher": "rthk.hk - 即時新聞: 本地",
+      "published": "2026-11-03T22:47:14+08:00",
+      "url": "https://news.rthk.hk/rthk/ch/component/k2/1876441-20261103.htm",
+      "sources": [
+        {
+          "title": "陸啟康在選委會界別分組一般選舉候選人簡介會講解選舉安排",
+          "url": "https://news.rthk.hk/rthk/ch/component/k2/1876441-20261103.htm",
+          "publisher": "rthk.hk - 即時新聞: 本地",
+          "published": "2026-11-03T22:47:14+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6873,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "選舉管理委員會主席陸啟康晚上在選委會界別分組一般選舉候選人簡介會，向候選人講解選舉安排、選舉活動指引內容及進行競選活動時應注意的重要事項，以確保選舉在公開、誠實及公平的情況下進行。"
+      ],
+      "why": "選舉管理委員會主席陸啟康晚上在選委會界別分組一般選舉候選人簡介會，向候選人講解選舉安排、選舉活動指引內容及進行競選活動時應注意的重要事項，以確保選舉在公開、誠實及公平的情況下進行。"
+    },
+    {
+      "id": "cc729a30a751e54b",
+      "topic": "cyber",
+      "headline": "Barracuda warns of critical flaws allowing root access to devices",
+      "headline_lang": "en",
+      "publisher": "BleepingComputer",
+      "published": "2026-11-03T23:06:16+08:00",
+      "url": "https://www.bleepingcomputer.com/news/security/barracuda-warns-of-critical-flaws-allowing-root-access-to-devices/",
+      "sources": [
+        {
+          "title": "Barracuda warns of critical flaws allowing root access to devices",
+          "url": "https://www.bleepingcomputer.com/news/security/barracuda-warns-of-critical-flaws-allowing-root-access-to-devices/",
+          "publisher": "BleepingComputer",
+          "published": "2026-11-03T23:06:16+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "Global"
+      ],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6775,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Cybersecurity company Barracuda Networks warned customers to patch two vulnerabilities that can let attackers run commands with root privileges."
+      ],
+      "why": "Cybersecurity company Barracuda Networks warned customers to patch two vulnerabilities that can let attackers run commands with root privileges."
+    },
+    {
+      "id": "a086367e65652e7a",
+      "topic": "cyber",
+      "headline": "Google Warns LLMjacking Attacks Are Costing Some Enterprises Up to $1 Million in Cloud Charges",
+      "headline_lang": "en",
+      "publisher": "The Hacker News",
+      "published": "2026-11-03T23:41:53+08:00",
+      "url": "https://thehackernews.com/2026/11/google-warns-llmjacking-attacks-are.html",
+      "sources": [
+        {
+          "title": "Google Warns LLMjacking Attacks Are Costing Some Enterprises Up to $1 Million in Cloud Charges",
+          "url": "https://thehackernews.com/2026/11/google-warns-llmjacking-attacks-are.html",
+          "publisher": "The Hacker News",
+          "published": "2026-11-03T23:41:53+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "Global"
+      ],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6709,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Google on Monday warned that threat actors are hijacking enterprise access to Large Language Models (LLMs) to fraudulently leverage expensive computing resources and AI services."
+      ],
+      "why": "Google on Monday warned that threat actors are hijacking enterprise access to Large Language Models (LLMs) to fraudulently leverage expensive computing resources and AI services."
+    },
+    {
+      "id": "4da2d6cf08e20da8",
+      "topic": "legal",
+      "headline": "Meta｜Meta AI及智能眼鏡登陸香港 私隱與安全保障成關注焦點",
+      "headline_lang": "zh-HK",
+      "publisher": "香港經濟日報HKET",
+      "published": "2026-11-03T14:10:36+08:00",
+      "url": "https://news.google.com/rss/articles/CBMi7gJBVV95cUxNS1ZfLWY3cGlzdnptdVk3RlZDOHBiOFJmem0tTklEem51dWVNMWp4cFZvNzlScWNoQkRQSl9iNDBHM3JqYnZmVXVGQU05N1Zza0xnT19NbDZfaDZRWHhJWVlOQ1VDZmVoZkpVZVJMZGdiTjdlVDFrdldXbExpeU9fdEJZRTQzdjNMOFFjOHAxbWVMekpNWHpCWmJJbXZjM2lqNDdvVVFDLUdiWE1yOU9FYy15ckUxcEF4UzJOSGVVV1oxdTZOSDFybU56dG04aTJwX0RvNEFlQ2duLWVYeDU3cHprdmcwRTUtOVhzdDZYYWZPc1pETEh5WHdtSXEzZlNVRFo4TTNvNEczWkpySnI2WnNadk1DNWZrZV9OZ1hYUW8yUzNEN2Z4alFkTHdGQnBGUnpuNzhUSzZmTUprQ2U2TWdKdEVXbzJOajY5Q2Z2bHFzLURvM0h3YTlaVEJ4QjZtU2oweUwtMXFDbTNDaXc?oc=5",
+      "sources": [
+        {
+          "title": "Meta｜Meta AI及智能眼鏡登陸香港 私隱與安全保障成關注焦點",
+          "url": "https://news.google.com/rss/articles/CBMi7gJBVV95cUxNS1ZfLWY3cGlzdnptdVk3RlZDOHBiOFJmem0tTklEem51dWVNMWp4cFZvNzlScWNoQkRQSl9iNDBHM3JqYnZmVXVGQU05N1Zza0xnT19NbDZfaDZRWHhJWVlOQ1VDZmVoZkpVZVJMZGdiTjdlVDFrdldXbExpeU9fdEJZRTQzdjNMOFFjOHAxbWVMekpNWHpCWmJJbXZjM2lqNDdvVVFDLUdiWE1yOU9FYy15ckUxcEF4UzJOSGVVV1oxdTZOSDFybU56dG04aTJwX0RvNEFlQ2duLWVYeDU3cHprdmcwRTUtOVhzdDZYYWZPc1pETEh5WHdtSXEzZlNVRFo4TTNvNEczWkpySnI2WnNadk1DNWZrZV9OZ1hYUW8yUzNEN2Z4alFkTHdGQnBGUnpuNzhUSzZmTUprQ2U2TWdKdEVXbzJOajY5Q2Z2bHFzLURvM0h3YTlaVEJ4QjZtU2oweUwtMXFDbTNDaXc?oc=5",
+          "publisher": "香港經濟日報HKET",
+          "published": "2026-11-03T14:10:36+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK",
+        "Privacy"
+      ],
+      "jurisdiction": "Hong Kong",
+      "heat": 0.18,
+      "score": 0.6596,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "香港經濟日報HKET 報導：詳情請看原文。"
+      ],
+      "why": "香港經濟日報HKET 報導：請看原文了解對實務的影響。"
+    },
+    {
+      "id": "9f72c68c0376cda9",
+      "topic": "legal",
+      "headline": "私隱署：5機構資料外泄 客戶損失最多逾150萬",
+      "headline_lang": "zh-HK",
+      "publisher": "Yahoo 財經",
+      "published": "2026-11-03T14:03:00+08:00",
+      "url": "https://news.google.com/rss/articles/CBMisgJBVV95cUxOWTBDdFc5NjJ6ZHhUcndyNU5QZHo4LTFMNl9oa0RoSWJIcVJXdkt0OHEyajNuZkJuWDBLRmlCdWZvdUgxa3JEeVNoN0xFUDdZamNzaTBmd3l0RnVNRmZsOU82SUJsZnBfUGJRZ3FlX2VsMy0zbVNzV2U1YUJ1OHEtb1dwNkFnSEh3Q2lydFROdGpPaDAzOG9MdXdPYWFyeC1ob3BSaWRPbVlUYVRQY0U0ZjRZbWNRc2tOZXNENG9ySjM5QUhCWjBzeFh3c1VOX2xlbmJpNGhvSkVuSy1WOUlXY3RjVXNRdlV0NnNJckdIVjJxTDhLUkRoZ3dDMXhrQVBpYjBwQjMxTGNpbWQyVUNWVU5UcFh3VFRBYjR4SXpvcjA4RkRnLVdfVktFUUEyTGFBRFE?oc=5",
+      "sources": [
+        {
+          "title": "私隱署：5機構資料外泄 客戶損失最多逾150萬",
+          "url": "https://news.google.com/rss/articles/CBMisgJBVV95cUxOWTBDdFc5NjJ6ZHhUcndyNU5QZHo4LTFMNl9oa0RoSWJIcVJXdkt0OHEyajNuZkJuWDBLRmlCdWZvdUgxa3JEeVNoN0xFUDdZamNzaTBmd3l0RnVNRmZsOU82SUJsZnBfUGJRZ3FlX2VsMy0zbVNzV2U1YUJ1OHEtb1dwNkFnSEh3Q2lydFROdGpPaDAzOG9MdXdPYWFyeC1ob3BSaWRPbVlUYVRQY0U0ZjRZbWNRc2tOZXNENG9ySjM5QUhCWjBzeFh3c1VOX2xlbmJpNGhvSkVuSy1WOUlXY3RjVXNRdlV0NnNJckdIVjJxTDhLUkRoZ3dDMXhrQVBpYjBwQjMxTGNpbWQyVUNWVU5UcFh3VFRBYjR4SXpvcjA4RkRnLVdfVktFUUEyTGFBRFE?oc=5",
+          "publisher": "Yahoo 財經",
+          "published": "2026-11-03T14:03:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK",
+        "Privacy"
+      ],
+      "jurisdiction": "Hong Kong",
+      "heat": 0.18,
+      "score": 0.6594,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "Yahoo 財經 報導：詳情請看原文。"
+      ],
+      "why": "Yahoo 財經 報導：請看原文了解對實務的影響。"
+    },
+    {
+      "id": "91c63bf88a191d57",
+      "topic": "legal",
+      "headline": "香港將代幣化結算延伸至全天候，計劃進行穩定幣試驗",
+      "headline_lang": "zh-HK",
+      "publisher": "TradingView",
+      "published": "2026-11-03T12:13:31+08:00",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5xNVBaelBxSV93dHRYTi1TUEttZVBTNUxWY1BJYzZjZEdSVmYxVDIxZU5NZnc2Sm94S0czZ1VWNVNNWHN4S3RjNFFwaGlZUEtveUlYMjdpLVNTNk9nOVBrNWZKZ3NPaWZwTzJoN2pCZw?oc=5",
+      "sources": [
+        {
+          "title": "香港將代幣化結算延伸至全天候，計劃進行穩定幣試驗",
+          "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5xNVBaelBxSV93dHRYTi1TUEttZVBTNUxWY1BJYzZjZEdSVmYxVDIxZU5NZnc2Sm94S0czZ1VWNVNNWHN4S3RjNFFwaGlZUEtveUlYMjdpLVNTNk9nOVBrNWZKZ3NPaWZwTzJoN2pCZw?oc=5",
+          "publisher": "TradingView",
+          "published": "2026-11-03T12:13:31+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK",
+        "Fintech"
+      ],
+      "jurisdiction": "Hong Kong",
+      "heat": 0.18,
+      "score": 0.6564,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "TradingView 報導：詳情請看原文。"
+      ],
+      "why": "TradingView 報導：請看原文了解對實務的影響。"
+    },
+    {
+      "id": "ff4c1c9b4def05fe",
+      "topic": "legal",
+      "headline": "Hong Kong urged to establish regulatory framework for agentic AI, tokenisation",
+      "headline_lang": "en",
+      "publisher": "Asia News Network",
+      "published": "2026-11-03T12:12:29+08:00",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNdzlaQ3ktb0txOFVoUUhrajBNZnh0M2I4RkNDVEN6TVZBMXUtVXhpNWdYUWlLNDNhTjNoYUEtZVcwcGtlejNwWDE3MnVpWk9NLWk2NzA5dVN2Vm5yN2tyZnAzN3NNdTZhVDg2QVp6UWx4MWtIN2dVUkttcHEtNG5pMVdhNmI3d0JkYVQyTUNWOGtnRlA2ek50NGZTeWkyV2VWUjJkYzdn?oc=5",
+      "sources": [
+        {
+          "title": "Hong Kong urged to establish regulatory framework for agentic AI, tokenisation",
+          "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNdzlaQ3ktb0txOFVoUUhrajBNZnh0M2I4RkNDVEN6TVZBMXUtVXhpNWdYUWlLNDNhTjNoYUEtZVcwcGtlejNwWDE3MnVpWk9NLWk2NzA5dVN2Vm5yN2tyZnAzN3NNdTZhVDg2QVp6UWx4MWtIN2dVUkttcHEtNG5pMVdhNmI3d0JkYVQyTUNWOGtnRlA2ek50NGZTeWkyV2VWUjJkYzdn?oc=5",
+          "publisher": "Asia News Network",
+          "published": "2026-11-03T12:12:29+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK",
+        "Fintech"
+      ],
+      "jurisdiction": "Hong Kong",
+      "heat": 0.18,
+      "score": 0.6564,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Reported by Asia News Network. Open the source for the confirmed details."
+      ],
+      "why": "Reported by Asia News Network. Check the source for the practical effect."
+    },
+    {
+      "id": "092bebf6b4538838",
+      "topic": "jackson",
+      "headline": "時尚就是任性！易烊千璽衣服反穿露標籤 走在潮流最尖端",
+      "headline_lang": "zh-Hant",
+      "publisher": "三立新聞網SETN.com",
+      "published": "2026-10-30T19:34:27+08:00",
+      "url": "https://news.google.com/rss/articles/CBMiR0FVX3lxTFBHbzBPS01lQnJXbUVJVlhnWjZyVzI4UzRxWVAyTHNUc19jTi1Ubk82QW5fNVFaRWFlMFFmMnVwbUd3a1FWa1RR0gFLQVVfeXFMT1p6TlJadUJDOTNFNkk2Mk15cGF3RGc0ZGdyQjVBNTNjb0F3T0JiYUp4c1EzbnBFMW84YXFKV2liU2xJVkh0Q2xrbDdr?oc=5",
+      "sources": [
+        {
+          "title": "時尚就是任性！易烊千璽衣服反穿露標籤 走在潮流最尖端",
+          "url": "https://news.google.com/rss/articles/CBMiR0FVX3lxTFBHbzBPS01lQnJXbUVJVlhnWjZyVzI4UzRxWVAyTHNUc19jTi1Ubk82QW5fNVFaRWFlMFFmMnVwbUd3a1FWa1RR0gFLQVVfeXFMT1p6TlJadUJDOTNFNkk2Mk15cGF3RGc0ZGdyQjVBNTNjb0F3T0JiYUp4c1EzbnBFMW84YXFKV2liU2xJVkh0Q2xrbDdr?oc=5",
+          "publisher": "三立新聞網SETN.com",
+          "published": "2026-10-30T19:34:27+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6469,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant",
+      "bullets": [
+        "三立新聞網SETN.com 報導：詳情請看原文。"
+      ],
+      "why": "三立新聞網SETN.com 報導：詳情請看原文。"
+    },
+    {
+      "id": "cac76414c1835d87",
+      "topic": "cyber",
+      "headline": "MoneySmart系統資料外洩 涉部分香港及新加坡客戶",
+      "headline_lang": "zh-HK",
+      "publisher": "大紀元時報香港",
+      "published": "2026-11-03T17:51:00+08:00",
+      "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1CaDFjNjljdmo4VXV5aE1RSF9Ic0NrUDBGeXFXeElCbU9QVkJSUmJTeVJ3UXY3QnJOQnB4dkxxZ2NQMWxUZE8tUldreVgxekdteFRKMWl0eGVBNkoyZldJ?oc=5",
+      "sources": [
+        {
+          "title": "MoneySmart系統資料外洩 涉部分香港及新加坡客戶",
+          "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1CaDFjNjljdmo4VXV5aE1RSF9Ic0NrUDBGeXFXeElCbU9QVkJSUmJTeVJ3UXY3QnJOQnB4dkxxZ2NQMWxUZE8tUldreVgxekdteFRKMWl0eGVBNkoyZldJ?oc=5",
+          "publisher": "大紀元時報香港",
+          "published": "2026-11-03T17:51:00+08:00"
+        },
+        {
+          "title": "MoneySmart系統被入侵 部分香港和新加坡客戶資料外洩",
+          "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1yQnUyNGFkd21yTjVaTWhxb0tBNkRxVGE4b1RQbE9pVGZFOW5DVXZtSmVBSU9QVUlSaDdiUThWRjFlWHhzTU40Q2tMZGQwS0N4dkJoeTRUYknSAVhBVV95cUxNckJ1MjRhZHdtck41Wk1ocW9LQTZEcVRhOG9UUGxPaVRmRTluQ1V2bUplQUlPUFVJUmg3YlE4VkYxZVh4c01ONENrTGRkMEtDeHZCaHk0VGJJ?oc=5",
+          "publisher": "商業電台",
+          "published": "2026-11-03T13:36:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK"
+      ],
+      "jurisdiction": "",
+      "heat": 0.22,
+      "score": 0.6462,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 2,
+      "lang": "zh-HK",
+      "bullets": [
+        "商業電台: MoneySmart系統被入侵 部分香港和新加坡客戶資料外洩"
+      ],
+      "why": "大紀元時報香港 報導：詳情請看原文。"
+    },
+    {
+      "id": "7e170775c45908a4",
+      "topic": "ai",
+      "headline": "Anthropic Touts Claude’s Chip Design Skills to IPO Investors",
+      "headline_lang": "en",
+      "publisher": "The Information",
+      "published": "2026-11-03T22:00:00+08:00",
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQYnpwS0FzRk9KWUhPNC1rT3JnNWdLN1NhTWM0VU5zWHkyZEo5NVR1dXJhTWdVY2R0ZGEwcVhDTGZ3TkR5SGRIemoyenlCUU1TV2xMTzNBa0xtZDJSb1hGeUVqVlhBVmJNRVFkVS1qb21LdmtqOUxmWEtVOEgwd3JnRnNJMHJIQXdfYndBMUpjZWNPaGRwSW55ZWJsdEk?oc=5",
+      "sources": [
+        {
+          "title": "Anthropic Touts Claude’s Chip Design Skills to IPO Investors",
+          "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQYnpwS0FzRk9KWUhPNC1rT3JnNWdLN1NhTWM0VU5zWHkyZEo5NVR1dXJhTWdVY2R0ZGEwcVhDTGZ3TkR5SGRIemoyenlCUU1TV2xMTzNBa0xtZDJSb1hGeUVqVlhBVmJNRVFkVS1qb21LdmtqOUxmWEtVOEgwd3JnRnNJMHJIQXdfYndBMUpjZWNPaGRwSW55ZWJsdEk?oc=5",
+          "publisher": "The Information",
+          "published": "2026-11-03T22:00:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6407,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Reported by The Information. Open the source for the confirmed details."
+      ],
+      "why": "Reported by The Information. Open the source for the details."
+    },
+    {
+      "id": "07dd196b2cf35d79",
+      "topic": "cyber",
+      "headline": "Hong Kong seeks to balance finance growth against cyber risks",
+      "headline_lang": "en",
+      "publisher": "Hong Kong - South China Morning Post",
+      "published": "2026-11-03T17:01:17+08:00",
+      "url": "https://www.scmp.com/plus/news/hong-kong/hong-kong-economy/article/3373123/hong-kong-seeks-balance-finance-growth-against-cyber-risks",
+      "sources": [
+        {
+          "title": "Hong Kong seeks to balance finance growth against cyber risks",
+          "url": "https://www.scmp.com/plus/news/hong-kong/hong-kong-economy/article/3373123/hong-kong-seeks-balance-finance-growth-against-cyber-risks",
+          "publisher": "Hong Kong - South China Morning Post",
+          "published": "2026-11-03T17:01:17+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK"
+      ],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6134,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Chinese Vice-Premier He Lifeng said that building Hong Kong “remains a key strategy for China” as he outlined four ways for the city to boost its long-term prospects and support the country’s development."
+      ],
+      "why": "Chinese Vice-Premier He Lifeng said that building Hong Kong “remains a key strategy for China” as he outlined four ways for the city to boost its long-term prospects and support the…"
+    },
+    {
+      "id": "4cb64ef30b86a575",
+      "topic": "ai",
+      "headline": "DeepSeek Plans to Train Its Next-Generation Model on Huawei Ascend Chips",
+      "headline_lang": "en",
+      "publisher": "Geopolitechs",
+      "published": "2026-11-03T18:00:06+08:00",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE52NkNkNjNrLXlxV3lCc1ZyRzg3UDF3LXhqM3pQSFowSUJESzdFbXJHWHFfU3Q4dTBVd2ZLRlRkWTdWdW94TlJaMGxEMGtEVGkweDlJc2Z0NzRNTGxNQno0YzBaOGt2eUlQRmNQd0dnTDk?oc=5",
+      "sources": [
+        {
+          "title": "DeepSeek Plans to Train Its Next-Generation Model on Huawei Ascend Chips",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE52NkNkNjNrLXlxV3lCc1ZyRzg3UDF3LXhqM3pQSFowSUJESzdFbXJHWHFfU3Q4dTBVd2ZLRlRkWTdWdW94TlJaMGxEMGtEVGkweDlJc2Z0NzRNTGxNQno0YzBaOGt2eUlQRmNQd0dnTDk?oc=5",
+          "publisher": "Geopolitechs",
+          "published": "2026-11-03T18:00:06+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.5791,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Reported by Geopolitechs. Open the source for the confirmed details."
+      ],
+      "why": "Reported by Geopolitechs. Open the source for the details."
+    },
+    {
+      "id": "496b27d59742de6e",
+      "topic": "mayday",
+      "headline": "五月天石頭傳退團惹熱議 阿信感性發長文唱片公司火速澄清",
+      "headline_lang": "zh-Hant",
+      "publisher": "香港01",
+      "published": "2026-10-23T15:00:00+08:00",
+      "url": "https://news.google.com/rss/articles/CBMiowNBVV95cUxPOU1EeFhwd1hPVzVYcEpKOTVrbURHVFNsaUxNMTl1UXJ0b2QwOFVGeFM1bWVsNHN3YTMzSzhPOFdrVXJob1ExZDg3djhYMGhNVEMwQTM4SGR5WVNHSXBHd0NONmJySnc4b1RzNmVIejBZbVVPWDB4aGVSaUNhZFE3YlpWM3BSdllfWkFLTnZHempRWHp4b085M1FodjJNVlFUWWVtUU52WWxFeGZlU0lmSGM2R2p1MXk0enRSU1pkb2hxWmxNdDJSVERwc3hxa2o3XzF4Vk5rU2M0cHI1YU5FeWlqQUN1ckx4T25LWnNDWTJnVlZORU5pM1hpU1VQdnpONy1XTTBwaXozMklBSHRPd1RzM2NfMlFRWFVremNlQW1zaTd4aTZoVFh1WEVHQy1va1VRbmVpN0VJRVBFcWxGdk82RkZWOFV2LU9WSmk5TWg4UGNxTG54b3hBMWd2ODVhX21ZRUM4ODZNVjA5R3BzQVRvRVpVMmVmVmNOcTNJZDdWa3A3LWFMVGlEajZlNy1lMjkwVHpRMmV2OVBLSHRqcFFFYw?oc=5",
+      "sources": [
+        {
+          "title": "五月天石頭傳退團惹熱議 阿信感性發長文唱片公司火速澄清",
+          "url": "https://news.google.com/rss/articles/CBMiowNBVV95cUxPOU1EeFhwd1hPVzVYcEpKOTVrbURHVFNsaUxNMTl1UXJ0b2QwOFVGeFM1bWVsNHN3YTMzSzhPOFdrVXJob1ExZDg3djhYMGhNVEMwQTM4SGR5WVNHSXBHd0NONmJySnc4b1RzNmVIejBZbVVPWDB4aGVSaUNhZFE3YlpWM3BSdllfWkFLTnZHempRWHp4b085M1FodjJNVlFUWWVtUU52WWxFeGZlU0lmSGM2R2p1MXk0enRSU1pkb2hxWmxNdDJSVERwc3hxa2o3XzF4Vk5rU2M0cHI1YU5FeWlqQUN1ckx4T25LWnNDWTJnVlZORU5pM1hpU1VQdnpONy1XTTBwaXozMklBSHRPd1RzM2NfMlFRWFVremNlQW1zaTd4aTZoVFh1WEVHQy1va1VRbmVpN0VJRVBFcWxGdk82RkZWOFV2LU9WSmk5TWg4UGNxTG54b3hBMWd2ODVhX21ZRUM4ODZNVjA5R3BzQVRvRVpVMmVmVmNOcTNJZDdWa3A3LWFMVGlEajZlNy1lMjkwVHpRMmV2OVBLSHRqcFFFYw?oc=5",
+          "publisher": "香港01",
+          "published": "2026-10-23T15:00:00+08:00"
+        },
+        {
+          "title": "五月天石頭爆退團 阿信深夜感性說話了",
+          "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE9jdWktZlZDMkJ4U0RCZkp1TG1ZWFBfNUJWRHliY20wcnZheGhZRVEtd2p3Umg2Zk5XS0NRVGJYZEZXT2hST0E4VTNvNU5PMlNydXBENW82U1hXUdIBX0FVX3lxTE5RM3ZJYktqUkp2WUhFSXg4MWVxTGpPVVdpYXgxTFRkMUV6NHpOV3VnOEt2RElGcTVSZHVPMjFYZldJODIyMVc4bUZiTFV4TTFINVlMUFdNVlBNSVRsUzVR?oc=5",
+          "publisher": "噓！星聞",
+          "published": "2026-10-21T15:00:00+08:00"
+        },
+        {
+          "title": "五月天石頭爆退團！阿信深夜感性發聲：再見面時位置還在",
+          "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE55azZVbklIak5qenZQSHZUbnFFdUV5Umk1NWZFV2xqZEVQbjBnZS01U2J3a05DYXBXeV9QMGw1WGFTT0dFYTRiOElHOA?oc=5",
+          "publisher": "東森電視",
+          "published": "2026-10-21T15:00:00+08:00"
+        },
+        {
+          "title": "五月天石頭爆「想退團」 阿信深夜「溫柔宣言」弄哭粉絲- 娛樂",
+          "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBmZ3NESUZfbUE3OEducFNPT2Y4bU52ZXRwSU9taUNBYm5QT3BubjFQTzBTeHNwYnJQTkE1TzhDTE5wQWdlajVFOHZTS1RsU1BZSDRFNTFfUmg4Y2FHS25Sb0phSkVxaEZ5RTN5bi1TTVltSnc?oc=5",
+          "publisher": "華視新聞網",
+          "published": "2026-10-21T15:00:00+08:00"
+        },
+        {
+          "title": "五月天石頭爆退團！阿信深夜感性發聲：再見面時位置還在",
+          "url": "https://news.google.com/rss/articles/CBMi9gJBVV95cUxOakxHejFVZ2VBYnRlNkhfeE83eWJmYmQzdmpVSVdWVm1uM2k0a1BKSkF0MENFcE9vZ0FsSnhzd3VNRV9odG1hRFF4OElYTFRXZWlzc2VMdk8wNU5qR3c0c2NDaGx2NjFReTlJLUE0UU9JSnVacVZjRHZEeXk0bDFUZkkxWkp4N0lGazk2VDBVNHpJVEVKR3ZIQWZQYVRpODVtSnZ4YUFqSkV4a1ZEYlJGRzRTQnFoZzdjbjZZbHRqZDhvQms4SXFfMElkalRPSGM3S0EzQWIwTzZoN3B6QzFiY0pCV0xkV2dFVHB3ZVBSeVBmVUsya3lLQ1FlMUV4SE5LSU1ZSzR5d0duWnhjWHFUQTVqLVh5TlJual9zWUh5SEJodnBGTVVhNFJBd0VJekpYM3dhSXlQS1REQ1BFd2NtQVdPXzhwbHFlVVdHZmdlSG9kZ2I5czVTOXktWjVvTjhwUzFtb1M3Wm9GNDZzMERGY0xPcEJ0QQ?oc=5",
+          "publisher": "Yahoo新聞",
+          "published": "2026-10-21T15:00:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.34,
+      "score": 0.5377,
+      "first_seen": "2026-11-04T00:57:48+08:00",
+      "updated": "2026-11-04T00:57:48+08:00",
+      "cluster_size": 5,
+      "lang": "zh-Hant",
+      "bullets": [
+        "噓！星聞: 五月天石頭爆退團 阿信深夜感性說話了",
+        "東森電視: 五月天石頭爆退團！阿信深夜感性發聲：再見面時位置還在",
+        "華視新聞網: 五月天石頭爆「想退團」 阿信深夜「溫柔宣言」弄哭粉絲- 娛樂"
+      ],
+      "why": "香港01 報導：請看原文了解已確認的內容。"
+    }
+  ],
+  "source_status": [
+    {
+      "id": "openai-news",
+      "name": "OpenAI news",
+      "topic": "ai",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-ai-blog",
+      "name": "Google AI blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "deepmind-blog",
+      "name": "Google DeepMind blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "qwen-blog",
+      "name": "Qwen blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "research-google",
+      "name": "Google Research blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 3,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "openrouter-new",
+      "name": "OpenRouter new models",
+      "topic": "ai",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "hn-front",
+      "name": "Hacker News front page",
+      "topic": "ai",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-anthropic",
+      "name": "Google News · Anthropic",
+      "topic": "ai",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-ai-vendors",
+      "name": "Google News · AI vendors",
+      "topic": "ai",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "rthk-zh-local",
+      "name": "RTHK 本地新聞",
+      "topic": "hk",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "rthk-en-local",
+      "name": "RTHK English news",
+      "topic": "hk",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "hkfp",
+      "name": "Hong Kong Free Press",
+      "topic": "hk",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "scmp-hk",
+      "name": "South China Morning Post",
+      "topic": "hk",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "mingpao",
+      "name": "Ming Pao",
+      "topic": "hk",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "info-gov-hk",
+      "name": "info.gov.hk",
+      "topic": "hk",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk",
+      "name": "Google News · Hong Kong",
+      "topic": "hk",
+      "ok": true,
+      "items": 12,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "hko-warnings",
+      "name": "Hong Kong Observatory warnings",
+      "topic": "hk",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "telegram-inmediahk",
+      "name": "Telegram · InMediaHK",
+      "topic": "hk",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-mayday-tw",
+      "name": "Google News · 五月天 TW",
+      "topic": "mayday",
+      "ok": true,
+      "items": 7,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-mayday-hk",
+      "name": "Google News · 五月天 HK",
+      "topic": "mayday",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "ltn-mayday",
+      "name": "自由娛樂 · 五月天",
+      "topic": "mayday",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "ptt-mayday",
+      "name": "PTT MayDay",
+      "topic": "mayday",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "ipkat",
+      "name": "IPKat",
+      "topic": "legal",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "ipwatchdog",
+      "name": "IPWatchdog",
+      "topic": "legal",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "wipo-press",
+      "name": "WIPO press room",
+      "topic": "legal",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "uspto",
+      "name": "USPTO",
+      "topic": "legal",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "us-copyright",
+      "name": "US Copyright Office",
+      "topic": "legal",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "govuk-ipo",
+      "name": "GOV.UK Intellectual Property Office",
+      "topic": "legal",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "hunton-privacy",
+      "name": "Hunton Privacy & Information Security Law Blog",
+      "topic": "legal",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-ip-apac",
+      "name": "Google News · IP APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-privacy-apac",
+      "name": "Google News · privacy law APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-fintech-apac",
+      "name": "Google News · fintech APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-ai-law-apac",
+      "name": "Google News · AI law APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-cyber-law-apac",
+      "name": "Google News · cyber law APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk-ip",
+      "name": "Google News · 香港知識產權",
+      "topic": "legal",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk-privacy",
+      "name": "Google News · 香港私隱",
+      "topic": "legal",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk-fintech",
+      "name": "Google News · 香港金融科技法規",
+      "topic": "legal",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk-ai-law",
+      "name": "Google News · 香港 AI 法例",
+      "topic": "legal",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk-cyber-law",
+      "name": "Google News · 香港網絡罪行法例",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-jackson-tw",
+      "name": "Google News · 易烊千璽 TW",
+      "topic": "jackson",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-jackson-hk",
+      "name": "Google News · 易烊千璽 HK",
+      "topic": "jackson",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "ltn-jackson",
+      "name": "自由娛樂 · 易烊千璽",
+      "topic": "jackson",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "bleepingcomputer",
+      "name": "BleepingComputer",
+      "topic": "cyber",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "krebs",
+      "name": "Krebs on Security",
+      "topic": "cyber",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "thehackernews",
+      "name": "The Hacker News",
+      "topic": "cyber",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "darkreading",
+      "name": "Dark Reading",
+      "topic": "cyber",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "securityweek",
+      "name": "SecurityWeek",
+      "topic": "cyber",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "cisa-kev",
+      "name": "CISA Known Exploited Vulnerabilities",
+      "topic": "cyber",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk-breach",
+      "name": "Google News · 香港資料外洩",
+      "topic": "cyber",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "google-news-hk-hkcert",
+      "name": "Google News · HKCERT",
+      "topic": "cyber",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "rthk-cyber",
+      "name": "RTHK · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "scmp-cyber",
+      "name": "SCMP · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "hkfp-cyber",
+      "name": "HKFP · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "unwire-cyber",
+      "name": "Unwire HK · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "telegram-cyber",
+      "name": "Telegram · InMediaHK cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    },
+    {
+      "id": "info-gov-cyber",
+      "name": "info.gov.hk · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-04T00:57:48+08:00"
+    }
+  ],
+  "stats": {
+    "fetched": 227,
+    "sources_ok": 56,
+    "sources_total": 56,
+    "clusters": 195,
+    "cards": 18,
+    "brief_cards": {
+      "me": 12,
+      "her": 8
+    },
+    "llm": {
+      "calls": 0,
+      "limit": 36,
+      "cache_hits": 0,
+      "failures": 0
+    }
+  }
+}

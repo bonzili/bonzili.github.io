@@ -4,3 +4,7 @@ Thumbs.db
 .dev/
 .wrangler/
 node_modules/
+__pycache__/
+*.pyc
+dailybrief-pipeline/.cache/
+.venv/
