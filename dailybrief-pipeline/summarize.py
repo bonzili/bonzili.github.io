@@ -73,6 +73,15 @@ def extract_json(text: str) -> dict:
         raise SummaryError(f"invalid JSON: {error}") from error
 
 
+def decode_response_json(response: httpx.Response, label: str) -> dict:
+    try:
+        return response.json()
+    except ValueError as error:
+        raise SummaryError(
+            f"{label} returned non-JSON (HTTP {response.status_code})"
+        ) from error
+
+
 def validate_summary(payload: dict) -> dict:
     bullets = payload.get("bullets")
     why = payload.get("why")
@@ -311,7 +320,7 @@ class GeminiProvider:
                         raise last_error
                     if response.status_code != 200:
                         raise SummaryError(f"Gemini HTTP {response.status_code}: {response.text[:160]}")
-                    payload = response.json()
+                    payload = decode_response_json(response, "Gemini")
                     try:
                         text = payload["candidates"][0]["content"]["parts"][0]["text"]
                     except (KeyError, IndexError, TypeError) as error:
@@ -319,7 +328,7 @@ class GeminiProvider:
                     return validate_summary(extract_json(text))
                 except BudgetExceeded:
                     raise
-                except (httpx.HTTPError, SummaryError) as error:
+                except (httpx.HTTPError, ValueError, SummaryError) as error:
                     last_error = error
                     if attempt == 0:
                         time.sleep(2)
@@ -378,12 +387,12 @@ class GitHubModelsProvider:
                     raise last_error
                 if response.status_code != 200:
                     raise SummaryError(f"GitHub Models HTTP {response.status_code}: {response.text[:160]}")
-                payload = response.json()
+                payload = decode_response_json(response, "GitHub Models")
                 text = payload["choices"][0]["message"]["content"]
                 return validate_summary(extract_json(text))
             except BudgetExceeded:
                 raise
-            except (httpx.HTTPError, KeyError, IndexError, TypeError, SummaryError) as error:
+            except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError, SummaryError) as error:
                 last_error = error
                 if attempt == 0:
                     time.sleep(2)
@@ -466,6 +475,16 @@ class SummaryService:
                 log(f"  {provider.name} disabled for this run: {error}")
                 # A bad key, a missing model, or a rate limit should not be
                 # retried once per card. Move to the next free provider.
+                self.providers = [p for p in self.providers if p is not provider]
+                continue
+            except Exception as error:
+                # Providers must never be able to fail the edition. A proxy
+                # returning HTML, a malformed response, or a parsing bug
+                # falls back to the extractive path.
+                self.failures += 1
+                message = f"{type(error).__name__}: {error}"
+                self.provider_notes.append(f"{provider.name}: {message}")
+                log(f"  {provider.name} disabled for this run: {message}")
                 self.providers = [p for p in self.providers if p is not provider]
                 continue
 
