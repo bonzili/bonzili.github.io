@@ -47,6 +47,33 @@ jobs:
       - name: Install pipeline dependencies
         run: python -m pip install -r dailybrief-pipeline/requirements.txt
 
+      - name: Check Gemini access
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python - <<'PY'
+          import os
+          import httpx
+          key = os.environ.get('GEMINI_API_KEY', '')
+          try:
+              response = httpx.get(
+                  'https://generativelanguage.googleapis.com/v1beta/models',
+                  headers={'x-goog-api-key': key},
+                  timeout=30,
+              )
+              print('Gemini model list HTTP', response.status_code)
+              try:
+                  payload = response.json()
+                  models = [m.get('name') for m in payload.get('models', []) if m.get('name')]
+                  print('Available model names:', ', '.join(models) if models else '(none)')
+              except Exception:
+                  print('Body:', response.text[:500])
+          except Exception as error:
+              print('Gemini check failed:', type(error).__name__, str(error)[:200])
+          PY
+
       - name: Test the pipeline
         run: python -m unittest discover -s dailybrief-pipeline/tests
 
