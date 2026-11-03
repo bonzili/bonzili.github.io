@@ -16,6 +16,8 @@ def score_clusters(clusters: list[dict], seen: dict[str, Any], topics: dict[str,
         published = parse_datetime(cluster.get("published"), None)
         age = age_hours(published, now)
         max_age = float(topic.get("max_age_hours", 72))
+        if "Tool" in (cluster.get("tags") or []) and topic.get("tool_max_age_hours"):
+            max_age = max(max_age, float(topic["tool_max_age_hours"]))
         if age > max_age:
             continue
 

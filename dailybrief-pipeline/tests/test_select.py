@@ -81,6 +81,22 @@ class SelectionTests(unittest.TestCase):
         self.assertEqual(len(selected), 4)
         self.assertLessEqual(len(tools), 2)
 
+    def test_tool_items_get_a_longer_age_window(self):
+        topics = {
+            "ai": {
+                "min_score": 0.0, "max_age_hours": 72, "half_life_hours": 18,
+                "tool_max_age_hours": 336,
+            }
+        }
+        tool = cluster("tool", "ai", 0.4)
+        tool["published"] = "2026-10-25T07:00:00+08:00"
+        tool["tags"] = ["Tool"]
+        model = cluster("model", "ai", 0.4)
+        model["published"] = "2026-10-25T07:00:00+08:00"
+        model["tags"] = ["Model"]
+        scored = score_clusters([tool, model], {}, topics, datetime(2026, 11, 4, 7, 0, tzinfo=HKT))
+        self.assertEqual([row["id"] for row in scored], ["tool"])
+
     def test_old_items_drop_out(self):
         topics = {"a": {"min_score": 0.0, "max_age_hours": 48, "half_life_hours": 18}}
         old = cluster("old", "a", 0.9)

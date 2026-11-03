@@ -104,6 +104,10 @@ topics:
       zh: "新模型、基準測試、新工具與產品。"
     lang: en
     max_age_hours: 72
+    # Tools and products move more slowly than model releases. Keep a tool
+    # eligible for two weeks so a useful new project is not lost after a
+    # single quiet news day.
+    tool_max_age_hours: 336
     half_life_hours: 18
     min_score: 0.12
     boost_factor: 1.10
