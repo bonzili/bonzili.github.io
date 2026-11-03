@@ -49,9 +49,9 @@ def score_clusters(clusters: list[dict], seen: dict[str, Any], topics: dict[str,
             if new_sources:
                 repeat_factor = 0.92
             elif hours_since <= 36:
-                repeat_factor = 0.32
+                repeat_factor = 0.70
             else:
-                repeat_factor = 0.16
+                repeat_factor = 0.50
 
         score = clamp(base * repeat_factor)
         if score < 0.02:
