@@ -260,6 +260,10 @@ Mo’s brief only.
   grounded in the feed snippet. SCMP feed items are checked for a mismatched
   headline and teaser; an item whose teaser is clearly a different story is
   dropped rather than summarised.
+- Ming Pao's direct RSS returns 403 from the GitHub Actions network. The Hong
+  Kong desk reads Ming Pao's 港聞 section through Google News RSS instead, with
+  section pages and column roundups filtered out. Source health labels it
+  **Ming Pao · Google News**.
 - The app is public and unlisted. Read state, saved cards, muted cards and
   muted topics are local to the browser and can be cleared by iOS. There is no
   cross-device sync in v1.

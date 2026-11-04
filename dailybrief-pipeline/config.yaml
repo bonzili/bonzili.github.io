@@ -640,13 +640,31 @@ topics:
         lang: en
         max_items: 8
         verify_summary: true
-      - id: mingpao
-        name: Ming Pao
-        type: rss
-        url: https://news.mingpao.com/rss/pns/s00001.xml
-        trust: 0.80
+      - id: mingpao-google-news
+        name: Ming Pao · Google News
+        type: google_news
+        query: "site:news.mingpao.com 港聞"
+        when: 2d
+        hl: zh-HK
+        gl: HK
+        ceid: "HK:zh-Hant"
+        trust: 0.78
         lang: zh-HK
         max_items: 8
+        max_age_hours: 48
+        strip_date_suffix: true
+        exclude_keywords:
+          - "每日明報"
+          - "各版頭版圖"
+          - "新聞總覽"
+          - "即時港聞 -"
+          - "作家專欄"
+          - "即時體育"
+          - "體育 - 2026"
+          - "文摘 - 2026"
+          - "社評"
+          - "觀點"
+          - "【Emily】"
       - id: info-gov-hk
         name: info.gov.hk
         type: rss

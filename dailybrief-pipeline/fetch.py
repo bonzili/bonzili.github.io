@@ -81,6 +81,11 @@ def base_item(source: dict[str, Any], *, title: str, url: str, publisher: str,
     return item
 
 
+def strip_news_date_suffix(title: str) -> str:
+    """Remove the "- 20261104 - 港聞" suffix Google News adds."""
+    return re.sub(r"\s*-\s*\d{8}\s*-\s*[^-]+$", "", str(title or "")).strip()
+
+
 def contains_keyword(haystack: str, keyword: str) -> bool:
     haystack = str(haystack or "").casefold()
     word = str(keyword or "").casefold().strip()
@@ -151,6 +156,9 @@ async def fetch_rss(client: httpx.AsyncClient, source: dict[str, Any], now: date
             entry_publisher = clean_html(entry_source.get("title") or "")
         publisher = entry_publisher or feed_title or source.get("name") or source["id"]
         title = clean_title(raw_title, publisher)
+        filter_title = title
+        if source.get("strip_date_suffix"):
+            title = strip_news_date_suffix(title)
         if not title:
             continue
         url = entry.get("link") or entry.get("id") or ""
@@ -173,7 +181,7 @@ async def fetch_rss(client: httpx.AsyncClient, source: dict[str, Any], now: date
         )
         if too_old(source, published, now):
             continue
-        if not matches_filter(source, title, summary):
+        if not matches_filter(source, filter_title, summary):
             continue
         items.append(base_item(
             source, title=title, url=url, publisher=publisher,

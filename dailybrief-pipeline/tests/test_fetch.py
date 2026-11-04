@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fetch import (
     artificial_analysis_item, contains_keyword, parse_artificial_analysis,
-    parse_count,
+    parse_count, strip_news_date_suffix,
 )
 from util import HKT
 
@@ -50,6 +50,16 @@ class FetchTests(unittest.TestCase):
         self.assertTrue(contains_keyword("three CVEs", "CVE"))
         self.assertTrue(contains_keyword("patches released", "patch"))
         self.assertFalse(contains_keyword("modelled data", "model"))
+
+    def test_google_news_date_suffix_is_stripped(self):
+        self.assertEqual(
+            strip_news_date_suffix("黃之鋒勾結外國勢力案周四判刑 - 20261104 - 港聞"),
+            "黃之鋒勾結外國勢力案周四判刑",
+        )
+        self.assertEqual(
+            strip_news_date_suffix("5機構泄資料 客戶最高損失150萬 - 20261103 - 港聞"),
+            "5機構泄資料 客戶最高損失150萬",
+        )
 
     def test_parse_count(self):
         self.assertEqual(parse_count("1,234 stars today"), 1234)
