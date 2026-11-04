@@ -39,11 +39,11 @@
   {
     id: "d3q5", d: 3, topic: "Reference monitor", diff: 2,
     stem: "Which property is essential for a reference monitor to enforce a security policy correctly?",
-    options: ["It must be accessible to all users for configuration", "It must mediate every access and be tamper-proof", "It must run in user mode to reduce cost", "It must store audit logs on the same protected object"],
+    options: ["It must be implemented inside the application it protects", "It must mediate every access and be tamper-proof", "It must log every decision, but it need not mediate every access", "It must be configurable by administrators at runtime"],
     answer: 1,
     whyText: "A reference monitor must be always invoked, tamper-proof, and small enough to be verified. It mediates every access between subjects and objects.",
     lens: "The reference monitor is an abstract requirement; the security kernel is its implementation. Always invoked, tamper-proof, verifiable.",
-    why: { 0: "User configuration access would undermine tamper resistance.", 2: "User mode would leave it vulnerable to privileged interference.", 3: "Log storage location is not the defining property." }
+    why: { 0: "An in-application monitor is not independently tamper-proof.", 2: "Logging is not enforcement; the monitor must mediate every access.", 3: "Runtime configurability by administrators weakens the tamper-proof property." }
   },
   {
     id: "d3q6", d: 3, topic: "Protection rings", diff: 1,
@@ -57,20 +57,20 @@
   {
     id: "d3q7", d: 3, topic: "Common Criteria", diff: 2,
     stem: "A product has a higher Evaluation Assurance Level (EAL) than a competing product. What can be concluded?",
-    options: ["The product is absolutely more secure in every environment", "The product has been evaluated more rigorously against its security target", "The product has no vulnerabilities", "The product is approved for use by every government"],
+    options: ["It is more secure than a lower-EAL product evaluated against a different security target", "The product has been evaluated more rigorously against its security target", "It has been evaluated against a broader set of protection profiles", "It has passed a higher level of vendor penetration testing"],
     answer: 1,
     whyText: "EAL describes the depth and rigour of the evaluation against the product's security target. It does not prove absolute security or fitness for a particular environment.",
     lens: "Assurance is confidence in the evaluation, not a guarantee of security. Certification is technical; accreditation is management's decision to use it.",
-    why: { 0: "Security depends on configuration, operation, and context.", 2: "No evaluation proves the absence of vulnerabilities.", 3: "Approval for use is an accreditation decision, not an EAL." }
+    why: { 0: "EALs are only comparable within the same protection profile or security target.", 2: "EAL does not imply broader protection profiles; the target defines scope.", 3: "Vendor testing is not the same as independent Common Criteria evaluation." }
   },
   {
     id: "d3q8", d: 3, topic: "FIPS 140-3", diff: 1,
     stem: "A vendor advertises a hardware security module as 'FIPS 140-3 Level 3 validated.' A procurement manager asks what that validation actually covers. What should the security engineer explain?",
-    options: ["The security of an entire operating system", "Cryptographic modules and their security requirements", "The business continuity capability of a data centre", "The privacy practices of a cloud provider"],
+    options: ["The module's cryptographic algorithms, but not its physical tamper resistance", "Cryptographic modules and their security requirements", "The module's secure development process, but not its cryptographic implementation", "The module's resistance to side-channel attacks, but not its key management"],
     answer: 1,
     whyText: "FIPS 140-3 is the US standard for validating cryptographic modules, with increasing levels that add physical and tamper-resistance requirements.",
     lens: "FIPS 140 is about cryptographic modules, not entire systems. Common Criteria evaluates broader IT products.",
-    why: { 0: "It does not certify an entire operating system.", 2: "BCP is outside its scope.", 3: "Privacy practices are governed by other frameworks and laws." }
+    why: { 0: "FIPS 140-3 covers more than algorithm correctness; physical requirements depend on the level.", 2: "Development process is not the object of FIPS 140-3 validation.", 3: "Side-channel resistance is one aspect; validation covers the module’s overall security requirements." }
   },
   {
     id: "d3q9", d: 3, topic: "Digital signatures", diff: 2,
@@ -84,29 +84,29 @@
   {
     id: "d3q10", d: 3, topic: "Symmetric and asymmetric", diff: 1,
     stem: "Which problem does asymmetric cryptography primarily solve that symmetric cryptography struggles with at scale?",
-    options: ["Key distribution", "Message compression", "Data availability", "Password complexity"],
+    options: ["Key distribution", "Non-repudiation", "Key escrow", "Certificate revocation"],
     answer: 0,
     whyText: "Asymmetric cryptography uses public and private keys, allowing secure key exchange or signatures without sharing a secret key in advance. Symmetric encryption is faster but needs a secure way to share the key.",
     lens: "Symmetric is fast but has a key-distribution problem. Asymmetric solves distribution and enables signatures but is slower.",
-    why: { 1: "Compression is unrelated to encryption.", 2: "Availability is an operational property.", 3: "Password policy is an authentication control." }
+    why: { 1: "Non-repudiation is provided by signatures, not by the asymmetric key distribution problem.", 2: "Key escrow is a key-management policy, not the problem asymmetric cryptography solves.", 3: "Revocation is a PKI maintenance function, not the primary scaling problem." }
   },
   {
     id: "d3q11", d: 3, topic: "Password hashing", diff: 2,
     stem: "Why should a password database use a unique salt for each password before hashing?",
-    options: ["To make the hash reversible by administrators", "To prevent identical passwords from producing identical hashes and to defeat precomputed tables", "To encrypt the password for transmission", "To reduce the hash length"],
+    options: ["To make each hash slower to compute for every user", "To prevent identical passwords from producing identical hashes and to defeat precomputed tables", "To ensure the same password produces the same hash across systems", "To allow the hash to be used directly as an encryption key"],
     answer: 1,
     whyText: "A unique salt ensures that identical passwords produce different hashes and makes precomputed rainbow tables ineffective. It does not make the hash reversible.",
     lens: "Salt defeats precomputation and duplicates; a slow hash (bcrypt, scrypt, Argon2) defeats fast brute force. Use both.",
-    why: { 0: "Hashing is one-way; salt does not add reversibility.", 2: "TLS protects transmission, not storage.", 3: "Salting does not shorten the hash." }
+    why: { 0: "Slowness comes from the password-hashing function, not the salt.", 2: "A salt deliberately makes identical passwords produce different hashes.", 3: "A password hash is not an encryption key." }
   },
   {
     id: "d3q12", d: 3, topic: "PKI revocation", diff: 2,
     stem: "A certificate is compromised before its expiration date. Which mechanisms allow relying parties to learn that it must no longer be trusted?",
-    options: ["CRL and OCSP", "AES and RSA", "SLE and ARO", "SAML and OIDC"],
+    options: ["CRL and OCSP", "CRL and certificate pinning", "OCSP and key escrow", "Certificate renewal and CA reissuance"],
     answer: 0,
     whyText: "Certificate revocation lists (CRLs) and the Online Certificate Status Protocol (OCSP) publish revocation status so relying parties can reject a compromised certificate.",
     lens: "PKI trust requires a revocation path. CRL is a list; OCSP is an online query.",
-    why: { 1: "AES and RSA are cryptographic algorithms, not revocation mechanisms.", 2: "SLE and ARO are risk terms.", 3: "SAML and OIDC are federation protocols." }
+    why: { 1: "Pinning can detect some substitution, but it is not the standard revocation mechanism.", 2: "Key escrow does not publish revocation status.", 3: "Renewal issues a new certificate; it does not tell relying parties that the old one is revoked." }
   },
   {
     id: "d3q13", d: 3, topic: "TLS scope", diff: 1,
@@ -138,20 +138,20 @@
   {
     id: "d3q16", d: 3, topic: "CPTED", diff: 1,
     stem: "A facility is redesigned with clear sightlines, low hedges, and employee work areas overlooking the entrance. Which physical-security concept does this primarily apply?",
-    options: ["Natural surveillance", "Defence in depth", "Least privilege", "Data minimisation"],
+    options: ["Natural surveillance", "Territorial reinforcement", "Target hardening", "Access control"],
     answer: 0,
     whyText: "Natural surveillance is a CPTED principle that uses design to increase visibility and the perception of observation, reducing criminal opportunity.",
     lens: "CPTED has three core ideas: natural surveillance, natural access control, and territorial reinforcement.",
-    why: { 1: "Defence in depth is layering controls, not a design principle for sightlines.", 2: "Least privilege is an access-control principle.", 3: "Data minimisation is a privacy principle." }
+    why: { 1: "Territorial reinforcement uses physical boundaries and markings to signal ownership.", 2: "Target hardening makes assets harder to attack, not more visible.", 3: "Access control restricts entry; it does not rely on sightlines and observation." }
   },
   {
     id: "d3q17", d: 3, topic: "Power protection", diff: 1,
     stem: "What is the primary role of an uninterruptible power supply (UPS) in a data centre?",
-    options: ["Provide indefinite power during a prolonged outage", "Provide short-term power and ride-through until generators start or systems shut down safely", "Replace the need for surge protection", "Cool the equipment during a power failure"],
+    options: ["Provide backup power for the entire outage until utility power returns", "Provide short-term power and ride-through until generators start or systems shut down safely", "Condition power and protect against voltage spikes", "Provide emergency lighting during an evacuation"],
     answer: 1,
     whyText: "A UPS provides immediate short-term power to bridge the gap until a generator takes over or systems shut down cleanly. Generators handle extended outages.",
     lens: "UPS = ride-through; generator = extended runtime. They solve different durations.",
-    why: { 0: "A UPS has limited battery capacity.", 2: "Surge protection is a separate function.", 3: "Cooling is handled by HVAC, not a UPS." }
+    why: { 0: "A UPS provides short-term ride-through, not indefinite power; generators cover extended outages.", 2: "Power conditioning and surge protection are related but not the UPS’s primary role.", 3: "Emergency lighting is a separate life-safety control." }
   },
   {
     id: "d3q18", d: 3, topic: "Cloud responsibility", diff: 2,
@@ -165,19 +165,19 @@
   {
     id: "d3q19", d: 3, topic: "Virtualisation threats", diff: 2,
     stem: "An attacker exploits a vulnerability in a hypervisor to execute code outside a guest virtual machine. What is this attack called?",
-    options: ["VM escape", "Container breakout", "Cross-site scripting", "ARP poisoning"],
+    options: ["VM escape", "Hypervisor introspection", "Blue pill attack", "Docker escape"],
     answer: 0,
     whyText: "A VM escape breaks the isolation boundary between a guest and the hypervisor or host, potentially compromising other guests.",
     lens: "Hypervisors are high-value targets because they concentrate trust. Container escapes are related but exploit a different boundary.",
-    why: { 1: "A container breakout targets container isolation, not a hypervisor guest boundary.", 2: "XSS is an application-layer attack.", 3: "ARP poisoning is a network-layer attack." }
+    why: { 1: "Introspection is a monitoring technique, not an escape from the guest.", 2: "Blue pill is a virtualization rootkit technique, not the general term for hypervisor escape.", 3: "Docker escape targets containers, not the hypervisor boundary." }
   },
   {
     id: "d3q20", d: 3, topic: "Container isolation", diff: 2,
     stem: "Which statement best describes the isolation difference between containers and virtual machines?",
-    options: ["Containers each run a separate kernel, like virtual machines", "Containers share the host kernel, so a kernel vulnerability can affect multiple containers", "Containers cannot be network-segmented", "Virtual machines cannot run containers"],
+    options: ["Containers use hardware virtualisation, but share the guest operating system", "Containers share the host kernel, so a kernel vulnerability can affect multiple containers", "Containers rely on hypervisor-level isolation, while virtual machines use namespaces", "Containers cannot be network-segmented, so they are limited to single-host deployments"],
     answer: 1,
     whyText: "Containers share the host operating-system kernel, which makes them lighter but means kernel compromise can cross container boundaries. VMs each run a separate guest kernel.",
     lens: "Containers isolate processes, not kernels. That changes both the attack surface and the blast radius.",
-    why: { 0: "Containers share the host kernel.", 2: "Container networks can be segmented with policy.", 3: "VMs commonly host container platforms." }
+    why: { 0: "Containers share the host kernel; VMs each have their own kernel.", 2: "The isolation mechanisms are reversed: containers use namespaces and cgroups, VMs use a hypervisor.", 3: "Containers can be segmented with network policies and CNI plugins." }
   }
 ]);

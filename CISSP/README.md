@@ -22,7 +22,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 
 - **A date-aware four-week study plan** (defaults to the 30 November 2026 exam; change it in the sidebar) with weekly milestones and a daily hour.
 - **Condensed notes** for all eight domains, with key terms, traps, and mnemonics.
-- **160 original scenario questions** with immediate explanations and a “manager’s lens” note.
+- **160 original scenario questions** with immediate explanations and a “manager’s lens” note. The distractors are written to be defensible under a different misread, not obvious throwaways.
 - **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
 - **150 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final. When a local pack is loaded, the exam desk also offers a **125-question mixed pack mock** drawn from the official items.
@@ -68,7 +68,7 @@ Append to the relevant `questions-dN.js` file:
 }
 ```
 
-The app redistributes correct-answer positions deterministically at load, so a new question does not need to be hand-balanced. Per-option notes move with their option text.
+The app redistributes correct-answer positions deterministically at load, so a new question does not need to be hand-balanced. Per-option notes move with their option text. Write each wrong option as a plausible answer to a slightly different question — wrong role, phase, control type, data state, or scope — and keep option punctuation consistent.
 
 ### Adding a flashcard
 

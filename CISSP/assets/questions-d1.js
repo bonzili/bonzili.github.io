@@ -39,11 +39,11 @@
   {
     id: "d1q5", d: 1, topic: "Business continuity", diff: 2,
     stem: "An organisation has completed a business impact analysis and identified its critical processes and recovery objectives. What should happen next in the business continuity programme?",
-    options: ["Test the disaster recovery plan", "Select continuity strategies and develop the plan", "Activate the alternate site", "Conduct a penetration test"],
+    options: ["Test the disaster recovery plan", "Select continuity strategies and develop the plan", "Approve the continuity plan and assign plan owners", "Perform a threat and vulnerability assessment to validate the recovery objectives"],
     answer: 1,
     whyText: "The BIA establishes impact, dependencies, and recovery objectives. The next step is to choose strategies that can meet those objectives and then document the continuity plan. Testing comes after a plan exists.",
-    lens: "Follow the sequence: BIA → strategies → plan → test → maintain. Choosing a test or a site before the strategy is a common ordering trap.",
-    why: { 0: "There is no plan to test yet.", 2: "Activation is an execution step during an actual disruption.", 3: "A penetration test is a security assessment, not a BCP phase." }
+    lens: "Follow the sequence: BIA → strategies → plan → test → maintain. Choosing a test or approving a plan before the strategy is a common ordering trap.",
+    why: { 0: "There is no plan to test yet.", 2: "A plan has not been developed yet; approval comes after strategy and plan development.", 3: "A threat assessment informs risk, but the BCP sequence after the BIA is strategy selection and plan development." }
   },
   {
     id: "d1q6", d: 1, topic: "Recovery objectives", diff: 2,
@@ -84,11 +84,11 @@
   {
     id: "d1q10", d: 1, topic: "Qualitative assessment", diff: 1,
     stem: "A risk workshop ranks identified scenarios as high, medium, or low based on expert judgement and group discussion. Which type of risk analysis is being performed?",
-    options: ["Quantitative", "Qualitative", "Automated", "Deterministic"],
+    options: ["Quantitative", "Qualitative", "Semi-quantitative", "Deterministic"],
     answer: 1,
     whyText: "Qualitative analysis uses judgement and relative scales rather than monetary values. It is faster and useful for prioritisation, but less precise than quantitative analysis.",
     lens: "If the output is a rating or a ranking, it is qualitative. If the output is money and annualised loss, it is quantitative.",
-    why: { 0: "Quantitative analysis would calculate monetary values such as SLE and ALE.", 2: "The method of calculation, not the tooling, defines the analysis type.", 3: "Deterministic is not the standard CISSP distinction here." }
+    why: { 0: "Quantitative analysis would calculate monetary values such as SLE and ALE.", 2: "Semi-quantitative analysis uses numeric bands, but the scenario uses expert judgement and high/medium/low labels, which is qualitative.", 3: "Deterministic is not the standard CISSP distinction here." }
   },
   {
     id: "d1q11", d: 1, topic: "Threat modelling", diff: 2,
@@ -111,11 +111,11 @@
   {
     id: "d1q13", d: 1, topic: "Cloud responsibility", diff: 2,
     stem: "A company uses a SaaS customer-relationship platform. The contract states that the provider secures the infrastructure and application, while the company configures users, roles, and data sharing. Who is responsible for classifying the customer data stored in the platform?",
-    options: ["The SaaS provider, because it stores the data", "The customer, because it owns the data", "The platform's auditor", "The internet service provider"],
+    options: ["The SaaS provider, because it stores the data", "The customer, because it owns the data", "The SaaS provider's subprocessor", "The customer's data protection officer"],
     answer: 1,
     whyText: "Under the shared responsibility model, the customer remains accountable for its data: classification, access decisions, and sharing. The provider is responsible for the platform controls it operates.",
     lens: "Cloud does not transfer data ownership. The provider secures the platform; the customer secures its identities, configuration, and data decisions.",
-    why: { 0: "Storage does not transfer ownership or classification responsibility.", 2: "An auditor provides independent assurance and does not own data.", 3: "The ISP transports packets and has no role in data classification." }
+    why: { 0: "Storage does not transfer ownership or classification responsibility.", 2: "A subprocessor handles processing tasks for the provider, but classification remains with the customer.", 3: "The DPO advises on compliance; the customer remains accountable for classifying its data." }
   },
   {
     id: "d1q14", d: 1, topic: "Privacy roles", diff: 2,
@@ -129,20 +129,20 @@
   {
     id: "d1q15", d: 1, topic: "Security metrics", diff: 2,
     stem: "Which metric is the most useful key risk indicator for a vulnerability-management programme?",
-    options: ["The number of vulnerability scans completed this month", "The percentage of critical vulnerabilities older than the remediation SLA", "The number of security staff trained on the scanner", "The total number of findings, regardless of severity"],
+    options: ["The number of vulnerability scans completed this month", "The percentage of critical vulnerabilities older than the remediation SLA", "The average time to remediate all findings", "The percentage of assets with an assigned owner"],
     answer: 1,
-    whyText: "A KRI should indicate exposure and trend, not activity volume. Ageing critical vulnerabilities beyond SLA directly signals accumulating risk. Scan counts and training counts are activity metrics.",
+    whyText: "A KRI should indicate exposure and trend, not activity volume. Ageing critical vulnerabilities beyond SLA directly signals accumulating risk. Scan counts and remediation averages are activity or lagging measures, while asset ownership is a governance input.",
     lens: "Activity metrics show effort; outcome and risk metrics show exposure. Choose the metric that would make an executive ask a question.",
-    why: { 0: "This measures activity, not risk.", 2: "Training is an input, not an outcome.", 3: "Raw finding counts ignore severity and exploitability." }
+    why: { 0: "This measures activity, not risk.", 2: "Mean time to remediate is a lagging outcome measure; the KRI should expose overdue critical exposure.", 3: "Asset ownership is a governance indicator, not a vulnerability-management risk indicator." }
   },
   {
     id: "d1q16", d: 1, topic: "Separation of duties", diff: 1,
     stem: "In a procurement system, the same administrator can create a new vendor, approve the vendor, and release payment. Which control should be implemented first?",
-    options: ["Require a longer password for the administrator", "Separate the three duties across different roles", "Enable database encryption", "Increase the frequency of backups"],
+    options: ["Require the administrator to use a longer password and rotate it every 30 days", "Separate the three duties across different roles", "Require the administrator to complete annual fraud-awareness training", "Increase the frequency of access reviews for the administrator"],
     answer: 1,
     whyText: "The scenario describes a concentration of incompatible duties that enables fraud. Separation of duties directly addresses the root cause by ensuring no single person can complete the process end to end.",
     lens: "When a scenario describes one person controlling an entire sensitive transaction, the answer is usually separation of duties or dual control — not a technical hardening step.",
-    why: { 0: "Password length does not prevent a single administrator from abusing legitimate authority.", 2: "Encryption protects data at rest but not the fraudulent workflow.", 3: "Backups support recovery, not fraud prevention." }
+    why: { 0: "Password hardening does not remove the ability to create, approve, and pay the same vendor.", 2: "Training does not prevent the administrator from exercising all three duties.", 3: "More frequent reviews detect conflicts after the fact; they do not remove the standing conflict." }
   },
   {
     id: "d1q17", d: 1, topic: "Risk response", diff: 1,
@@ -165,19 +165,19 @@
   {
     id: "d1q19", d: 1, topic: "Evidence", diff: 2,
     stem: "In a dispute over a signed supplier agreement, which piece of evidence is generally the most reliable?",
-    options: ["A colleague's recollection of the negotiation", "A photocopy of the signed agreement", "The original signed agreement", "An email summarising the agreement"],
+    options: ["A certified copy of the agreement held by the supplier's legal counsel", "The account manager's contemporaneous notes of the signing", "The original signed agreement", "The email chain in which both parties confirmed the terms"],
     answer: 2,
     whyText: "The original signed document is primary evidence and is generally stronger than copies, summaries, or witness memory. Secondary evidence is used when the original is unavailable.",
     lens: "Evidence quality runs from original tangible records down to copies and recollection. Best evidence is the original.",
-    why: { 0: "Witness memory is weaker and can be disputed.", 1: "A copy is secondary evidence and may be challenged.", 3: "A summary is not the agreement and may omit terms." }
+    why: { 0: "A certified copy may be secondary evidence, but the original signed agreement is the best evidence.", 1: "Notes are a party’s recollection and can be incomplete or disputed.", 3: "An email chain may help interpret terms but is not the signed instrument." }
   },
   {
     id: "d1q20", d: 1, topic: "Security governance", diff: 1,
     stem: "A newly appointed CISO drafts the organisation's first enterprise information security policy. It assigns security responsibilities across business units and commits budget and staff. Who must approve the policy before it becomes enforceable?",
-    options: ["The security operations team", "The senior management or governing body", "The internal audit function", "The IT service desk manager"],
+    options: ["The CISO and the security steering committee", "The senior management or governing body", "The internal audit committee", "The data owners for each business unit"],
     answer: 1,
     whyText: "A top-level security policy expresses management's intent and assigns authority across the organisation. It must be approved at the level that can commit the organisation, typically senior management or the board.",
     lens: "Policy is a management instrument. The security team drafts and advises; senior management approves and remains accountable.",
-    why: { 0: "Operations implements policy but does not set organisation-wide intent.", 2: "Audit provides independent assurance and should not author policy.", 3: "The service desk is too low in the organisation to commit the enterprise." }
+    why: { 0: "The CISO and steering committee draft and recommend policy but do not provide enterprise authority.", 2: "Internal audit provides assurance, not executive approval.", 3: "Data owners apply the policy within their units; they do not approve enterprise policy." }
   }
 ]);

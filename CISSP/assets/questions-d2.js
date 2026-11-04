@@ -3,11 +3,11 @@
   {
     id: "d2q1", d: 2, topic: "Data ownership", diff: 1,
     stem: "A new dataset containing customer contract terms is created. Who is accountable for deciding its classification level and who may access it?",
-    options: ["The database administrator", "The data owner", "The security operations centre", "The backup operator"],
+    options: ["The data steward", "The data owner", "The system owner", "The data custodian"],
     answer: 1,
     whyText: "The data owner is the business role accountable for the data's classification, access rules, and destruction decisions. Administrators and custodians implement those decisions.",
     lens: "Owner decides; custodian implements; user complies. If the question asks who decides classification or access, the answer is the owner.",
-    why: { 0: "The administrator operates the database but does not own the business data.", 2: "The SOC monitors and responds; it does not classify business data.", 3: "The backup operator handles media, not classification." }
+    why: { 0: "A data steward maintains quality and metadata; classification accountability stays with the owner.", 2: "A system owner is accountable for the system, not the business data’s classification.", 3: "A custodian implements controls; it does not decide classification or access." }
   },
   {
     id: "d2q2", d: 2, topic: "Custodian duties", diff: 1,
@@ -57,38 +57,38 @@
   {
     id: "d2q7", d: 2, topic: "Legal hold", diff: 2,
     stem: "The retention schedule says a set of emails should be destroyed after three years. Litigation is reasonably anticipated, and counsel issues a legal hold. What should the organisation do?",
-    options: ["Destroy the emails on schedule to comply with the retention policy", "Preserve the emails until the hold is released, then resume disposition", "Move the emails to a public archive", "Encrypt the emails and delete the keys"],
+    options: ["Destroy the emails on schedule to comply with the retention policy", "Preserve the emails until the hold is released, then resume disposition", "Continue the retention schedule but retain a copy in the backup system", "Encrypt the emails and delete the decryption keys held by IT"],
     answer: 1,
     whyText: "A legal hold suspends normal destruction and overrides the retention schedule. Data must be preserved until counsel releases the hold, after which normal disposition can resume.",
     lens: "When litigation or investigation is reasonably anticipated, preservation beats the retention timer. Destroying in the face of a hold can be sanctions-level misconduct.",
-    why: { 0: "The retention schedule is overridden by the hold.", 2: "A public archive would expose confidential data and does not satisfy preservation duties.", 3: "Deleting keys is still destruction and violates the hold." }
+    why: { 0: "The retention schedule is overridden by the hold.", 2: "A backup copy does not satisfy a legal hold and may not be retrievable in a defensible way.", 3: "Encryption with destroyed keys is destruction, not preservation; the hold requires the records to remain available." }
   },
   {
     id: "d2q8", d: 2, topic: "Retention risk", diff: 1,
     stem: "A records team proposes keeping every email and document indefinitely because storage is inexpensive. Legal has not issued a hold. What is the primary security risk of this over-retention?",
-    options: ["Increased storage cost only", "Greater exposure in a breach and broader discovery obligations", "Faster backup performance", "Reduced need for classification"],
+    options: ["Higher storage and search costs, with no material security effect", "Greater exposure in a breach and broader discovery obligations", "A larger backup window and higher media costs", "Less need for data classification because the archive is centralised"],
     answer: 1,
     whyText: "Over-retention enlarges the data footprint available to an attacker and increases the scope and cost of legal discovery. It also conflicts with privacy minimisation principles.",
     lens: "Retention is a risk decision, not just a storage decision. Keep what the law and the business require; dispose of the rest defensibly.",
-    why: { 0: "Cost is a factor but not the primary security risk.", 2: "Retention does not improve backup performance.", 3: "Retention has no effect on the need to classify data." }
+    why: { 0: "Cost is real, but over-retention also increases breach exposure and discovery scope.", 2: "Backup performance is an operational concern, not the primary security risk.", 3: "Centralised storage does not reduce the need to classify and limit data." }
   },
   {
     id: "d2q9", d: 2, topic: "Personal data", diff: 1,
     stem: "Which item is the clearest example of protected health information (PHI)?",
-    options: ["A company's public holiday schedule", "A patient's name combined with a diagnosis and treatment record", "An anonymised count of hospital visitors", "A supplier's tax registration number"],
+    options: ["A patient's appointment time with no name or identifier", "A patient's name combined with a diagnosis and treatment record", "A patient's postcode and admission date without a name", "A hospital's staff roster with names and roles"],
     answer: 1,
     whyText: "PHI is health information linked to an identifiable individual. A name plus diagnosis and treatment is the classic combination.",
     lens: "The identifier is what turns health data into PHI. Aggregated, properly anonymised counts are not personal health information.",
-    why: { 0: "This is public operational information.", 2: "Properly anonymised aggregate data does not identify a person.", 3: "A tax number is business data; it is not health information." }
+    why: { 0: "An appointment time without an identifier is not tied to an individual.", 2: "A postcode and admission date can be identifying when combined, but a name plus diagnosis and treatment is the clearest PHI example.", 3: "A staff roster is workforce data, not patient health information." }
   },
   {
     id: "d2q10", d: 2, topic: "Data subject rights", diff: 2,
     stem: "A customer asks an organisation to erase their personal data. The organisation is legally required to retain transaction records for seven years. What is the most appropriate response?",
-    options: ["Delete everything immediately to satisfy the request", "Refuse all requests permanently", "Explain the legal retention obligation and erase only data not subject to it", "Transfer the data to a marketing database"],
+    options: ["Delete everything immediately to satisfy the request", "Refuse all requests permanently", "Explain the legal retention obligation and erase only data not subject to it", "Retain all data under a legitimate-interest exception and close the request"],
     answer: 2,
     whyText: "Data-subject rights are not absolute. The organisation should honour the request where it can and explain the legal basis for retaining the subset it must keep, limiting further processing.",
     lens: "Privacy requests meet legal obligations. The mature answer is scoped compliance with a documented rationale, not blanket deletion or blanket refusal.",
-    why: { 0: "Deleting legally required records creates compliance and litigation risk.", 1: "A blanket refusal ignores the rights that do apply.", 3: "Moving data to marketing increases processing and compounds the problem." }
+    why: { 0: "Deleting legally required records creates compliance and litigation risk.", 1: "A blanket refusal ignores the rights that do apply.", 3: "A legitimate-interest claim does not override a legal retention obligation or erase the need to respond to the request." }
   },
   {
     id: "d2q11", d: 2, topic: "Data loss prevention", diff: 2,
@@ -102,11 +102,11 @@
   {
     id: "d2q12", d: 2, topic: "Tokenisation", diff: 2,
     stem: "An online store replaces stored card numbers with random tokens and keeps the real values in a segregated vault. What is the primary security benefit?",
-    options: ["It makes the card numbers mathematically unrecoverable forever", "It reduces the exposure and compliance scope of the production environment", "It eliminates the need for access control", "It replaces the need for encryption in transit"],
+    options: ["It makes the card numbers mathematically unrecoverable forever", "It reduces the exposure and compliance scope of the production environment", "It allows the production system to store the real card numbers in a separate schema", "It guarantees PCI DSS compliance without network segmentation"],
     answer: 1,
     whyText: "Tokenisation keeps sensitive values out of systems that do not need them, reducing breach exposure and the scope of payment-card compliance. The vault still requires strong protection.",
     lens: "Tokenisation reduces where the sensitive data lives. It does not make the underlying data unrecoverable, and it does not remove other controls.",
-    why: { 0: "The token maps back to the real value in the vault, so the data is recoverable by design.", 2: "The vault still requires access control.", 3: "Data in transit still needs protection." }
+    why: { 0: "The token maps back to the real value in the vault, so the data is recoverable by design.", 2: "Moving the real values to another schema does not reduce scope or exposure.", 3: "Tokenisation helps scope, but compliance still requires segmentation and other controls." }
   },
   {
     id: "d2q13", d: 2, topic: "Data states", diff: 1,
@@ -156,28 +156,28 @@
   {
     id: "d2q18", d: 2, topic: "Privacy by design", diff: 2,
     stem: "A product team is designing a new loyalty programme. Which choice best applies the principle of data minimisation?",
-    options: ["Collect every available customer attribute for future use", "Collect only the attributes needed for the stated loyalty benefits", "Retain all data indefinitely in case marketing needs it", "Share the full dataset with all partners by default"],
+    options: ["Collect a broad set of attributes and rely on access controls to limit use", "Collect only the attributes needed for the stated loyalty benefits", "Retain data for the maximum period permitted by law to preserve optionality", "Share the full dataset with partners that accept the privacy notice"],
     answer: 1,
     whyText: "Data minimisation limits collection and retention to what the stated purpose requires. Optional future uses need a separate lawful basis and a new decision.",
     lens: "Privacy by design is mostly restraint: collect less, keep it briefly, restrict the purpose, and default to the protective setting.",
-    why: { 0: "Collecting everything violates purpose limitation and minimisation.", 2: "Indefinite retention increases exposure and legal risk.", 3: "Default sharing is the opposite of privacy by design." }
+    why: { 0: "Access controls do not cure over-collection; minimisation limits what is collected.", 2: "Retention limits are part of minimisation; keeping data for optional future use is not necessary.", 3: "Sharing the full dataset is the opposite of minimisation and purpose limitation." }
   },
   {
     id: "d2q19", d: 2, topic: "Asset lifecycle", diff: 2,
     stem: "At which point in the data lifecycle should classification and handling requirements first be assigned?",
-    options: ["When the data is archived", "When the data is created or acquired", "When a breach occurs", "When the storage device is retired"],
+    options: ["When the data is first migrated to a shared repository", "When the data is created or acquired", "When the data owner approves the retention schedule", "When the data is indexed for search"],
     answer: 1,
     whyText: "Classification at creation or acquisition ensures the correct handling controls follow the data from the beginning. Retrofitting classification later leaves periods of uncontrolled use.",
     lens: "Security follows the data from birth to destruction. Assign the label when the asset appears, not after it has moved.",
-    why: { 0: "Archiving is too late and assumes a label exists.", 2: "Breach response is not a classification point.", 3: "Retirement is the end of the lifecycle." }
+    why: { 0: "Migration is a later lifecycle event; classification should precede handling.", 2: "Retention approval may follow classification; it is not the first assignment point.", 3: "Indexing is a processing step that should already be governed by a classification." }
   },
   {
     id: "d2q20", d: 2, topic: "Baselines", diff: 2,
     stem: "A security team is selecting controls from NIST SP 800-53 for a new system. What does 'scoping and tailoring' mean in this context?",
-    options: ["Implementing every control in the catalogue", "Selecting and adjusting controls to fit the system's risk, architecture, and obligations", "Copying another organisation's control set without change", "Removing all controls that are difficult to test"],
+    options: ["Adopting the full baseline without change and documenting any exceptions", "Selecting and adjusting controls to fit the system's risk, architecture, and obligations", "Selecting controls only from the system's impact level", "Deferring tailoring until after the system is deployed"],
     answer: 1,
     whyText: "Scoping and tailoring adapt a control baseline to the system's actual context. The goal is appropriate coverage, not maximum control count.",
     lens: "A baseline is a starting point. Tailoring is a documented risk decision, not an excuse to delete inconvenient controls.",
-    why: { 0: "Implementing everything is costly and often irrelevant.", 2: "Another organisation's context is not yours.", 3: "Difficulty is not a valid reason to remove a required control." }
+    why: { 0: "Implementing the full baseline ignores system-specific risk and cost.", 2: "Impact level is an input, not the whole scoping decision.", 3: "Tailoring after deployment leaves gaps during the riskiest period." }
   }
 ]);

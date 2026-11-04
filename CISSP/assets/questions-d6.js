@@ -12,11 +12,11 @@
   {
     id: "d6q2", d: 6, topic: "Rules of engagement", diff: 1,
     stem: "Before a penetration test begins, what should be agreed and documented first?",
-    options: ["The list of vulnerabilities the testers expect to find", "The scope, authorisation, timing, constraints, and escalation contacts", "The final risk rating of each finding", "The remediation budget"],
+    options: ["The testing methodology and tooling to be used", "The scope, authorisation, timing, constraints, and escalation contacts", "The CVSS threshold for reporting findings", "The final report template and distribution list"],
     answer: 1,
     whyText: "Written authorisation and rules of engagement define what may be tested, when, how, and whom to contact if something goes wrong. Without them, the test is unauthorised activity.",
     lens: "The first control in any test is permission. Scope and authorisation precede tools.",
-    why: { 0: "Testers cannot know findings in advance.", 2: "Ratings are an output, not a precondition.", 3: "Budget may be separate and does not authorise testing." }
+    why: { 0: "Methodology is part of the plan, but scope and authorization must be agreed first.", 2: "Reporting thresholds are agreed later; authorization and scope come first.", 3: "The report format is a deliverable detail, not the first agreement." }
   },
   {
     id: "d6q3", d: 6, topic: "Scan types", diff: 2,
@@ -39,20 +39,20 @@
   {
     id: "d6q5", d: 6, topic: "CVSS", diff: 2,
     stem: "A vulnerability on an isolated lab server has a CVSS base score of 9.8. A vulnerability on an internet-facing payment API has a score of 7.5. Which statement best reflects a risk-based prioritisation?",
-    options: ["The lab server must be fixed first because 9.8 is higher", "The payment API may warrant earlier action because exposure and business impact are greater", "CVSS scores already include business context, so the order is fixed", "Neither finding matters until an exploit is public"],
+    options: ["The lab server must be fixed first because 9.8 is higher", "The payment API may warrant earlier action because exposure and business impact are greater", "CVSS scores already include business context, so the order is fixed", "Both should be fixed at the same time because their CVSS scores are in the same severity band"],
     answer: 1,
     whyText: "CVSS measures technical severity, not organisational risk. Exposure, asset criticality, data sensitivity, and compensating controls can make a lower-scored finding more urgent.",
     lens: "CVSS is an input. Risk is severity plus context. The exam repeatedly rewards the contextual answer.",
-    why: { 0: "The higher score does not automatically mean higher organisational risk.", 2: "CVSS base scores do not include your business context.", 3: "Known exploitation raises urgency, but absence of a public exploit does not make a finding irrelevant." }
+    why: { 0: "The higher score does not automatically mean higher organisational risk.", 2: "CVSS base scores do not include your business context.", 3: "CVSS bands do not override exposure and business impact." }
   },
   {
     id: "d6q6", d: 6, topic: "Vulnerability identifiers", diff: 1,
     stem: "A vulnerability manager needs one common identifier to correlate advisories from several vendors and scanners that describe the same flaw. What does a CVE identifier provide?",
-    options: ["It scores the business risk of a vulnerability", "It provides a unique public identifier for a specific vulnerability", "It certifies that a product is secure", "It lists every affected customer"],
+    options: ["It scores the business risk of a vulnerability", "It provides a unique public identifier for a specific vulnerability", "It certifies that a product is secure", "It confirms whether an exploit is publicly available"],
     answer: 1,
     whyText: "CVE assigns a unique identifier to a publicly known vulnerability. CVSS provides severity scoring, and NVD enriches CVE records with references and scores.",
     lens: "CVE names; CVSS scores; NVD enriches. Do not confuse the identifier with the risk decision.",
-    why: { 0: "CVSS handles severity scoring, not CVE.", 2: "No identifier certifies a product as secure.", 3: "CVE does not list affected customers." }
+    why: { 0: "CVSS handles severity scoring, not CVE.", 2: "No identifier certifies a product as secure.", 3: "CVE identifies the flaw; exploit availability is tracked separately." }
   },
   {
     id: "d6q7", d: 6, topic: "Penetration test types", diff: 2,
@@ -75,11 +75,11 @@
   {
     id: "d6q9", d: 6, topic: "Red teams", diff: 2,
     stem: "What primarily distinguishes a red team exercise from a conventional penetration test?",
-    options: ["A red team only uses automated scanners", "A red team emulates an adversary over time and evaluates detection and response, not just vulnerabilities", "A red team never documents its findings", "A red team tests only physical security"],
+    options: ["A red team focuses on vulnerabilities, while a penetration test focuses on detection", "A red team emulates an adversary over time and evaluates detection and response, not just vulnerabilities", "A red team is always external, while a penetration test is always internal", "A red team uses only social engineering, while a penetration test uses only technical exploits"],
     answer: 1,
     whyText: "Red teams emulate realistic adversaries, often with stealth and persistence, to test people, processes, detection, and response. A penetration test typically focuses on identifying and exploiting vulnerabilities within a defined scope.",
     lens: "Pen test asks 'can we get in?' Red team asks 'would you notice, and how would you respond?'",
-    why: { 0: "Red teams use a broad mix of techniques, not only scanners.", 2: "Findings are documented; otherwise the exercise has no value.", 3: "Red teams can include physical, social, and cyber vectors." }
+    why: { 0: "The distinction is adversary emulation and detection/response, not vulnerabilities versus detection.", 2: "Either can be internal or external; the distinction is objectives.", 3: "Red teams can use both social engineering and technical techniques." }
   },
   {
     id: "d6q10", d: 6, topic: "SAST and DAST", diff: 2,
@@ -93,11 +93,11 @@
   {
     id: "d6q11", d: 6, topic: "SAST limitations", diff: 2,
     stem: "Which limitation is most characteristic of static application security testing?",
-    options: ["It cannot inspect source code", "It can produce false positives and may miss runtime or configuration-dependent issues", "It requires a fully running production environment", "It can only test network protocols"],
+    options: ["It requires a running application and cannot inspect source", "It can produce false positives and may miss runtime or configuration-dependent issues", "It only finds vulnerabilities in third-party libraries", "It cannot detect injection flaws because it does not execute code"],
     answer: 1,
     whyText: "SAST analyses code without executing it, so it can flag patterns that are not exploitable in context and can miss issues that appear only at runtime or in deployment configuration.",
     lens: "Static sees the code path, not the live system. Combine it with DAST and runtime testing.",
-    why: { 0: "SAST specifically inspects source or binaries.", 2: "It does not need a running environment.", 3: "It analyses code, not just network traffic." }
+    why: { 0: "SAST inspects source or binaries; DAST requires a running application.", 2: "SCA covers third-party libraries; SAST covers first-party code.", 3: "SAST can detect injection patterns statically, though it may miss runtime issues." }
   },
   {
     id: "d6q12", d: 6, topic: "IAST", diff: 2,
@@ -129,38 +129,38 @@
   {
     id: "d6q15", d: 6, topic: "Code review", diff: 2,
     stem: "Why should code review be performed by someone other than the author?",
-    options: ["To increase the author's velocity", "To reduce blind spots and provide an independent check on logic and security", "To avoid the need for testing", "To transfer accountability for defects to the reviewer"],
+    options: ["To satisfy the change-management audit trail", "To reduce blind spots and provide an independent check on logic and security", "To ensure the reviewer can approve the change", "To reduce the author's testing burden"],
     answer: 1,
     whyText: "Independent review catches assumptions and mistakes the author cannot see. It complements testing but does not replace it, and accountability for the code remains with the author and team.",
     lens: "Independence improves detection. It does not transfer ownership of quality.",
-    why: { 0: "Review can slow delivery; the benefit is quality, not velocity.", 2: "Review and testing find different classes of defects.", 3: "The author and team remain accountable." }
+    why: { 0: "Audit evidence is a side effect, not the reason for independent review.", 2: "Review is a quality gate, not a change-approval role.", 3: "Review complements testing; it does not replace the author’s testing." }
   },
   {
     id: "d6q16", d: 6, topic: "Audit sampling", diff: 2,
     stem: "An auditor selects 40 purchase orders from a population of 10,000 to test approval controls. What is the most important characteristic of the sample?",
-    options: ["It must include only the largest transactions", "It must be representative of the population and the selection method documented", "It must be chosen by the department being audited", "It must include every transaction from the last week"],
+    options: ["It must be large enough to cover every control objective", "It must be representative of the population and the selection method documented", "It must be selected from the current fiscal year only", "It must include a random sample of high-value and low-value transactions"],
     answer: 1,
     whyText: "Sampling supports a conclusion only if the sample is representative and the method is documented and defensible. Bias or management selection undermines the evidence.",
     lens: "Audit conclusions inherit the quality of the sample. Independence and documentation are part of the evidence.",
-    why: { 0: "Selecting only large items biases the sample and may miss control failures.", 2: "The audited function should not control selection.", 3: "An arbitrary recent window may not represent the audit period." }
+    why: { 0: "Coverage of control objectives is not the same as a representative sample.", 2: "The population should match the audit period, not arbitrarily the fiscal year.", 3: "Stratification can help, but representativeness is the key characteristic." }
   },
   {
     id: "d6q17", d: 6, topic: "Assurance reports", diff: 2,
     stem: "A vendor provides a SOC 2 Type II report. What does the Type II designation indicate?",
-    options: ["The controls were tested for operating effectiveness over a period of time", "The report covers only the design of controls at a single point in time", "The vendor's software has no vulnerabilities", "The vendor is certified by ISC2"],
+    options: ["The controls were tested for operating effectiveness over a period of time", "The report covers only the design of controls at a single point in time", "The report covers the vendor's financial controls only", "The report is publicly available and not under NDA"],
     answer: 0,
     whyText: "SOC 2 Type II reports on controls over a period, including testing of operating effectiveness. Type I covers design at a point in time.",
     lens: "Type I = design at a date. Type II = operating effectiveness over time. Read the scope and exceptions, not just the opinion.",
-    why: { 1: "That describes Type I.", 2: "No assurance report proves the absence of vulnerabilities.", 3: "SOC reports are issued by independent auditors, not ISC2." }
+    why: { 1: "That describes Type I.", 2: "SOC 2 covers security, availability, processing integrity, confidentiality, and privacy, not just financial controls.", 3: "SOC 2 reports are typically distributed under NDA, not publicly." }
   },
   {
     id: "d6q18", d: 6, topic: "Logging", diff: 1,
     stem: "Why is consistent time synchronisation across network devices important for security monitoring?",
-    options: ["It encrypts log data", "It allows events from different sources to be correlated accurately during investigation", "It reduces the size of log files", "It prevents administrators from editing logs"],
+    options: ["It ensures log entries are admissible in court", "It allows events from different sources to be correlated accurately during investigation", "It prevents log tampering by administrators", "It reduces the storage required for logs"],
     answer: 1,
     whyText: "Accurate, consistent timestamps allow a SIEM and investigators to place events in the correct order across systems. Clock skew can make an attack sequence appear impossible or hide causality.",
     lens: "Correlation depends on time. NTP is a security control, not just an operations convenience.",
-    why: { 0: "NTP does not encrypt logs.", 2: "Synchronisation does not reduce log volume.", 3: "Integrity controls, not NTP, protect logs from editing." }
+    why: { 0: "Admissibility depends on chain of custody and authenticity, not time sync alone.", 2: "Time sync helps correlation but does not prevent tampering.", 3: "Time sync does not reduce storage." }
   },
   {
     id: "d6q19", d: 6, topic: "Security metrics", diff: 2,
@@ -174,10 +174,10 @@
   {
     id: "d6q20", d: 6, topic: "Scan interpretation", diff: 2,
     stem: "A vulnerability scan of a subnet reports no critical findings. What is the most appropriate conclusion?",
-    options: ["The subnet is fully secure", "The scan found no critical issues it was configured and able to detect, so coverage and false negatives still need consideration", "No further testing is required", "All assets on the subnet are patched"],
+    options: ["The subnet has no exploitable vulnerabilities", "The scan found no critical issues it was configured and able to detect, so coverage and false negatives still need consideration", "The scan coverage was sufficient because it was authenticated", "The remaining risk is limited to zero-days"],
     answer: 1,
     whyText: "A clean scan is bounded by scope, credentials, signatures, and tool coverage. It does not prove security. Validate coverage, review false negatives, and combine with other testing.",
     lens: "Absence of evidence is not evidence of absence. Always ask what the scan could not see.",
-    why: { 0: "No scan proves a network secure.", 2: "Other controls and testing may still be needed.", 3: "Patch state may be invisible to an unauthenticated scan." }
+    why: { 0: "A scan reports what it was configured and able to detect, not proof of no exploitable flaws.", 2: "Authentication improves coverage but does not guarantee completeness.", 3: "False negatives and unscanned assets can hide known vulnerabilities." }
   }
 ]);

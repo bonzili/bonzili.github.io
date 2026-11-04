@@ -21,11 +21,11 @@
   {
     id: "d4q3", d: 4, topic: "TCP and UDP", diff: 1,
     stem: "A monitoring system sends short, periodic status queries where occasional loss is acceptable and low overhead matters. Which transport protocol is the better fit?",
-    options: ["TCP, because it guarantees delivery", "UDP, because it is connectionless and has lower overhead", "ICMP, because it carries application data", "ARP, because it resolves addresses"],
+    options: ["TCP, because it guarantees delivery", "UDP, because it is connectionless and has lower overhead", "SCTP, because it provides message boundaries and multihoming", "TCP with a small window, because it avoids congestion"],
     answer: 1,
     whyText: "UDP is connectionless and does not guarantee delivery or ordering, which suits short queries where retransmission overhead is unnecessary. TCP is better when reliability and ordering matter.",
     lens: "Choose transport by the application's tolerance for loss versus its need for reliability. Not every application needs TCP.",
-    why: { 0: "Reliability is unnecessary here and adds overhead.", 2: "ICMP is a control protocol, not a general data transport.", 3: "ARP resolves IPv4 addresses; it does not carry application queries." }
+    why: { 0: "Reliability is unnecessary here and adds overhead.", 2: "SCTP is reliable and connection-oriented; it adds overhead the scenario does not need.", 3: "TCP still guarantees delivery and adds handshake overhead." }
   },
   {
     id: "d4q4", d: 4, topic: "IPsec", diff: 2,
@@ -39,65 +39,65 @@
   {
     id: "d4q5", d: 4, topic: "IPsec modes", diff: 2,
     stem: "Two branch offices connect through an untrusted network using IPsec. The entire original IP packet must be protected between the gateways. Which mode is required?",
-    options: ["Transport mode", "Tunnel mode", "Promiscuous mode", "Monitor mode"],
+    options: ["Transport mode", "Tunnel mode", "Transport mode with ESP", "Tunnel mode with GRE"],
     answer: 1,
     whyText: "Tunnel mode encapsulates the entire original IP packet inside a new IP packet, protecting the internal addressing as well. Transport mode protects the payload but leaves the original IP header visible.",
     lens: "Host-to-host payload protection = transport mode. Gateway-to-gateway or full packet protection = tunnel mode.",
-    why: { 0: "Transport mode does not protect the original IP header.", 2: "Promiscuous mode is an interface capture mode, not an IPsec mode.", 3: "Monitor mode is used for wireless capture." }
+    why: { 0: "Transport mode does not protect the original IP header.", 2: "Transport mode protects the payload, not the entire original IP packet.", 3: "GRE is a tunneling protocol, not an IPsec mode." }
   },
   {
     id: "d4q6", d: 4, topic: "TLS and HTTPS", diff: 2,
     stem: "A user connects to a banking website over HTTPS. What does the TLS handshake primarily establish before application data is sent?",
-    options: ["A shared symmetric session key and server authentication", "A permanent password for the user", "A direct connection to the database", "A guarantee that the website has no vulnerabilities"],
+    options: ["A shared symmetric session key and server authentication", "A shared symmetric key and client authentication", "A digital certificate for the user and a session key", "A one-time password and a compressed session"],
     answer: 0,
     whyText: "TLS authenticates the server via its certificate, negotiates algorithms, and establishes shared symmetric keys for the session. The certificate does not prove the application is free of flaws.",
     lens: "TLS solves channel security and server identity. It does not solve application authorization or vulnerability.",
-    why: { 1: "TLS does not create or replace user passwords.", 2: "The browser connects to the web server, not the database directly.", 3: "A valid certificate says nothing about application vulnerabilities." }
+    why: { 1: "TLS authenticates the server by default; client authentication is optional.", 2: "The handshake authenticates the server, not necessarily the user.", 3: "A one-time password is an application authentication method, not the TLS handshake’s primary output." }
   },
   {
     id: "d4q7", d: 4, topic: "DNSSEC", diff: 2,
     stem: "An attacker poisons a DNS resolver's cache so users are redirected to a fraudulent site. Which control lets the resolver verify that the DNS records it receives are authentic and unmodified?",
-    options: ["Encryption of DNS queries", "Integrity and authenticity of DNS responses through digital signatures", "Anonymity for DNS clients", "Compression of DNS records"],
+    options: ["DNS over HTTPS with certificate pinning", "Integrity and authenticity of DNS responses through digital signatures", "DNS response rate limiting and cache locking", "Split-horizon DNS with internal zones"],
     answer: 1,
     whyText: "DNSSEC signs DNS records so resolvers can verify that the data is authentic and unmodified. It does not encrypt queries or hide the client's identity.",
     lens: "DNSSEC = integrity and authenticity, not confidentiality. DoH/DoT provide query confidentiality.",
-    why: { 0: "DNSSEC does not encrypt the query or response.", 2: "Anonymity is not a DNSSEC property.", 3: "Compression is unrelated." }
+    why: { 0: "DoH encrypts the query path but does not validate the origin of the records.", 2: "Rate limiting and cache locking reduce some poisoning attempts but do not prove authenticity.", 3: "Split-horizon DNS separates views; it does not sign or validate records." }
   },
   {
     id: "d4q8", d: 4, topic: "Email authentication", diff: 2,
     stem: "An organisation wants receiving mail servers to verify that messages claiming to come from its domain were authorised by it, and to act on failures. Which combination is designed for this?",
-    options: ["SPF, DKIM, and DMARC", "TLS, IPsec, and SSH", "SAML, OAuth, and OIDC", "SNMP, Syslog, and NTP"],
+    options: ["SPF, DKIM, and DMARC", "SPF and DKIM without DMARC", "DMARC and ARC without SPF", "MTA-STS and TLS-RPT"],
     answer: 0,
     whyText: "SPF authorises sending hosts, DKIM signs messages, and DMARC ties the results to a published policy for handling failures.",
     lens: "SPF checks the envelope sender, DKIM signs the message, DMARC tells the receiver what to do when either fails.",
-    why: { 1: "These protect channels and sessions, not sender-domain authentication.", 2: "These are identity and federation protocols.", 3: "These are management and logging protocols." }
+    why: { 1: "SPF and DKIM authenticate parts of the message, but without DMARC the domain owner has no policy for failures.", 2: "DMARC depends on SPF or DKIM alignment; ARC helps forwarding but is not a complete policy.", 3: "MTA-STS and TLS-RPT protect transport and report failures; they do not authorize sending domains." }
   },
   {
     id: "d4q9", d: 4, topic: "Wireless authentication", diff: 2,
     stem: "An enterprise wants each employee to authenticate to Wi-Fi with individual credentials and receive role-based network access. Which architecture is most appropriate?",
-    options: ["WPA2-Personal with a shared passphrase", "WPA2-Enterprise with 802.1X and RADIUS", "An open network with a captive portal", "WEP with MAC filtering"],
+    options: ["WPA2-Personal with a shared passphrase", "WPA2-Enterprise with 802.1X and RADIUS", "WPA3-Personal with SAE and a shared passphrase", "WPA2-Enterprise with a pre-shared key and MAC filtering"],
     answer: 1,
     whyText: "WPA2-Enterprise uses 802.1X to authenticate individual users or devices against a RADIUS server, enabling per-user credentials and policy. WPA2-Personal uses one shared key.",
     lens: "Personal = shared PSK. Enterprise = 802.1X + authentication server. Individual accountability requires Enterprise.",
-    why: { 0: "A shared passphrase cannot identify individual users.", 2: "A captive portal does not provide strong link-layer authentication.", 3: "WEP is broken and MAC filtering is easily bypassed." }
+    why: { 0: "A shared passphrase cannot identify individual users.", 2: "WPA3-Personal improves the handshake but still uses a shared passphrase, not individual credentials.", 3: "A pre-shared key does not provide individual authentication; MAC filtering is easily spoofed." }
   },
   {
     id: "d4q10", d: 4, topic: "Wireless key management", diff: 2,
     stem: "A small office uses WPA2-Personal. An employee who knows the Wi-Fi passphrase leaves the company. What is the primary security concern?",
-    options: ["The former employee can still connect until the shared key is changed for everyone", "The former employee can decrypt other users' HTTPS sessions", "The access point will stop broadcasting its SSID", "WPA2 automatically revokes the employee's certificate"],
+    options: ["The former employee can still connect until the shared key is changed for everyone", "The former employee can decrypt other users' HTTPS sessions", "The former employee can join only if the SSID is hidden", "The former employee's device is automatically blocked by 802.1X"],
     answer: 0,
     whyText: "WPA2-Personal uses a pre-shared key shared by all users. Without per-user credentials, the key must be changed and redistributed when someone leaves, disrupting everyone.",
     lens: "Shared secrets destroy individual revocation. Enterprise authentication exists to solve exactly this.",
-    why: { 1: "HTTPS sessions are protected by TLS, not by the Wi-Fi key alone.", 2: "SSID broadcasting is unrelated to the passphrase.", 3: "WPA2-Personal does not use per-user certificates." }
+    why: { 1: "HTTPS sessions are protected by TLS, not by the Wi-Fi key alone.", 2: "Hiding the SSID is not an access control.", 3: "WPA2-Personal does not use 802.1X or per-user certificates." }
   },
   {
     id: "d4q11", d: 4, topic: "Rogue access points", diff: 1,
     stem: "An attacker sets up a wireless access point with the same SSID as a legitimate café network to capture user traffic. What is this attack called?",
-    options: ["Evil twin", "Bluejacking", "Wardriving", "Smurf attack"],
+    options: ["Evil twin", "Bluejacking", "Wardriving", "A deauthentication attack"],
     answer: 0,
     whyText: "An evil twin impersonates a legitimate access point to lure users into connecting, enabling traffic interception or credential capture.",
     lens: "Evil twin = rogue AP impersonating a trusted SSID. Defence includes certificate validation, WIPS, and avoiding untrusted networks.",
-    why: { 1: "Bluejacking sends unsolicited Bluetooth messages.", 2: "Wardriving is the practice of discovering wireless networks.", 3: "A Smurf attack is an ICMP amplification attack." }
+    why: { 1: "Bluejacking sends unsolicited Bluetooth messages.", 2: "Wardriving is the practice of discovering wireless networks.", 3: "Deauthentication disrupts existing connections; it does not impersonate the network." }
   },
   {
     id: "d4q12", d: 4, topic: "ARP attacks", diff: 2,
@@ -111,11 +111,11 @@
   {
     id: "d4q13", d: 4, topic: "DDoS", diff: 2,
     stem: "A public web service is overwhelmed by a volumetric DDoS attack that saturates its internet link. Which control is most effective at the network edge?",
-    options: ["Enable full-disk encryption on the web servers", "Use upstream scrubbing and rate limiting", "Increase the password length for administrators", "Disable DNS logging"],
+    options: ["Enable SYN cookies on the web servers", "Use upstream scrubbing and rate limiting", "Add a web application firewall in blocking mode", "Increase the server's TCP backlog"],
     answer: 1,
     whyText: "Volumetric attacks consume bandwidth before reaching the application. Upstream scrubbing centres and rate limiting absorb or filter the traffic before it saturates the link.",
     lens: "Match the DDoS type to the defence: volumetric needs upstream capacity and scrubbing; application-layer needs caching, rate limits, and WAF rules.",
-    why: { 0: "Disk encryption does not affect network saturation.", 2: "Password length does not stop traffic flooding.", 3: "Disabling logging removes evidence and visibility." }
+    why: { 0: "SYN cookies help with SYN floods, not a volumetric link saturation.", 2: "A WAF filters application attacks, not a link-saturating flood.", 3: "A larger backlog does not increase link capacity." }
   },
   {
     id: "d4q14", d: 4, topic: "Firewalls", diff: 2,
@@ -156,28 +156,28 @@
   {
     id: "d4q18", d: 4, topic: "VLAN security", diff: 2,
     stem: "Which practice most directly reduces the risk of VLAN hopping on a switch?",
-    options: ["Disable unused ports and avoid automatic trunk negotiation on access ports", "Enable WEP on the management VLAN", "Use the same native VLAN for all segments", "Allow all VLANs on every trunk"],
+    options: ["Disable unused ports and avoid automatic trunk negotiation on access ports", "Enable dynamic trunking on access ports", "Use the default VLAN for management traffic", "Allow native VLAN tagging on all access ports"],
     answer: 0,
     whyText: "VLAN hopping often abuses trunk negotiation or double-tagged frames. Disabling unused ports, hard-setting access ports, and restricting trunk negotiation reduce the attack surface.",
     lens: "A VLAN is a segmentation convenience, not a hard security boundary. Configure ports explicitly and limit trunk reach.",
-    why: { 1: "WEP is obsolete and unrelated to VLAN configuration.", 2: "A shared native VLAN increases hopping risk.", 3: "Allowing all VLANs on a trunk broadens exposure." }
+    why: { 1: "Dynamic trunking on access ports can be negotiated by an attacker.", 2: "Management traffic on the default VLAN increases exposure.", 3: "Native VLAN tagging is a common hopping vector." }
   },
   {
     id: "d4q19", d: 4, topic: "NAT", diff: 1,
     stem: "Which statement about network address translation (NAT) is correct?",
-    options: ["NAT is a complete security boundary that replaces a firewall", "NAT conserves public addresses and obscures internal addressing, but does not enforce security policy", "NAT encrypts all outbound traffic", "NAT authenticates users before granting access"],
+    options: ["NAT provides stateful inspection of application traffic", "NAT conserves public addresses and obscures internal addressing, but does not enforce security policy", "NAT hides internal addresses but preserves end-to-end integrity", "NAT is a routing technique that also authenticates clients"],
     answer: 1,
     whyText: "NAT maps private addresses to public addresses and hides internal structure, but it does not inspect or enforce policy. It is not a substitute for a firewall.",
     lens: "Obscurity is not control. NAT may complicate an attacker's view, but it does not decide what traffic is allowed.",
-    why: { 0: "NAT does not inspect traffic or enforce rules.", 2: "NAT does not encrypt.", 3: "NAT does not authenticate users." }
+    why: { 0: "NAT translates addresses; it does not inspect application payloads.", 2: "NAT modifies addresses and does not provide integrity protection.", 3: "NAT does not authenticate clients." }
   },
   {
     id: "d4q20", d: 4, topic: "Zero trust", diff: 2,
     stem: "Which principle best describes a zero-trust network architecture?",
-    options: ["Trust all traffic once it is inside the corporate network perimeter", "Verify identity and context for every request, regardless of network location", "Replace all firewalls with VLANs", "Require employees to use only wired connections"],
+    options: ["Trust internal traffic but verify external traffic", "Verify identity and context for every request, regardless of network location", "Segment the network into VLANs and trust each segment", "Apply least privilege only to remote workers"],
     answer: 1,
     whyText: "Zero trust removes implicit trust based on network location. Every request is authenticated and authorized using identity, device posture, and context.",
     lens: "The perimeter is no longer the trust boundary. Identity and policy follow the request.",
-    why: { 0: "That is the traditional perimeter model zero trust replaces.", 2: "Zero trust complements segmentation and firewalls; it does not replace them with VLANs.", 3: "Connection type is not the defining principle." }
+    why: { 0: "Zero trust does not grant implicit trust based on network location.", 2: "Segmentation is useful but does not replace per-request verification.", 3: "Least privilege applies to all users and workloads, not just remote workers." }
   }
 ]);

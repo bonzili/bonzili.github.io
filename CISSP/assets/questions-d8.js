@@ -21,56 +21,56 @@
   {
     id: "d8q3", d: 8, topic: "DevSecOps", diff: 2,
     stem: "What is the primary security objective of DevSecOps?",
-    options: ["Move all security review to a final gate before release", "Make security a shared, automated responsibility throughout delivery", "Replace developers with security engineers", "Eliminate the need for change management"],
+    options: ["Move all security review to a final gate before release", "Make security a shared, automated responsibility throughout delivery", "Automate all security decisions so humans are removed from release approval", "Centralise security ownership in a dedicated team"],
     answer: 1,
     whyText: "DevSecOps integrates security activities and automated checks into the delivery pipeline so issues are found continuously and ownership is shared across development, operations, and security.",
     lens: "Shift left does not mean a single scanner at the end. It means security is part of the definition of done and the pipeline.",
-    why: { 0: "A final gate is the opposite of continuous integration.", 2: "Security enables delivery; it does not replace developers.", 3: "Change control still exists, though it may be automated." }
+    why: { 0: "A final gate is the opposite of continuous integration.", 2: "Automation supports DevSecOps; it does not remove human accountability.", 3: "DevSecOps distributes security responsibility rather than centralising it." }
   },
   {
     id: "d8q4", d: 8, topic: "Attack surface", diff: 1,
     stem: "A team is designing a new public API. Which action most directly reduces the attack surface?",
-    options: ["Add more debugging endpoints for convenience", "Expose only the endpoints and data fields required by the business", "Disable all logging to reduce information leakage", "Use the same administrative interface for public and internal users"],
+    options: ["Add debugging endpoints behind authentication", "Expose only the endpoints and data fields required by the business", "Disable detailed error messages in production", "Require API keys for all endpoints"],
     answer: 1,
-    whyText: "Reducing the number of reachable interfaces, features, and data fields reduces the opportunities an attacker can target. Unnecessary debug endpoints and shared administrative interfaces expand exposure.",
+    whyText: "Reducing the number of reachable interfaces, features, and data fields reduces the opportunities an attacker can target. Unnecessary debug endpoints and over-broad data fields expand exposure.",
     lens: "Attack surface is everything reachable. Remove it before defending it.",
-    why: { 0: "Debug endpoints often expose sensitive information and should not be public.", 2: "Logging is a detection control; disabling it reduces visibility.", 3: "Sharing administrative and public interfaces increases exposure and blast radius." }
+    why: { 0: "Debugging endpoints expand the attack surface even when authenticated.", 2: "Error handling is good practice but does not reduce the API’s exposed surface.", 3: "API keys are access control, not a reduction in exposed endpoints and fields." }
   },
   {
     id: "d8q5", d: 8, topic: "Injection", diff: 1,
     stem: "Which coding practice most effectively prevents SQL injection?",
-    options: ["Concatenating user input into the query after escaping quotes", "Using parameterised queries or prepared statements", "Hiding the database error messages", "Storing the database password in the application code"],
+    options: ["Escaping quotes and concatenating input into the query", "Using parameterised queries or prepared statements", "Using stored procedures that build dynamic SQL from input", "Hiding database error messages from users"],
     answer: 1,
     whyText: "Parameterised queries bind input as data, so it cannot change the query structure. Escaping alone is fragile; error hiding is only defence in depth.",
     lens: "The fix for injection is separation of code and data. Do not rely on blocklists or quote escaping.",
-    why: { 0: "Manual escaping is error-prone and easy to bypass.", 2: "Hiding errors helps reconnaissance but does not prevent injection.", 3: "Hard-coded credentials worsen the exposure." }
+    why: { 0: "Escaping is error-prone; parameterisation separates code from data.", 2: "Dynamic SQL inside a procedure can still be injectable.", 3: "Error hiding reduces information leakage but does not fix injection." }
   },
   {
     id: "d8q6", d: 8, topic: "Cross-site scripting", diff: 2,
     stem: "A web application reflects user-supplied text into an HTML page without encoding it, allowing script to execute in other users' browsers. Which control most directly addresses the root cause?",
-    options: ["Output encoding appropriate to the HTML context, plus a restrictive content security policy", "Encrypting the page with TLS", "Increasing the session timeout", "Using HTTP-only cookies only"],
+    options: ["Output encoding appropriate to the HTML context, plus a restrictive content security policy", "Input validation that rejects angle brackets", "HTTP-only cookies and a longer session timeout", "A web application firewall in blocking mode"],
     answer: 0,
     whyText: "XSS occurs when untrusted data is interpreted as code. Context-appropriate output encoding prevents that interpretation; CSP limits the impact of any remaining injection.",
-    lens: "Input validation helps, but output encoding is the primary XSS defence. TLS does not stop script execution.",
-    why: { 1: "TLS protects the channel, not the page's handling of untrusted data.", 2: "Session timeout is unrelated.", 3: "HTTP-only cookies protect cookie theft but do not stop script execution or DOM manipulation." }
+    lens: "Input validation helps, but output encoding is the primary XSS defence. A WAF is a compensating control, not the root-cause fix.",
+    why: { 1: "Input validation helps but output encoding is the root-cause fix for XSS.", 2: "Cookie flags and timeouts do not stop script execution.", 3: "A WAF is a compensating control, not the root-cause fix." }
   },
   {
     id: "d8q7", d: 8, topic: "CSRF", diff: 2,
     stem: "An application allows a logged-in user's browser to perform state-changing requests from another site. Which control best prevents this?",
-    options: ["Anti-CSRF tokens validated server-side and SameSite cookie attributes", "Longer passwords", "Encrypting the database", "Disabling HTTP compression"],
+    options: ["Anti-CSRF tokens validated server-side and SameSite cookie attributes", "SameSite cookies alone", "Origin and Referer header validation", "Requiring re-authentication for every request"],
     answer: 0,
     whyText: "CSRF abuses the browser's automatic inclusion of credentials. Anti-CSRF tokens prove the request originated from the application, and SameSite cookies reduce cross-site transmission.",
     lens: "CSRF is an authorization-of-origin problem. Tokens and SameSite are the direct controls.",
-    why: { 1: "Password strength does not stop a logged-in browser from sending a request.", 2: "Database encryption does not verify request origin.", 3: "Compression settings are unrelated." }
+    why: { 1: "SameSite helps but is not sufficient alone for all browser and flow cases.", 2: "Header validation is a useful defense but can be bypassed; tokens are stronger.", 3: "Re-authentication is disruptive and does not prevent the forged request." }
   },
   {
     id: "d8q8", d: 8, topic: "SSRF", diff: 2,
     stem: "An application accepts a URL and fetches it server-side. An attacker supplies the cloud metadata address to obtain credentials. Which control is most effective?",
-    options: ["Allowlist permitted destination hosts and block internal and metadata ranges", "Increase the server's memory", "Encode the URL in the response", "Log the request after it completes"],
+    options: ["Allowlist permitted destination hosts and block internal and metadata ranges", "Validate the URL scheme and block redirects", "Use a web application firewall to block metadata URLs", "Run the fetcher in a container with outbound internet access"],
     answer: 0,
     whyText: "SSRF makes the server issue requests to unintended destinations. Restricting destinations to an allowlist and blocking internal/metadata ranges prevents the request from reaching sensitive endpoints.",
     lens: "SSRF is about where the server can go. Egress control and destination allowlists are the core defences.",
-    why: { 1: "Memory has no effect on request destination.", 2: "Encoding affects output, not server-side fetching.", 3: "Logging is detection, not prevention." }
+    why: { 1: "Scheme validation is insufficient; destination allowlisting is needed.", 2: "A WAF can help but is bypassable; allowlisting is stronger.", 3: "Outbound internet access increases SSRF exposure." }
   },
   {
     id: "d8q9", d: 8, topic: "Broken access control", diff: 2,
@@ -84,29 +84,29 @@
   {
     id: "d8q10", d: 8, topic: "Secrets management", diff: 2,
     stem: "A developer commits an API key to a public repository. What is the most appropriate response?",
-    options: ["Delete the commit and assume the key is safe", "Revoke and rotate the key, remove it from history where appropriate, and move secrets to a managed store", "Change the repository name", "Add the key to .gitignore only"],
+    options: ["Rotate the key but leave the commit history unchanged", "Revoke and rotate the key, remove it from history where appropriate, and move secrets to a managed store", "Add the key to .gitignore and force-push the repository", "Move the key to an environment variable in the same repository"],
     answer: 1,
     whyText: "Once a secret is public it must be treated as compromised. Revoke and rotate first, then remediate history and prevent recurrence with a secret manager and scanning.",
     lens: "Deleting the visible file does not delete the secret from clones, caches, or attacker copies. Rotation is mandatory.",
-    why: { 0: "History and copies may retain the key.", 2: "Renaming does not revoke exposure.", 3: "Ignoring prevents future commits but does not fix this one." }
+    why: { 0: "The exposed key must be revoked; history may still contain it.", 2: "Force-pushing does not guarantee removal from caches or forks.", 3: "An environment variable in the repo can still be committed or exposed." }
   },
   {
     id: "d8q11", d: 8, topic: "Deserialization", diff: 2,
     stem: "A web service accepts serialized objects from untrusted clients and reconstructs them on the server. A tester warns that this could execute attacker-controlled code. Why is deserializing untrusted data dangerous?",
-    options: ["It always increases network latency", "It can instantiate attacker-controlled objects and trigger code execution or privilege escalation", "It removes data integrity checks", "It prevents the use of encryption"],
+    options: ["It can bypass input validation because the serialized object is trusted", "It can instantiate attacker-controlled objects and trigger code execution or privilege escalation", "It can allow an attacker to modify the object graph before validation", "It forces the server to use a different serialization format"],
     answer: 1,
     whyText: "Unsafe deserialization can turn attacker-controlled input into object state or method invocation, leading to remote code execution and other serious flaws. Avoid untrusted serialization formats or enforce strict type and integrity controls.",
     lens: "Treat serialized data as code, not data, unless the format and library are designed to be safe.",
-    why: { 0: "Performance is not the security concern.", 2: "Integrity checks are a separate control.", 3: "Serialization and encryption are independent." }
+    why: { 0: "Bypassing validation is a risk, but the defining danger is attacker-controlled object instantiation and code execution.", 2: "Object-graph manipulation can contribute, but the primary risk is code execution.", 3: "Serialization format is not the security issue." }
   },
   {
     id: "d8q12", d: 8, topic: "Supply chain", diff: 1,
     stem: "What is the primary purpose of a software bill of materials (SBOM)?",
-    options: ["To document the marketing features of an application", "To inventory components and dependencies so vulnerabilities and licences can be tracked", "To replace penetration testing", "To encrypt the build pipeline"],
+    options: ["To document the marketing features of an application", "To inventory components and dependencies so vulnerabilities and licences can be tracked", "To document the licences of proprietary code only", "To replace software composition analysis"],
     answer: 1,
     whyText: "An SBOM lists the components and versions in a product, enabling vulnerability response, licence compliance, and supply-chain visibility.",
     lens: "You cannot patch or assess what you cannot inventory. SBOM is the dependency inventory.",
-    why: { 0: "An SBOM is technical, not marketing material.", 2: "It supports vulnerability management but does not replace testing.", 3: "It does not encrypt anything." }
+    why: { 0: "An SBOM is technical, not marketing material.", 2: "An SBOM covers components and dependencies, including open source, not just proprietary licences.", 3: "An SBOM is an input to SCA; it does not replace it." }
   },
   {
     id: "d8q13", d: 8, topic: "ACID", diff: 1,
@@ -147,29 +147,29 @@
   {
     id: "d8q17", d: 8, topic: "Database views", diff: 1,
     stem: "A database administrator wants to restrict a group of users to specific rows and columns without granting access to the base tables. Which mechanism is most appropriate?",
-    options: ["A database view", "A full backup", "A stored hash", "A foreign key"],
+    options: ["A database view", "A stored procedure that returns a fixed query", "A foreign key constraint", "A materialized view"],
     answer: 0,
     whyText: "A view presents a restricted subset of a table. Granting access to the view rather than the base table limits what users can see and modify.",
     lens: "Views are an authorization convenience at the database layer, but they are not a substitute for application-level checks.",
-    why: { 1: "A backup is a copy, not an access mechanism.", 2: "A hash is a one-way digest.", 3: "A foreign key enforces referential integrity." }
+    why: { 1: "A stored procedure can restrict access but is not the standard row and column abstraction.", 2: "A foreign key enforces referential integrity, not access control.", 3: "A materialized view stores data and does not by itself solve the access requirement." }
   },
   {
     id: "d8q18", d: 8, topic: "Release control", diff: 2,
     stem: "What is the primary purpose of release control in a software organisation?",
-    options: ["To ensure only approved, tested changes are deployed to production", "To write all application code", "To replace configuration management", "To eliminate the need for testing"],
+    options: ["To ensure only approved, tested changes are deployed to production", "To ensure every change is approved by the change advisory board", "To maintain a known-good baseline and detect drift", "To verify that developers follow secure coding standards"],
     answer: 0,
     whyText: "Release control confirms that the change is approved, tested, and authorized before it reaches production. It complements change and configuration management.",
     lens: "Change control approves; release control deploys the approved thing; configuration management records what is running.",
-    why: { 1: "Development writes code; release control governs deployment.", 2: "Configuration management tracks state; it is complementary.", 3: "Testing is an input to release, not something release control removes." }
+    why: { 1: "Release control governs what is deployed; change advisory approval is a related but broader process.", 2: "Configuration management maintains baselines; release control controls deployment.", 3: "Secure coding standards are a development control, not release control." }
   },
   {
     id: "d8q19", d: 8, topic: "Software escrow", diff: 2,
     stem: "A company depends on a small vendor for a business-critical application. What does a software escrow arrangement primarily provide?",
-    options: ["A guarantee that the software has no defects", "Access to source code or materials if the vendor fails or breaches the agreement", "Free penetration testing by the vendor", "Automatic compliance with privacy law"],
+    options: ["A guarantee of continued vendor support during a merger", "Access to source code or materials if the vendor fails or breaches the agreement", "A licence to use the software after the contract ends", "A service-level agreement for bug fixes"],
     answer: 1,
     whyText: "Software escrow places source code or build materials with a neutral third party, released under defined conditions such as vendor insolvency, to support continuity.",
     lens: "Escrow is a continuity control for vendor failure. It is not a security assurance or defect warranty.",
-    why: { 0: "No escrow agreement guarantees defect-free software.", 2: "Testing is a separate service.", 3: "Escrow does not create regulatory compliance." }
+    why: { 0: "Support continuity is a contractual matter, not the purpose of escrow.", 2: "Escrow provides access to materials, not a free licence.", 3: "An SLA covers support; escrow covers access to source or materials on failure." }
   },
   {
     id: "d8q20", d: 8, topic: "Verification and validation", diff: 1,
