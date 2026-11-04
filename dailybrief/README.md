@@ -54,6 +54,13 @@ again after installing, pick the brief once inside the installed app.
   Both controls are local, undoable, and listed under Topics.
 - **Source health** — every source is fetched separately, so one broken feed
   never hides the rest of the brief.
+- **Lunch near The Angle** — a small, manually curated lunch shortlist for
+  Siu Gai Mo around 98 How Ming Street, Kwun Tong. Mostly team lunches, with
+  dine-in and takeaway options. It is not a live restaurant directory: walk
+  times are estimates, hours are typical, and the page never claims to know
+  whether a place is open or crowded. “I ate here” removes a place from the
+  daily pick for a week; “Not interested” hides it until you reset lunch
+  preferences. Both are local to this device.
 
 ## How the data is built
 
@@ -74,6 +81,11 @@ the repo. The generated `dailybrief/data/today.json` and the archive are staged
 into the Pages artifact. The committed seed is a real fetch with extractive
 fallback text; the first scheduled or manual run replaces it with model-written
 bullets and takeaways.
+
+Lunch is completely separate from the news pipeline. It is a static
+`dailybrief/data/lunch.json` file, loaded only when the Lunch page is opened.
+Adding or correcting a lunch place does not call Gemini and does not add a
+scheduled Actions run; the normal Pages deploy on push is enough.
 
 ## Free only
 
@@ -200,6 +212,40 @@ Workspaces can use `tag_min` for a minimum number of cards carrying a tag
 example, at most one AI tool card so model and benchmark news still have
 space).
 
+### Adding or correcting a lunch place
+
+Edit `dailybrief/data/lunch.json`. Each place needs:
+
+```json
+{
+  "id": "gun-dumplings",
+  "name": "滾餃",
+  "name_en": "Boiledumplingss",
+  "cuisine": "Dumplings",
+  "price_band": "$51–100",
+  "price_max": 100,
+  "walk_minutes": 5,
+  "address": "Shop N, G/F, COS Centre, 56 Tsun Yip Street, Kwun Tong",
+  "hours": "Verify current hours",
+  "closed": "",
+  "dine_in": true,
+  "takeaway": true,
+  "group": true,
+  "solo": true,
+  "crowd": "Medium",
+  "tags": ["Team", "Takeaway", "Moved"],
+  "note": "Moved from Camel Paint Building. Handmade dumplings...",
+  "last_verified": "2026-11-04",
+  "map_url": "https://www.google.com/maps/search/?api=1&query=...",
+  "openrice_url": "https://www.openrice.com/..."
+}
+```
+
+Keep the stable `id` when a place moves, and put the old address in `note`.
+Use `closed` for known closure days and “verify” wording for uncertain hours.
+Do not scrape OpenRice; use it as a link only. The lunch page is for Siu Gai
+Mo’s brief only.
+
 ## Known limits
 
 - Threads and Instagram have no public feed API. Nothing here logs into or
@@ -223,6 +269,9 @@ space).
 - A benchmark card is intentionally rare: it appears when the Artificial
   Analysis top five changes, or at most once a week. A quiet AI day therefore
   will not invent a benchmark story.
+- Lunch hours and walk times are manual estimates. A restaurant can close,
+  move or change its queue without the site knowing. The page shows a
+  last-verified date and asks you to confirm before going.
 - GitHub disables scheduled workflows in a public repo after 60 days without a
   commit. If the brief stops updating, push any commit or open **Actions →
   Daily Brief → Enable workflow / Run workflow**. The app will show the old

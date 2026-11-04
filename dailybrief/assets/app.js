@@ -9,6 +9,7 @@
     saved: (ws) => LS + ws + '.saved',
     mutedCards: (ws) => LS + ws + '.mutedCards',
     mutedTopics: (ws) => LS + ws + '.mutedTopics',
+    lunch: (ws) => LS + ws + '.lunch',
     lastData: LS + 'lastData',
     hint: LS + 'hintDismissed',
   };
@@ -95,6 +96,41 @@
       clearedMuted: 'Muted stories cleared.',
       mutedBadge: 'Muted',
       undo: 'Undo',
+      lunchLink: 'Lunch near The Angle',
+      lunchTitle: 'Lunch near The Angle',
+      lunchSub: 'A short, curated list around 98 How Ming Street. Mostly team lunches, with dine-in or takeaway depending on the queue. Hours are typical — check before you go.',
+      lunchEyebrow: 'Kwun Tong · Lunch',
+      lunchFilter: 'Filter lunch list',
+      lunchToday: "Today's pick",
+      lunchAnother: 'Another idea',
+      lunchMore: 'More options',
+      lunchTeam: 'Team',
+      lunchSolo: 'Solo',
+      lunchQuick: '≤5 min',
+      lunchTakeaway: 'Takeaway',
+      lunchUnder100: '≤$100',
+      lunchCrowdHigh: 'Usually busy',
+      lunchCrowdMedium: 'Can get busy',
+      lunchCrowdLow: 'Usually calmer',
+      lunchDineIn: 'Dine-in',
+      lunchTakeawayPossible: 'Takeaway',
+      lunchDineInOnly: 'Dine-in only',
+      lunchBeen: 'I ate here',
+      lunchHide: 'Not interested',
+      lunchBeenToast: 'Marked as eaten. It will sit out of the daily pick for a week.',
+      lunchHiddenToast: 'Hidden from lunch suggestions.',
+      lunchReset: 'Reset lunch preferences',
+      lunchResetToast: 'Lunch preferences cleared.',
+      lunchEmptyTitle: 'No lunch options left.',
+      lunchEmptyBody: 'You have hidden every place on this list. Reset to see them again.',
+      lunchErrorTitle: 'The lunch list is unavailable.',
+      lunchErrorBody: 'The lunch data did not load. Try again.',
+      lunchDisclaimer: 'Walk times are estimates from The Angle. Hours change; confirm before you go.',
+      lunchLastVerified: 'Last verified',
+      lunchMap: 'Map',
+      lunchOpenRice: 'OpenRice',
+      lunchBeenBadge: 'Eaten recently',
+      lunchUpdated: 'List updated',
     },
     zh: {
       today: '今日', topics: '主題', saved: '已存', archive: '存檔',
@@ -174,6 +210,41 @@
       clearedMuted: '已清除靜音報導。',
       mutedBadge: '已靜音',
       undo: '復原',
+      lunchLink: 'The Angle 午餐',
+      lunchTitle: 'The Angle 午餐',
+      lunchSub: '觀塘巧明街 98 號附近的精選午餐。以團隊午餐為主，會視乎排隊情況選擇堂食或外賣；營業時間只供參考，出發前請確認。',
+      lunchEyebrow: '觀塘 · 午餐',
+      lunchFilter: '篩選午餐清單',
+      lunchToday: '今日推介',
+      lunchAnother: '另一個主意',
+      lunchMore: '更多選擇',
+      lunchTeam: '團隊',
+      lunchSolo: '一人',
+      lunchQuick: '5 分鐘內',
+      lunchTakeaway: '外賣',
+      lunchUnder100: '100 元內',
+      lunchCrowdHigh: '通常多人',
+      lunchCrowdMedium: '可能多人',
+      lunchCrowdLow: '通常較靜',
+      lunchDineIn: '堂食',
+      lunchTakeawayPossible: '外賣',
+      lunchDineInOnly: '只限堂食',
+      lunchBeen: '吃過了',
+      lunchHide: '沒興趣',
+      lunchBeenToast: '已記下。一星期內不會再成為今日推介。',
+      lunchHiddenToast: '已從午餐建議中隱藏。',
+      lunchReset: '重設午餐偏好',
+      lunchResetToast: '已重設午餐偏好。',
+      lunchEmptyTitle: '沒有午餐選擇了。',
+      lunchEmptyBody: '你已隱藏清單上的所有餐廳。重設後會再次顯示。',
+      lunchErrorTitle: '午餐清單暫時無法載入。',
+      lunchErrorBody: '午餐資料載入失敗，請再試一次。',
+      lunchDisclaimer: '步行時間為由 The Angle 出發的估算。營業時間會變，出發前請確認。',
+      lunchLastVerified: '最後確認',
+      lunchMap: '地圖',
+      lunchOpenRice: 'OpenRice',
+      lunchBeenBadge: '最近吃過',
+      lunchUpdated: '清單更新',
     },
   };
 
@@ -186,6 +257,12 @@
     saved: [],
     mutedCards: {},
     mutedTopics: [],
+    lunch: null,
+    lunchError: null,
+    lunchLoading: false,
+    lunchFilter: 'All',
+    lunchPickId: null,
+    lunchPrefs: { been: {}, hidden: {} },
     demo: false,
     booting: true,
     loading: true,
@@ -421,7 +498,7 @@
     if (!parts.length) return { view: 'today' };
     if (parts[0] === 'topic') return { view: 'topic', param: decodeURIComponent(parts[1] || '') };
     if (parts[0] === 'archive') return { view: 'archive', param: parts[1] ? decodeURIComponent(parts[1]) : '' };
-    if (['today', 'topics', 'saved', 'archive', 'sources', 'about'].includes(parts[0])) {
+    if (['today', 'topics', 'saved', 'archive', 'sources', 'about', 'lunch'].includes(parts[0])) {
       return { view: parts[0] };
     }
     return { view: 'today' };
@@ -540,10 +617,16 @@
     state.saved = readJSON(KEY.saved(id), []);
     state.mutedCards = readJSON(KEY.mutedCards(id), {});
     state.mutedTopics = readJSON(KEY.mutedTopics(id), []);
+    state.lunchPrefs = readJSON(KEY.lunch(id), {});
+    state.lunchFilter = 'All';
+    state.lunchPickId = null;
     if (!state.read || typeof state.read !== 'object' || Array.isArray(state.read)) state.read = {};
     if (!Array.isArray(state.saved)) state.saved = [];
     if (!state.mutedCards || typeof state.mutedCards !== 'object' || Array.isArray(state.mutedCards)) state.mutedCards = {};
     if (!Array.isArray(state.mutedTopics)) state.mutedTopics = [];
+    if (!state.lunchPrefs || typeof state.lunchPrefs !== 'object' || Array.isArray(state.lunchPrefs)) state.lunchPrefs = { been: {}, hidden: {} };
+    if (!state.lunchPrefs.been || typeof state.lunchPrefs.been !== 'object' || Array.isArray(state.lunchPrefs.been)) state.lunchPrefs.been = {};
+    if (!state.lunchPrefs.hidden || typeof state.lunchPrefs.hidden !== 'object' || Array.isArray(state.lunchPrefs.hidden)) state.lunchPrefs.hidden = {};
     document.documentElement.lang = isZH() ? 'zh-Hant-HK' : 'en';
     const selected = state.data?.workspaces?.[id];
     document.title = selected ? `Daily Brief · ${pickLang(selected.name)}` : 'Daily Brief';
@@ -560,6 +643,9 @@
     const nextWs = state.data?.workspaces?.[id];
     if (route.view === 'topic' && nextWs && !(nextWs.topic_ids || []).includes(route.param)) {
       history.replaceState(null, '', location.pathname + location.search + '#/topics');
+    }
+    if (route.view === 'lunch' && id !== 'me') {
+      history.replaceState(null, '', location.pathname + location.search + '#/today');
     }
     if (!location.hash || location.hash === '#/' || location.hash === '#') {
       history.replaceState(null, '', location.pathname + location.search + '#/today');
@@ -585,6 +671,10 @@
 
   function persistMutedTopics() {
     if (state.workspaceId) writeJSON(KEY.mutedTopics(state.workspaceId), state.mutedTopics);
+  }
+
+  function persistLunchPrefs() {
+    if (state.workspaceId) writeJSON(KEY.lunch(state.workspaceId), state.lunchPrefs);
   }
 
   function isRead(id) {
@@ -618,6 +708,105 @@
 
   function mutedTopicList(ws) {
     return (ws?.topic_ids || []).filter(isMutedTopic);
+  }
+
+  function isLunchHidden(id) {
+    return Boolean(state.lunchPrefs.hidden[id]);
+  }
+
+  function lunchBeenRecently(id) {
+    const stamp = Number(state.lunchPrefs.been[id] || 0);
+    return stamp > 0 && Date.now() - stamp < 7 * 24 * 60 * 60 * 1000;
+  }
+
+  function hktDateKey() {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date());
+  }
+
+  function hashString(value) {
+    let hash = 0;
+    const text = String(value || '');
+    for (let index = 0; index < text.length; index += 1) {
+      hash = ((hash * 31) + text.charCodeAt(index)) | 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function currentLunchPick(places) {
+    const visible = (places || []).filter((place) => !isLunchHidden(place.id));
+    if (!visible.length) return null;
+    if (state.lunchPickId) {
+      const chosen = visible.find((place) => place.id === state.lunchPickId);
+      if (chosen) return chosen;
+    }
+    const start = hashString(`${hktDateKey()}|${state.workspaceId}`) % visible.length;
+    for (let index = 0; index < visible.length; index += 1) {
+      const place = visible[(start + index) % visible.length];
+      if (!lunchBeenRecently(place.id)) return place;
+    }
+    return visible[start];
+  }
+
+  function setAnotherLunchPick() {
+    const places = Array.isArray(state.lunch?.places) ? state.lunch.places : [];
+    const visible = places.filter((place) => !isLunchHidden(place.id));
+    if (!visible.length) return;
+    const current = currentLunchPick(places);
+    const currentIndex = current ? visible.findIndex((place) => place.id === current.id) : -1;
+    let candidate = null;
+    for (let step = 1; step <= visible.length; step += 1) {
+      const place = visible[(currentIndex + step + visible.length) % visible.length];
+      if (place.id === current?.id || lunchBeenRecently(place.id)) continue;
+      candidate = place;
+      break;
+    }
+    if (!candidate) candidate = visible.find((place) => place.id !== current?.id) || current;
+    if (!candidate) return;
+    state.lunchPickId = candidate.id;
+    render();
+  }
+
+  function markLunchBeen(placeId) {
+    if (!placeId) return;
+    const previous = state.lunchPrefs.been[placeId];
+    state.lunchPrefs.been[placeId] = Date.now();
+    if (state.lunchPickId === placeId) state.lunchPickId = null;
+    persistLunchPrefs();
+    render();
+    showToast(t('lunchBeenToast'), () => {
+      if (previous) state.lunchPrefs.been[placeId] = previous;
+      else delete state.lunchPrefs.been[placeId];
+      persistLunchPrefs();
+      render();
+    });
+  }
+
+  function hideLunchPlace(placeId) {
+    if (!placeId) return;
+    const previous = state.lunchPrefs.hidden[placeId];
+    state.lunchPrefs.hidden[placeId] = Date.now();
+    if (state.lunchPickId === placeId) state.lunchPickId = null;
+    persistLunchPrefs();
+    render();
+    showToast(t('lunchHiddenToast'), () => {
+      if (previous) state.lunchPrefs.hidden[placeId] = previous;
+      else delete state.lunchPrefs.hidden[placeId];
+      persistLunchPrefs();
+      render();
+    });
+  }
+
+  function resetLunchPrefs() {
+    const previous = state.lunchPrefs;
+    state.lunchPrefs = { been: {}, hidden: {} };
+    state.lunchPickId = null;
+    persistLunchPrefs();
+    render();
+    showToast(t('lunchResetToast'), () => {
+      state.lunchPrefs = previous;
+      persistLunchPrefs();
+      render();
+    });
   }
 
   function findContext(cardId) {
@@ -841,6 +1030,7 @@
       case 'archive': return route.param ? renderArchiveEdition() : renderArchive();
       case 'sources': return renderSources();
       case 'about': return renderAbout();
+      case 'lunch': return renderLunch();
       case 'today':
       default: return renderBrief({ archive: false });
     }
@@ -866,6 +1056,9 @@
       : '';
     const failed = workspaceStatuses().filter((source) => !source.ok).length;
     const total = picks.length;
+    const lunchShortcut = !archive && state.workspaceId === 'me'
+      ? `<p class="brief-shortcut"><a href="#/lunch">${esc(t('lunchLink'))} ↗</a></p>`
+      : '';
 
     const hero = archive
       ? `<a class="back-link" href="#/archive">${icons.arrowLeft}${esc(t('backArchive'))}</a>
@@ -878,6 +1071,7 @@
            <p class="eyebrow"><span class="eyebrow__dot"></span>${esc(editionLabel())} · ${esc(storyCount(total))}</p>
            <h1 class="brief-title">${formatHeroDate(edition.generated_at)}</h1>
            <p class="brief-sub">${esc(names)}${names ? esc(end) : ''}${isZH() ? '' : ' '}${esc(nextLine)}</p>
+           ${lunchShortcut}
          </div>`;
 
     const mutedTopicNote = !archive && mutedTopics.length
@@ -1215,6 +1409,163 @@
     </div>`;
   }
 
+
+  function lunchCrowdLabel(place) {
+    if (place.crowd === 'High') return t('lunchCrowdHigh');
+    if (place.crowd === 'Low') return t('lunchCrowdLow');
+    return t('lunchCrowdMedium');
+  }
+
+  function lunchServiceLabel(place) {
+    if (!place.dine_in && place.takeaway) return t('lunchTakeawayPossible');
+    if (place.dine_in && !place.takeaway) return t('lunchDineInOnly');
+    if (place.dine_in && place.takeaway) return `${t('lunchDineIn')} · ${t('lunchTakeawayPossible')}`;
+    return '';
+  }
+
+  function lunchTags(place, { been = false } = {}) {
+    const tags = (Array.isArray(place.tags) ? place.tags : []).slice(0, 4);
+    return `${tags.map((tag) => `<span class="lunch-tag">${esc(tag)}</span>`).join('')}${been ? `<span class="lunch-tag lunch-tag--been">${esc(t('lunchBeenBadge'))}</span>` : ''}`;
+  }
+
+  function lunchVerified(place) {
+    if (!place.last_verified) return '';
+    const date = formatDate(`${place.last_verified}T00:00:00+08:00`, { day: 'numeric', month: 'short', year: 'numeric' });
+    return date ? `${t('lunchLastVerified')} ${date}` : '';
+  }
+
+  function lunchLinks(place) {
+    const map = safeUrl(place.map_url);
+    const openrice = safeUrl(place.openrice_url);
+    if (map === '#' && openrice === '#') return '';
+    return `<div class="lunch-links">
+      ${map !== '#' ? `<a class="lunch-link" href="${esc(map)}" target="_blank" rel="noopener noreferrer">${esc(t('lunchMap'))} ↗</a>` : ''}
+      ${openrice !== '#' ? `<a class="lunch-link" href="${esc(openrice)}" target="_blank" rel="noopener noreferrer">${esc(t('lunchOpenRice'))} ↗</a>` : ''}
+    </div>`;
+  }
+
+  function renderLunchPick(place) {
+    const been = lunchBeenRecently(place.id);
+    return `<article class="lunch-pick">
+      <div class="lunch-pick__top">
+        <p class="lunch-pick__eyebrow">${esc(t('lunchToday'))}</p>
+        <button class="lunch-pick__another" type="button" data-action="lunch-another">${icons.refresh}${esc(t('lunchAnother'))}</button>
+      </div>
+      <h2 class="lunch-pick__title">${esc(place.name)}${place.name_en ? `<span>${esc(place.name_en)}</span>` : ''}</h2>
+      <p class="lunch-pick__meta">${esc(place.cuisine)} · ~${esc(place.walk_minutes)} min · ${esc(place.price_band)} · ${esc(lunchCrowdLabel(place))}</p>
+      <p class="lunch-pick__service">${esc(lunchServiceLabel(place))}</p>
+      <p class="lunch-pick__note">${esc(place.note || '')}</p>
+      <p class="lunch-pick__hours">${esc(place.hours || '')}${place.closed ? ` · ${esc(place.closed)}` : ''}</p>
+      <p class="lunch-pick__verified">${esc(lunchVerified(place))}</p>
+      <div class="lunch-tags">${lunchTags(place, { been })}</div>
+      ${lunchLinks(place)}
+      <div class="lunch-actions">
+        <button class="lunch-action" type="button" data-action="lunch-been" data-place-id="${esc(place.id)}">${icons.check}${esc(t('lunchBeen'))}</button>
+        <button class="lunch-action" type="button" data-action="lunch-hide" data-place-id="${esc(place.id)}">${icons.eyeOff}${esc(t('lunchHide'))}</button>
+      </div>
+    </article>`;
+  }
+
+  function renderLunchCard(place) {
+    const been = lunchBeenRecently(place.id);
+    return `<article class="lunch-card${been ? ' is-been' : ''}">
+      <div class="lunch-card__head">
+        <h3 class="lunch-card__name">${esc(place.name)}</h3>
+        <span class="lunch-card__walk">~${esc(place.walk_minutes)} min</span>
+      </div>
+      <p class="lunch-card__meta">${place.name_en ? `${esc(place.name_en)} · ` : ''}${esc(place.cuisine)} · ${esc(place.price_band)}</p>
+      <p class="lunch-card__note">${esc(place.note || '')}</p>
+      <p class="lunch-card__hours">${esc(place.hours || '')}${place.closed ? ` · ${esc(place.closed)}` : ''}</p>
+      <p class="lunch-card__verified">${esc(lunchVerified(place))}</p>
+      <div class="lunch-tags">${lunchTags(place, { been })}</div>
+      ${lunchLinks(place)}
+      <div class="lunch-card__actions">
+        <button class="lunch-action" type="button" data-action="lunch-been" data-place-id="${esc(place.id)}">${esc(t('lunchBeen'))}</button>
+        <button class="lunch-action" type="button" data-action="lunch-hide" data-place-id="${esc(place.id)}">${esc(t('lunchHide'))}</button>
+      </div>
+    </article>`;
+  }
+
+  function renderLunch() {
+    if (state.workspaceId !== 'me') {
+      return `<div class="list-page">
+        <a class="back-link" href="#/today">${icons.arrowLeft}${esc(t('backToday'))}</a>
+        <div class="empty">
+          <p class="empty__kicker">Lunch</p>
+          <h2 class="empty__title">This lunch shortlist belongs to Siu Gai Mo's brief.</h2>
+          <a class="button button--quiet" href="#/today">${esc(t('today'))}</a>
+        </div>
+      </div>`;
+    }
+    if (state.lunchLoading) return renderRouteLoading();
+    if (!state.lunch) {
+      return `<div class="list-page">
+        <a class="back-link" href="#/today">${icons.arrowLeft}${esc(t('backToday'))}</a>
+        <div class="empty">
+          <p class="empty__kicker">Lunch</p>
+          <h2 class="empty__title">${esc(t('lunchErrorTitle'))}</h2>
+          <p class="empty__body">${esc(t('lunchErrorBody'))}</p>
+          <button class="button" type="button" data-action="retry-lunch">${esc(t('retry'))}</button>
+        </div>
+      </div>`;
+    }
+
+    const places = Array.isArray(state.lunch.places) ? state.lunch.places : [];
+    const visible = places.filter((place) => !isLunchHidden(place.id));
+    const pick = currentLunchPick(places);
+
+    if (!visible.length || !pick) {
+      return `<div class="list-page">
+        <a class="back-link" href="#/today">${icons.arrowLeft}${esc(t('backToday'))}</a>
+        <div class="empty">
+          <p class="empty__kicker">Lunch</p>
+          <h2 class="empty__title">${esc(t('lunchEmptyTitle'))}</h2>
+          <p class="empty__body">${esc(t('lunchEmptyBody'))}</p>
+          <button class="button" type="button" data-action="lunch-reset">${esc(t('lunchReset'))}</button>
+        </div>
+      </div>`;
+    }
+
+    const filters = [
+      { id: 'All', label: t('all'), test: () => true },
+      { id: 'Team', label: t('lunchTeam'), test: (place) => Boolean(place.group) },
+      { id: 'Quick', label: t('lunchQuick'), test: (place) => Number(place.walk_minutes) <= 5 },
+      { id: 'Takeaway', label: t('lunchTakeaway'), test: (place) => Boolean(place.takeaway) },
+      { id: 'Under100', label: t('lunchUnder100'), test: (place) => Number(place.price_max) <= 100 },
+      { id: 'Solo', label: t('lunchSolo'), test: (place) => Boolean(place.solo) },
+    ];
+    if (!filters.some((filter) => filter.id === state.lunchFilter)) state.lunchFilter = 'All';
+    const activeFilter = filters.find((filter) => filter.id === state.lunchFilter) || filters[0];
+    const alternatives = visible
+      .filter((place) => place.id !== pick.id && activeFilter.test(place))
+      .map(renderLunchCard)
+      .join('');
+    const filterHtml = `<div class="tag-filter lunch-filter" role="group" aria-label="${esc(t('lunchFilter'))}">
+      ${filters.map((filter) => `<button class="tag-filter__item${state.lunchFilter === filter.id ? ' is-active' : ''}" type="button" data-action="lunch-filter" data-filter="${esc(filter.id)}" aria-pressed="${state.lunchFilter === filter.id}">${esc(filter.label)}</button>`).join('')}
+    </div>`;
+    const updated = state.lunch.updated_at
+      ? `<p class="footer-note">${esc(t('lunchUpdated'))} ${esc(formatDate(`${state.lunch.updated_at}T00:00:00+08:00`, { day: 'numeric', month: 'short', year: 'numeric' }))}. ${esc(t('lunchDisclaimer'))}</p>`
+      : `<p class="footer-note">${esc(t('lunchDisclaimer'))}</p>`;
+    const emptyFilter = alternatives
+      ? `<div class="lunch-grid">${alternatives}</div>`
+      : `<p class="footer-note">No places match this filter. <button class="lunch-inline-button" type="button" data-action="lunch-filter" data-filter="All">${esc(t('all'))}</button></p>`;
+    const prefsCount = Object.keys(state.lunchPrefs.been).length + Object.keys(state.lunchPrefs.hidden).length;
+
+    return `<div class="list-page lunch-page">
+      <a class="back-link" href="#/today">${icons.arrowLeft}${esc(t('backToday'))}</a>
+      <div class="page-head">
+        <p class="eyebrow"><span class="eyebrow__dot"></span>${esc(t('lunchEyebrow'))}</p>
+        <h1 class="brief-title">${esc(t('lunchTitle'))}</h1>
+        <p class="brief-sub">${esc(t('lunchSub'))}</p>
+      </div>
+      ${filterHtml}
+      ${renderLunchPick(pick)}
+      ${alternatives ? `<p class="lunch-section-label">${esc(t('lunchMore'))}</p>${emptyFilter}` : `<p class="footer-note">No other places match this filter.</p>`}
+      ${updated}
+      ${prefsCount ? `<button class="button button--quiet" type="button" data-action="lunch-reset">${esc(t('lunchReset'))}</button>` : ''}
+    </div>`;
+  }
+
   function renderAbout() {
     return `<div class="list-page">
       <a class="back-link" href="#/today">${icons.arrowLeft}${esc(t('backToday'))}</a>
@@ -1245,6 +1596,10 @@
           <p>Red teaming tracks AI red-team research and incidents, new offensive-security tools on GitHub, Google Project Zero, CISA’s exploited-vulnerability list and new CVE proof-of-concepts. The brief aims for one AI red-team card and one exploit or tool card when available.</p>
         </section>
         <section class="about__item">
+          <h2>Lunch near The Angle</h2>
+          <p>Siu Gai Mo's brief includes a small, manually curated lunch shortlist around 98 How Ming Street. It is not a live restaurant directory: walk times are estimates, hours are typical, and nothing claims to know whether a place is open or full. “I ate here” removes a place from the daily pick for a week; “Not interested” hides it until you reset lunch preferences. Both are local to this device.</p>
+        </section>
+        <section class="about__item">
           <h2>Reading and muting</h2>
           <p>Opening a card marks it read on this device. Cards read in an earlier edition are hidden from the next Today, but remain under Topics, Archive and Saved. Tap <strong>Not interested</strong> on an open card to hide it from Today and Topics; mute a topic from its page to keep it out of Today. Both are local, can be undone, and can be managed under Topics.</p>
         </section>
@@ -1262,7 +1617,7 @@
 
   function renderTabbar(route) {
     const active = (key) => {
-      if (key === 'today') return ['today', 'sources', 'about'].includes(route.view) ? 'page' : null;
+      if (key === 'today') return ['today', 'sources', 'about', 'lunch'].includes(route.view) ? 'page' : null;
       if (key === 'topics') return route.view === 'topics' || route.view === 'topic' ? 'page' : null;
       if (key === 'saved') return route.view === 'saved' ? 'page' : null;
       if (key === 'archive') return route.view === 'archive' ? 'page' : null;
@@ -1445,6 +1800,39 @@
       state.tagFilter = target.dataset.tag || 'All';
       state.tagFilterTopic = parseHash().param || null;
       render();
+      return;
+    }
+    if (action === 'lunch-filter') {
+      event.preventDefault();
+      state.lunchFilter = target.dataset.filter || 'All';
+      render();
+      return;
+    }
+    if (action === 'lunch-another') {
+      event.preventDefault();
+      setAnotherLunchPick();
+      return;
+    }
+    if (action === 'lunch-been') {
+      event.preventDefault();
+      markLunchBeen(target.dataset.placeId);
+      return;
+    }
+    if (action === 'lunch-hide') {
+      event.preventDefault();
+      hideLunchPlace(target.dataset.placeId);
+      return;
+    }
+    if (action === 'lunch-reset') {
+      event.preventDefault();
+      resetLunchPrefs();
+      return;
+    }
+    if (action === 'retry-lunch') {
+      event.preventDefault();
+      state.lunch = null;
+      state.lunchError = null;
+      handleRoute();
     }
   });
 
@@ -1461,6 +1849,36 @@
         render();
         return;
       }
+    }
+
+    if (route.view === 'lunch') {
+      if (state.workspaceId !== 'me') {
+        history.replaceState(null, '', location.pathname + location.search + '#/today');
+        render();
+        return;
+      }
+      state.archiveEdition = null;
+      state.routeLoading = false;
+      if (!state.lunch && !state.lunchLoading) {
+        state.lunchLoading = true;
+        state.lunchError = null;
+        render();
+        try {
+          const data = await fetchJSON('lunch.json');
+          if (!data || !Array.isArray(data.places)) throw new Error('Invalid lunch data');
+          if (token !== routeToken) return;
+          state.lunch = data;
+        } catch (error) {
+          if (token !== routeToken) return;
+          state.lunch = null;
+          state.lunchError = error;
+        }
+        state.lunchLoading = false;
+        render();
+        return;
+      }
+      render();
+      return;
     }
 
     if (route.view === 'archive') {

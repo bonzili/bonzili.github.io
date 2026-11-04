@@ -460,6 +460,19 @@ a {
   text-wrap: pretty;
 }
 
+.brief-shortcut {
+  margin: 10px 0 0;
+  font: 600 9px/1.3 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.brief-shortcut a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;
@@ -1002,6 +1015,270 @@ a.comment__meta:active {
 .about__item a {
   color: var(--accent);
   text-underline-offset: 2px;
+}
+
+
+/* ---------- lunch near The Angle ---------- */
+
+.lunch-page .page-head {
+  padding-bottom: 10px;
+}
+
+.lunch-pick {
+  margin: 4px 0 0;
+  padding: 17px 15px 15px;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.lunch-pick__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lunch-pick__eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font: 600 9px/1.2 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.lunch-pick__another {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 600 8.5px/1.2 var(--font-mono);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.lunch-pick__another svg {
+  width: 12px;
+  height: 12px;
+}
+
+.lunch-pick__title {
+  margin: 9px 0 0;
+  font: 500 29px/1.05 var(--font-serif);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.lunch-pick__title span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font: 500 9px/1.2 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lunch-pick__meta,
+.lunch-pick__service,
+.lunch-pick__hours {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font: 400 9.5px/1.4 var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.lunch-pick__meta {
+  text-transform: uppercase;
+}
+
+.lunch-pick__service {
+  margin-top: 3px;
+}
+
+.lunch-pick__note {
+  margin: 11px 0 0;
+  color: var(--ink-soft);
+  font: 400 14px/1.55 var(--font-sans);
+  text-wrap: pretty;
+}
+
+.lunch-pick__hours {
+  color: var(--muted-2);
+}
+
+.lunch-pick__verified,
+.lunch-card__verified {
+  margin: 3px 0 0;
+  color: var(--muted-2);
+  font: 400 8px/1.35 var(--font-mono);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.lunch-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.lunch-tag {
+  padding: 4px 6px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--muted);
+  font: 600 7.5px/1.2 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lunch-tag--been {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.lunch-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.lunch-link {
+  color: var(--accent);
+  font: 600 8.5px/1.2 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lunch-actions,
+.lunch-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 13px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+}
+
+.lunch-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted-2);
+  font: 600 8px/1 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.lunch-action svg {
+  width: 12px;
+  height: 12px;
+}
+
+.lunch-action:active {
+  transform: scale(0.98);
+  background: var(--surface-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lunch-action:hover {
+    border-color: var(--rule);
+    color: var(--ink);
+  }
+}
+
+.lunch-section-label {
+  margin: 22px 0 7px;
+  color: var(--muted);
+  font: 600 9px/1.2 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.lunch-grid {
+  border-top: 1px solid var(--rule);
+}
+
+.lunch-card {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lunch-card.is-been {
+  opacity: 0.72;
+}
+
+.lunch-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lunch-card__name {
+  margin: 0;
+  font: 500 20px/1.1 var(--font-serif);
+  letter-spacing: -0.018em;
+}
+
+.lunch-card__walk {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font: 600 8.5px/1.2 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lunch-card__meta {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font: 400 9px/1.35 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.lunch-card__note {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font: 400 13px/1.5 var(--font-sans);
+  text-wrap: pretty;
+}
+
+.lunch-card__hours {
+  margin: 6px 0 0;
+  color: var(--muted-2);
+  font: 400 9px/1.35 var(--font-mono);
+}
+
+.lunch-card__verified {
+  margin-top: 3px;
+}
+
+.lunch-inline-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 /* ---------- muted settings ---------- */
