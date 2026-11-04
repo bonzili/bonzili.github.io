@@ -1,7 +1,31 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-04T03:43:45+08:00",
+  "updated_at": "2026-11-04T17:12:44+08:00",
   "editions": [
+    {
+      "file": "2026-11-04-1712.json",
+      "generated_at": "2026-11-04T17:12:44+08:00",
+      "edition_label": {
+        "en": "Evening",
+        "zh": "晚上"
+      },
+      "counts": {
+        "me": 12,
+        "her": 8
+      }
+    },
+    {
+      "file": "2026-11-04-1057.json",
+      "generated_at": "2026-11-04T10:57:32+08:00",
+      "edition_label": {
+        "en": "Morning",
+        "zh": "早晨"
+      },
+      "counts": {
+        "me": 12,
+        "her": 8
+      }
+    },
     {
       "file": "2026-11-04-0343.json",
       "generated_at": "2026-11-04T03:43:45+08:00",
