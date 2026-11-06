@@ -15,7 +15,7 @@ summarization:
   # Hard stop. 20 picks normally needs ~20 calls; retries and shared cards can
   # use a few more. At 36 the pipeline stops calling and uses extractive text.
   max_calls: 48
-  prompt_version: "2026-11-07.1"
+  prompt_version: "2026-11-07.2"
   cache_path: dailybrief-pipeline/.cache/summaries.json
   gemini_model: gemini-3.5-flash-lite
   github_model: openai/gpt-4o-mini
@@ -81,6 +81,52 @@ workspaces:
       legal:
         HK: 3
     topics: [legal, hk, jackson]
+    # Her HK slot is for stories with a legal or policy angle, not every
+    # breaking local story. Without this, a fire or a courtesy meeting can
+    # outrank a real IP or privacy development.
+    topic_filters:
+      hk:
+        - "法庭"
+        - "法院"
+        - "判刑"
+        - "裁決"
+        - "司法"
+        - "檢控"
+        - "立法"
+        - "修例"
+        - "條例"
+        - "草案"
+        - "監管"
+        - "合規"
+        - "私隱"
+        - "個人資料"
+        - "知識產權"
+        - "版權"
+        - "商標"
+        - "專利"
+        - "政策"
+        - "諮詢"
+        - "預算案"
+        - "施政報告"
+        - "稅"
+        - "勞工"
+        - "最低工資"
+        - "移民"
+        - "簽證"
+        - "國安"
+        - "基本法"
+        - "網絡安全"
+        - "網絡罪行"
+        - "虛擬資產"
+        - "穩定幣"
+        - "金融科技"
+        - "人工智能"
+        - "AI"
+        - "法律"
+        - "仲裁"
+        - "競爭"
+        - "消費者"
+        - "廉政"
     topic_weights:
       legal: 1.0
       hk: 0.85
@@ -175,6 +221,8 @@ topics:
       - "roundup"
       - "funding"
       - "valuation"
+      - "IPO"
+      - "investors"
       - "earnings"
       - "stock"
       - "survey"
@@ -1064,6 +1112,14 @@ topics:
         max_items: 6
         tag: IP
         jurisdiction: US
+        # "Journeys of Innovation" is a historical profile series, and
+        # "SOAR presents" is a search-training webinar. Neither is a legal
+        # development, so keep them out of the brief.
+        exclude_keywords:
+          - "Journeys of Innovation"
+          - "A life of service"
+          - "SOAR presents"
+          - "Learn to search"
       - id: us-copyright
         name: US Copyright Office
         type: rss

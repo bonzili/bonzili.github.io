@@ -79,7 +79,6 @@ jobs:
         run: python -m unittest discover -s dailybrief-pipeline/tests
 
       - name: Build the brief
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
           # Optional. The default provider order is GitHub Models first, so an
           # empty or absent Gemini key is perfectly fine and cannot bill.
@@ -88,7 +87,6 @@ jobs:
         run: python dailybrief-pipeline/run.py --out dailybrief/data
 
       - name: Save brief state
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         uses: actions/cache/save@v4
         with:

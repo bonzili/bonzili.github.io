@@ -85,6 +85,14 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
     caps = workspace.get("topic_caps") or {}
     default_cap = int(workspace.get("topic_cap", 4))
     cap = int(workspace.get("cap", 12))
+    topic_filters = workspace.get("topic_filters") or {}
+
+    def topic_filter_allows(cluster: dict) -> bool:
+        keywords = topic_filters.get(cluster.get("topic")) or []
+        if not keywords:
+            return True
+        text = f"{cluster.get('headline') or ''} {cluster.get('summary') or ''}"
+        return any(text_has_keyword(text, keyword) for keyword in keywords)
 
     candidates = []
     for cluster in clusters:
@@ -93,6 +101,8 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
             continue
         topic = topics.get(topic_id, {})
         if float(cluster.get("score", 0)) < float(topic.get("min_score", 0.05)):
+            continue
+        if not topic_filter_allows(cluster):
             continue
         rank = float(cluster.get("score", 0)) * float(weights.get(topic_id, 1.0))
         candidates.append((rank, cluster))

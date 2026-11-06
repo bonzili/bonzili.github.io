@@ -97,6 +97,22 @@ class SelectionTests(unittest.TestCase):
         scored = score_clusters([tool, model], {}, topics, datetime(2026, 11, 4, 7, 0, tzinfo=HKT))
         self.assertEqual([row["id"] for row in scored], ["tool"])
 
+    def test_workspace_topic_filter_drops_unrelated_hk_story(self):
+        topics = {"hk": {"min_score": 0.0}}
+        workspace = {
+            "topics": ["hk"], "cap": 3, "topic_cap": 3,
+            "topic_filters": {"hk": ["法庭", "法院", "判刑"]},
+        }
+        fire = cluster("fire", "hk", 0.9)
+        fire["headline"] = "元朗三級火警（二）"
+        court = cluster("court", "hk", 0.8)
+        court["headline"] = "法庭就黃之鋒串謀勾結案判刑"
+        selected = select_for_workspace(
+            [fire, court], workspace, topics,
+            datetime(2026, 11, 7, 3, 0, tzinfo=HKT),
+        )
+        self.assertEqual([row["id"] for row in selected], ["court"])
+
     def test_near_duplicate_stories_are_not_selected_twice(self):
         topics = {"hk": {"min_score": 0.0}}
         workspace = {"topics": ["hk"], "cap": 3, "topic_cap": 3}

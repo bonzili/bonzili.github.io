@@ -261,6 +261,12 @@ async def fetch_hn(client: httpx.AsyncClient, source: dict[str, Any], now: datet
         haystack = title.casefold()
         if keywords and not any(contains_keyword(haystack, word) for word in keywords):
             continue
+        summary = clean_html(hit.get("story_text") or title)
+        # Topic-level exclude keywords (funding, valuation, stock, ...) must
+        # apply here too. HN used its own short keyword list and skipped the
+        # shared filter, which let business stories into the AI brief.
+        if not matches_filter(source, title, summary):
+            continue
         object_id = str(hit.get("objectID") or "")
         url = hit.get("url") or f"https://news.ycombinator.com/item?id={object_id}"
         published = parse_datetime(hit.get("created_at"), now)
@@ -269,7 +275,7 @@ async def fetch_hn(client: httpx.AsyncClient, source: dict[str, Any], now: datet
         heat = log_heat(points + 2 * comments_count, 1200)
         items.append(base_item(
             source, title=title, url=url, publisher="Hacker News",
-            published=published, summary=clean_html(hit.get("story_text") or title),
+            published=published, summary=summary,
             now=now, heat=heat,
             extra={
                 "hn_id": object_id,
@@ -306,7 +312,7 @@ async def fetch_openrouter(client: httpx.AsyncClient, source: dict[str, Any], no
     candidates.sort(key=lambda row: row[0], reverse=True)
 
     items: list[dict] = []
-    for created, base_id, model in candidates[:max_items]:
+    for created, base_id, model in candidates:
         name = clean_html(model.get("name") or base_id)
         context = model.get("context_length")
         pricing = model.get("pricing") or {}
@@ -322,11 +328,16 @@ async def fetch_openrouter(client: httpx.AsyncClient, source: dict[str, Any], no
         summary = clean_html(model.get("description") or "")
         if details:
             summary = f"{summary} {' '.join(details)}".strip()
+        title = f"New on OpenRouter: {name}"
+        if not matches_filter(source, title, summary):
+            continue
         items.append(base_item(
-            source, title=f"New on OpenRouter: {name}", url=f"https://openrouter.ai/{base_id}",
+            source, title=title, url=f"https://openrouter.ai/{base_id}",
             publisher="OpenRouter", published=created, summary=summary, now=now,
             heat=0.62, extra={"model_id": base_id},
         ))
+        if len(items) >= max_items:
+            break
     return items
 
 

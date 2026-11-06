@@ -5,11 +5,12 @@ import sys
 import unittest
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fetch import (
-    artificial_analysis_item, contains_keyword, matches_filter,
+    artificial_analysis_item, contains_keyword, fetch_hn, matches_filter,
     parse_artificial_analysis, parse_count, strip_news_date_suffix,
 )
 from util import HKT
@@ -59,6 +60,14 @@ class FetchTests(unittest.TestCase):
             "",
         ))
 
+    def test_business_story_is_filtered_from_ai_topic(self):
+        source = {"exclude_keywords": ["valuation", "IPO", "funding", "stock"]}
+        self.assertFalse(matches_filter(
+            source,
+            "Anthropic IPO buyers see valuation as low as $1.1T",
+            "",
+        ))
+
     def test_google_news_date_suffix_is_stripped(self):
         self.assertEqual(
             strip_news_date_suffix("黃之鋒勾結外國勢力案周四判刑 - 20261104 - 港聞"),
@@ -91,6 +100,38 @@ class FetchTests(unittest.TestCase):
         self.assertIn("(59)", item["title"])
         self.assertIn("Benchmark", item["tags"])
         self.assertIn("top models", item["summary"])
+
+
+class HNFilterTests(unittest.IsolatedAsyncioTestCase):
+    async def test_hn_respects_topic_excludes(self):
+        payload = {
+            "hits": [{
+                "title": "Anthropic IPO buyers see valuation as low as $1.1T",
+                "points": 400,
+                "num_comments": 120,
+                "objectID": "1",
+                "url": "https://example.com/anthropic",
+                "created_at": "2026-11-06T19:00:00Z",
+                "story_text": "",
+            }]
+        }
+
+        class FakeResponse:
+            def json(self):
+                return payload
+
+        async def fake_get(*args, **kwargs):
+            return FakeResponse()
+
+        source = {
+            "id": "hn-front", "name": "Hacker News", "topic": "ai",
+            "trust": 0.65, "lang": "en", "keywords": ["Anthropic"],
+            "exclude_keywords": ["valuation", "IPO"], "min_points": 60,
+            "max_items": 5,
+        }
+        with patch("fetch.get", fake_get):
+            items = await fetch_hn(None, source, datetime(2026, 11, 7, 4, 0, tzinfo=HKT))
+        self.assertEqual(items, [])
 
 
 if __name__ == "__main__":

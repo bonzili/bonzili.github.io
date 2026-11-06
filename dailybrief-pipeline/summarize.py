@@ -21,11 +21,11 @@ from typing import Any
 import httpx
 
 from util import (
-    clean_html, first_sentence, iso, label_lang, load_json, log, normalize_title,
+    clean_html, first_sentence, iso, label_lang, load_json, log,
     now_hkt, truncate, write_json_atomic,
 )
 
-PROMPT_VERSION = "2026-11-07.1"
+PROMPT_VERSION = "2026-11-07.2"
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 DEFAULT_GITHUB_MODEL = "openai/gpt-4o-mini"
 MAX_SOURCE_CHARS = 900
@@ -88,6 +88,43 @@ def numbers_grounded(result: dict, source_text: str) -> bool:
             if normalized and normalized not in source:
                 return False
     return True
+
+
+# The persona names the reader's other interests, and the model sometimes
+# pads a three-bullet summary with one of them. That is a factual error even
+# when the sentence is true: it is about a different story. Keep the markers
+# here so the guard works for any provider, not just Gemini.
+CROSS_TOPIC_MARKERS = {
+    "mayday": ("五月天", "mayday", "阿信", "相信音樂"),
+    "jackson": ("易烊千璽", "千璽", "易烊"),
+}
+
+
+def strip_off_topic_bullets(result: dict, source_text: str, topic_id: str) -> dict | None:
+    """Remove bullets that drift into another one of the reader's topics."""
+    source = str(source_text or "").casefold()
+    kept = []
+    for bullet in result.get("bullets") or []:
+        text = str(bullet or "").casefold()
+        off_topic = False
+        for other_topic, markers in CROSS_TOPIC_MARKERS.items():
+            if other_topic == topic_id:
+                continue
+            if any(marker.casefold() in text and marker.casefold() not in source for marker in markers):
+                off_topic = True
+                break
+        if not off_topic:
+            kept.append(bullet)
+    if len(kept) < 2:
+        return None
+    why = str(result.get("why") or "")
+    why_text = why.casefold()
+    for other_topic, markers in CROSS_TOPIC_MARKERS.items():
+        if other_topic == topic_id:
+            continue
+        if any(marker.casefold() in why_text and marker.casefold() not in source for marker in markers):
+            return None
+    return {**result, "bullets": kept}
 
 
 def decode_response_json(response: httpx.Response, label: str) -> dict:
@@ -158,7 +195,8 @@ def prompt_for(card: dict, cluster: dict, topic: dict, workspace: dict,
         legal_rules = (
             "\n- This is entertainment news about 易烊千璽. Say what happened, whether it is "
             "official, and which project or event it relates to. Do not present fan speculation "
-            "as fact."
+            "as fact. This is the reader's break section: keep it light and do not write that "
+            "it is unrelated to legal work."
         )
     if card.get("topic") == "mayday":
         legal_rules = (
@@ -176,7 +214,10 @@ def prompt_for(card: dict, cluster: dict, topic: dict, workspace: dict,
         f"Takeaway language: {label_lang(why_lang)}\n\n"
         "Return JSON with exactly these keys: {\"bullets\": [\"...\"], \"why\": \"...\"}.\n"
         "Rules:\n"
-        "- 3 bullets maximum; each is one concrete fact, 230 characters or fewer.\n"
+        "- 2 or 3 bullets; each is one concrete fact about this story only, 230 characters or fewer.\n"
+        "- Every bullet must be supported by the supplied source text. If the sources support only "
+        "two facts, return two. Never pad with news about the reader's other interests, another "
+        "person, or another company.\n"
         "- The one-line takeaway is 190 characters or fewer and says why this matters to the reader.\n"
         "- Quote at most 12 words from a source. No markdown. No emoji."
         f"{legal_rules}"
@@ -229,18 +270,15 @@ class ExtractiveProvider:
             key=lambda item: (float(item.get("trust", 0)), item.get("published") or ""),
             reverse=True,
         )
-        lead_title = clean_html(card.get("headline") or "")
         for item in items:
             sentence = _summary_sentence(item)
-            if sentence:
-                candidate = sentence
-            else:
-                title = item.get("title") or ""
-                if normalize_title(title) == normalize_title(lead_title):
-                    continue
-                publisher = item.get("publisher") or ""
-                candidate = f"{publisher}: {title}" if publisher else title
-            candidate = truncate(candidate, MAX_BULLET_CHARS)
+            if not sentence:
+                # A headline is not a bullet. Repeating it under the
+                # headline, or prefixing it with a publisher, adds no facts.
+                # Keep the extractive path honest and fall back to the
+                # "open the source" line when the feed has no summary.
+                continue
+            candidate = truncate(sentence, MAX_BULLET_CHARS)
             key = candidate.casefold()
             if not candidate or key in seen:
                 continue
@@ -539,6 +577,15 @@ class SummaryService:
                     fallback = self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
                     fallback["mode"] = "extractive"
                     return fallback
+                cleaned = strip_off_topic_bullets(result, source_text, card.get("topic") or "")
+                if cleaned is None:
+                    self.failures += 1
+                    self.provider_notes.append(f"{provider.name}: off-topic padding in summary")
+                    log(f"  {provider.name} summary rejected for {card.get('id', '')}: off-topic padding")
+                    fallback = self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
+                    fallback["mode"] = "extractive"
+                    return fallback
+                result = cleaned
                 self.cache[key] = {
                     "bullets": result["bullets"],
                     "why": result["why"],
