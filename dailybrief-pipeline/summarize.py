@@ -21,11 +21,11 @@ from typing import Any
 import httpx
 
 from util import (
-    body_text, clean_html, first_sentence, iso, label_lang, load_json, log,
-    now_hkt, truncate, write_json_atomic,
+    body_text, clean_html, first_sentence, has_body_text, iso, label_lang,
+    load_json, log, now_hkt, truncate, write_json_atomic,
 )
 
-PROMPT_VERSION = "2026-11-07.2"
+PROMPT_VERSION = "2026-11-07.3"
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 DEFAULT_GITHUB_MODEL = "openai/gpt-4o-mini"
 MAX_SOURCE_CHARS = 900
@@ -142,7 +142,8 @@ def normalize_break_why(result: dict, card: dict) -> dict:
     return {**result, "why": truncate(fallback, MAX_WHY_CHARS)}
 
 
-def strip_off_topic_bullets(result: dict, source_text: str, topic_id: str) -> dict | None:
+def strip_off_topic_bullets(result: dict, source_text: str, topic_id: str,
+                            min_bullets: int = 2) -> dict | None:
     """Remove bullets that drift into another one of the reader's topics."""
     source = str(source_text or "").casefold()
     kept = []
@@ -157,7 +158,7 @@ def strip_off_topic_bullets(result: dict, source_text: str, topic_id: str) -> di
                 break
         if not off_topic:
             kept.append(bullet)
-    if len(kept) < 2:
+    if len(kept) < max(1, int(min_bullets)):
         return None
     why = str(result.get("why") or "")
     why_text = why.casefold()
@@ -178,7 +179,7 @@ def decode_response_json(response: httpx.Response, label: str) -> dict:
         ) from error
 
 
-def validate_summary(payload: dict) -> dict:
+def validate_summary(payload: dict, min_bullets: int = 2) -> dict:
     bullets = payload.get("bullets")
     why = payload.get("why")
     if not isinstance(bullets, list):
@@ -190,7 +191,7 @@ def validate_summary(payload: dict) -> dict:
         if not text:
             continue
         clean_bullets.append(truncate(text, MAX_BULLET_CHARS))
-    if len(clean_bullets) < 2:
+    if len(clean_bullets) < max(1, int(min_bullets)):
         raise SummaryError("not enough bullets")
     why_text = re.sub(r"\s+", " ", str(why or "")).strip().strip('"“”')
     if not why_text:
@@ -246,6 +247,19 @@ def prompt_for(card: dict, cluster: dict, topic: dict, workspace: dict,
             "Mayday is the reader's break section: explain the band update and do not write "
             "that it is unrelated to AI, security, or work."
         )
+    if not has_body_text(cluster):
+        bullet_rules = (
+            "- The supplied sources contain only a headline. Return exactly 1 bullet that "
+            "restates the headline's confirmed claim. Do not add facts, numbers, names, or "
+            "legal conclusions that are not in the headline.\n"
+        )
+    else:
+        bullet_rules = (
+            "- 2 or 3 bullets; each is one concrete fact about this story only, 230 characters or fewer.\n"
+            "- Every bullet must be supported by the supplied source text. If the sources support only "
+            "two facts, return two. Never pad with news about the reader's other interests, another "
+            "person, or another company.\n"
+        )
     user = (
         f"Topic: {topic_name}\n"
         f"Headline: {card.get('headline')}\n"
@@ -256,10 +270,7 @@ def prompt_for(card: dict, cluster: dict, topic: dict, workspace: dict,
         f"Takeaway language: {label_lang(why_lang)}\n\n"
         "Return JSON with exactly these keys: {\"bullets\": [\"...\"], \"why\": \"...\"}.\n"
         "Rules:\n"
-        "- 2 or 3 bullets; each is one concrete fact about this story only, 230 characters or fewer.\n"
-        "- Every bullet must be supported by the supplied source text. If the sources support only "
-        "two facts, return two. Never pad with news about the reader's other interests, another "
-        "person, or another company.\n"
+        f"{bullet_rules}"
         "- The one-line takeaway is 190 characters or fewer and says why this matters to the reader.\n"
         "- Quote at most 12 words from a source. No markdown. No emoji."
         f"{legal_rules}"
@@ -351,11 +362,17 @@ class ExtractiveProvider:
                 if is_zh else
                 f"Reported by {publisher}. Check the source for the practical effect."
             )
+        elif card.get("topic") == "jackson":
+            why = (
+                "輕鬆一則：為繁忙日程留一點空間。"
+                if is_zh else
+                "A light break from the day's heavier news."
+            )
         elif card.get("topic") == "mayday":
             why = (
-                f"{publisher} 報導：請看原文了解已確認的內容。"
+                "樂團動態：為繁忙日程留一點輕鬆。"
                 if is_zh else
-                f"Reported by {publisher}. Check the source for what is confirmed."
+                "A light break from the day's heavier news."
             )
         else:
             why = (
@@ -429,6 +446,7 @@ class GeminiProvider:
     def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
                   bullet_lang: str, why_lang: str) -> dict:
         system, user = prompt_for(card, cluster, topic, workspace, bullet_lang, why_lang)
+        min_bullets = 1 if not has_body_text(cluster) else 2
         model = self._ensure_model()
         last_error = None
         for attempt in range(2):
@@ -471,7 +489,7 @@ class GeminiProvider:
                     text = payload["candidates"][0]["content"]["parts"][0]["text"]
                 except (KeyError, IndexError, TypeError) as error:
                     raise SummaryError("Gemini returned no text") from error
-                return validate_summary(extract_json(text))
+                return validate_summary(extract_json(text), min_bullets)
             except BudgetExceeded:
                 raise
             except (httpx.HTTPError, ValueError, SummaryError) as error:
@@ -495,6 +513,7 @@ class GitHubModelsProvider:
     def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
                   bullet_lang: str, why_lang: str) -> dict:
         system, user = prompt_for(card, cluster, topic, workspace, bullet_lang, why_lang)
+        min_bullets = 1 if not has_body_text(cluster) else 2
         last_error = None
         for attempt in range(2):
             self.budget.spend()
@@ -535,7 +554,7 @@ class GitHubModelsProvider:
                     raise SummaryError(f"GitHub Models HTTP {response.status_code}: {response.text[:160]}")
                 payload = decode_response_json(response, "GitHub Models")
                 text = payload["choices"][0]["message"]["content"]
-                return validate_summary(extract_json(text))
+                return validate_summary(extract_json(text), min_bullets)
             except BudgetExceeded:
                 raise
             except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError, SummaryError) as error:
@@ -606,6 +625,7 @@ class SummaryService:
             self.cache_hits += 1
             return {"bullets": cached["bullets"], "why": cached["why"], "cached": True, "mode": "ai"}
 
+        thin = not has_body_text(cluster)
         for provider in self.providers:
             try:
                 result = provider.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
@@ -620,7 +640,10 @@ class SummaryService:
                     fallback = self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
                     fallback["mode"] = "extractive"
                     return fallback
-                cleaned = strip_off_topic_bullets(result, source_text, card.get("topic") or "")
+                cleaned = strip_off_topic_bullets(
+                    result, source_text, card.get("topic") or "",
+                    1 if thin else 2,
+                )
                 if cleaned is None:
                     self.failures += 1
                     self.provider_notes.append(f"{provider.name}: off-topic padding in summary")

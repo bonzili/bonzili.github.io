@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from summarize import (
     ExtractiveProvider, ProviderUnavailable, SummaryError, SummaryService,
     normalize_break_why, numbers_grounded, prompt_for,
-    strip_off_topic_bullets,
+    strip_off_topic_bullets, validate_summary,
 )
 
 
@@ -56,6 +56,29 @@ class ContaminatedProvider:
 
 
 class SummaryFallbackTests(unittest.TestCase):
+    def test_headline_only_summary_allows_one_grounded_bullet(self):
+        payload = {"bullets": ["Keycloak CVE-2026-117691 allows a SAML bypass."], "why": "Patch now."}
+        self.assertEqual(len(validate_summary(payload, 1)["bullets"]), 1)
+        with self.assertRaises(SummaryError):
+            validate_summary(payload)
+
+    def test_thin_prompt_asks_for_one_bullet(self):
+        card = {
+            "id": "c1", "headline": "Japan pushes for tougher cyber laws",
+            "publisher": "Nikkei Asia", "headline_lang": "en", "topic": "legal",
+        }
+        _system, user = prompt_for(
+            card,
+            {"items": [{
+                "title": "Japan pushes for tougher cyber laws",
+                "summary": "Japan pushes for tougher cyber laws - Nikkei Asia",
+                "publisher": "Nikkei Asia",
+            }]},
+            {"name": {"en": "APAC legal"}}, {"persona": "lawyer"}, "en", "en",
+        )
+        self.assertIn("only a headline", user)
+        self.assertIn("exactly 1 bullet", user)
+
     def test_numbers_must_appear_in_sources(self):
         result = {"bullets": ["Revenue grew 42% this year."], "why": "A 42% jump."}
         self.assertFalse(numbers_grounded(result, "Revenue grew 12% this year."))

@@ -15,7 +15,7 @@ summarization:
   # Hard stop. 20 picks normally needs ~20 calls; retries and shared cards can
   # use a few more. At 36 the pipeline stops calling and uses extractive text.
   max_calls: 48
-  prompt_version: "2026-11-07.2"
+  prompt_version: "2026-11-07.3"
   cache_path: dailybrief-pipeline/.cache/summaries.json
   gemini_model: gemini-3.5-flash-lite
   github_model: openai/gpt-4o-mini
