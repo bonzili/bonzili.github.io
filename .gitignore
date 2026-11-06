@@ -8,3 +8,5 @@ __pycache__/
 *.pyc
 dailybrief-pipeline/.cache/
 .venv/
+.agents/
+skills-lock.json
