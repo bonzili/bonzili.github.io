@@ -87,6 +87,44 @@ Lunch is completely separate from the news pipeline. It is a static
 Adding or correcting a lunch place does not call Gemini and does not add a
 scheduled Actions run; the normal Pages deploy on push is enough.
 
+## Hosting
+
+The production site is served by **Cloudflare Pages**, project `bonzili`,
+because GitHub Pages is currently unavailable while the GitHub account/payment
+verification issue is unresolved. The static app is unchanged; only the host
+changed.
+
+- Cloudflare Pages URL: `https://bonzili.pages.dev/`
+- Custom domain: `https://bonzili.me/dailybrief/` is currently bridged to Pages
+  by the small `bonzili-pages-proxy` Worker while the Cloudflare DNS records
+  still point at GitHub Pages.
+- To remove the bridge permanently, point `bonzili.me` and `www.bonzili.me` at
+  `bonzili.pages.dev` with proxied CNAME records, wait for the Pages custom
+  domains to become active, then remove the Worker routes
+  `bonzili.me/*` and `www.bonzili.me/*` and delete `bonzili-pages-proxy`.
+- Cloudflare Pages direct uploads are deployed with
+  `scripts/publish-cloudflare.sh`. The free plan covers 500 deployments per
+  month; twice-daily publishing uses about 60.
+
+The pipeline can run on the outbound-only server instead of GitHub Actions:
+
+```bash
+cd /path/to/bonzili.github.io
+export GEMINI_API_KEY="..."   # optional; without it, cards use excerpts
+./scripts/publish-cloudflare.sh
+```
+
+For twice-daily updates, use a cron/systemd timer. Keep the key in a
+root-readable environment file, not in the crontab:
+
+```cron
+0 7,18 * * * cd /path/to/bonzili.github.io && set -a && . $HOME/.config/dailybrief.env && set +a && ./scripts/publish-cloudflare.sh >> /var/log/dailybrief.log 2>&1
+```
+
+The script runs the tests, fetches sources, writes `today.json` and the archive,
+then deploys the whole static site to Cloudflare Pages. GitHub Actions remains
+in the repository as a legacy path, but it is not the production host.
+
 ## Free only
 
 This project is deliberately built to avoid a surprise bill.
@@ -126,8 +164,9 @@ fonts. Read state and saved cards never leave the browser.
 
 ## One-time setup
 
-1. **Settings → Pages → Source → GitHub Actions.** The workflow deploys the
-   whole site; branch-based Pages is no longer used.
+1. **Cloudflare Pages.** The production site is deployed directly with
+   `scripts/publish-cloudflare.sh`. GitHub Pages is a legacy fallback only; its
+   workflow remains in `.github/workflows/dailybrief.yml`.
 2. Optional: **Settings → Secrets and variables → Actions → New repository
    secret** → `GEMINI_API_KEY`, only if you want Gemini instead of GitHub
    Models. Then set `summarization.provider: gemini` in

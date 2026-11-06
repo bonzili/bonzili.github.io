@@ -1,7 +1,19 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-04T17:12:44+08:00",
+  "updated_at": "2026-11-07T00:44:49+08:00",
   "editions": [
+    {
+      "file": "2026-11-07-0044.json",
+      "generated_at": "2026-11-07T00:44:49+08:00",
+      "edition_label": {
+        "en": "Night",
+        "zh": "深夜"
+      },
+      "counts": {
+        "me": 12,
+        "her": 8
+      }
+    },
     {
       "file": "2026-11-04-1712.json",
       "generated_at": "2026-11-04T17:12:44+08:00",
