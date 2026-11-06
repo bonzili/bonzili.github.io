@@ -1399,8 +1399,10 @@ topics:
       en: "News and appearances from 易烊千璽."
       zh: "易烊千璽的消息與動態。"
     lang: zh-Hant
-    max_age_hours: 2160
-    half_life_hours: 720
+    # Keep this window tighter than the old archive: Google News occasionally
+    # resurfaces years-old entertainment articles with a fresh index date.
+    max_age_hours: 720
+    half_life_hours: 168
     min_score: 0.05
     exclude_keywords:
       - "貌似"
@@ -1409,6 +1411,10 @@ topics:
       - "山寨"
       - "模仿"
       - "相似"
+      - "私人IG"
+      - "私人 Instagram"
+      - "朝聖"
+      - "10萬粉"
     filter_keywords:
       - "易烊千璽"
       - "千璽"
@@ -1418,6 +1424,7 @@ topics:
         name: Google News · 易烊千璽 TW
         type: google_news
         query: "易烊千璽"
+        when: 2d
         hl: zh-TW
         gl: TW
         ceid: "TW:zh-Hant"
@@ -1437,6 +1444,7 @@ topics:
         name: Google News · 易烊千璽 HK
         type: google_news
         query: "易烊千璽"
+        when: 2d
         hl: zh-HK
         gl: HK
         ceid: "HK:zh-Hant"

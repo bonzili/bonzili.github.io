@@ -9,8 +9,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fetch import (
-    artificial_analysis_item, contains_keyword, parse_artificial_analysis,
-    parse_count, strip_news_date_suffix,
+    artificial_analysis_item, contains_keyword, matches_filter,
+    parse_artificial_analysis, parse_count, strip_news_date_suffix,
 )
 from util import HKT
 
@@ -50,6 +50,14 @@ class FetchTests(unittest.TestCase):
         self.assertTrue(contains_keyword("three CVEs", "CVE"))
         self.assertTrue(contains_keyword("patches released", "patch"))
         self.assertFalse(contains_keyword("modelled data", "model"))
+
+    def test_old_jackson_headline_is_filtered(self):
+        source = {"exclude_keywords": ["私人IG", "朝聖", "10萬粉"]}
+        self.assertFalse(matches_filter(
+            source,
+            "是真的！易烊千璽私人IG曝光 瞬間湧10萬粉朝聖",
+            "",
+        ))
 
     def test_google_news_date_suffix_is_stripped(self):
         self.assertEqual(
