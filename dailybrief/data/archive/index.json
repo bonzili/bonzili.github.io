@@ -1,10 +1,58 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-07T00:44:49+08:00",
+  "updated_at": "2026-11-07T03:19:56+08:00",
   "editions": [
     {
-      "file": "2026-11-07-0044.json",
-      "generated_at": "2026-11-07T00:44:49+08:00",
+      "file": "2026-11-07-0319.json",
+      "generated_at": "2026-11-07T03:19:56+08:00",
+      "edition_label": {
+        "en": "Night",
+        "zh": "深夜"
+      },
+      "counts": {
+        "me": 12,
+        "her": 8
+      }
+    },
+    {
+      "file": "2026-11-06-1812.json",
+      "generated_at": "2026-11-06T18:12:45+08:00",
+      "edition_label": {
+        "en": "Evening",
+        "zh": "晚上"
+      },
+      "counts": {
+        "me": 12,
+        "her": 8
+      }
+    },
+    {
+      "file": "2026-11-06-0706.json",
+      "generated_at": "2026-11-06T07:06:38+08:00",
+      "edition_label": {
+        "en": "Morning",
+        "zh": "早晨"
+      },
+      "counts": {
+        "me": 12,
+        "her": 8
+      }
+    },
+    {
+      "file": "2026-11-06-0310.json",
+      "generated_at": "2026-11-06T03:10:44+08:00",
+      "edition_label": {
+        "en": "Night",
+        "zh": "深夜"
+      },
+      "counts": {
+        "me": 12,
+        "her": 8
+      }
+    },
+    {
+      "file": "2026-11-05-0138.json",
+      "generated_at": "2026-11-05T01:38:18+08:00",
       "edition_label": {
         "en": "Night",
         "zh": "深夜"

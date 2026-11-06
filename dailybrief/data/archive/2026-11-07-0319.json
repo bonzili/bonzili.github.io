@@ -1,0 +1,1649 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-07T03:19:56+08:00",
+  "edition": "2026-11-07T03:19:56+08:00",
+  "edition_label": {
+    "en": "Night",
+    "zh": "深夜"
+  },
+  "next_update": "2026-11-07T07:00:00+08:00",
+  "timezone": "Asia/Hong_Kong",
+  "topics": [
+    {
+      "id": "ai",
+      "short": "AI",
+      "name": {
+        "en": "AI models & tools",
+        "zh": "AI 模型與工具"
+      },
+      "color": "#3157D5",
+      "color_dark": "#7F9BFF",
+      "description": {
+        "en": "Model releases, benchmarks, new tools and products.",
+        "zh": "新模型、基準測試、新工具與產品。"
+      }
+    },
+    {
+      "id": "hk",
+      "short": "HK",
+      "name": {
+        "en": "Hong Kong",
+        "zh": "香港"
+      },
+      "color": "#0B7A5C",
+      "color_dark": "#5FD3B2",
+      "description": {
+        "en": "The local stories that change the day.",
+        "zh": "影響今日生活的本地新聞。"
+      }
+    },
+    {
+      "id": "mayday",
+      "short": "Mayday",
+      "name": {
+        "en": "Mayday",
+        "zh": "五月天"
+      },
+      "color": "#B83F2E",
+      "color_dark": "#FF8A75",
+      "description": {
+        "en": "Band news, tour dates and the fan wire.",
+        "zh": "樂團消息、演唱會與歌迷動態。"
+      }
+    },
+    {
+      "id": "legal",
+      "short": "LAW",
+      "name": {
+        "en": "APAC legal",
+        "zh": "亞太法律"
+      },
+      "color": "#8E3B4A",
+      "color_dark": "#E58A9A",
+      "description": {
+        "en": "IP, privacy, fintech, cyber and AI law, with a Hong Kong desk.",
+        "zh": "知識產權、私隱、金融科技、網絡與 AI 法律，並以香港為重點。"
+      }
+    },
+    {
+      "id": "jackson",
+      "short": "YYQX",
+      "name": {
+        "en": "Jackson Yee",
+        "zh": "易烊千璽"
+      },
+      "color": "#8F5A16",
+      "color_dark": "#E0B36A",
+      "description": {
+        "en": "News and appearances from 易烊千璽.",
+        "zh": "易烊千璽的消息與動態。"
+      }
+    },
+    {
+      "id": "cyber",
+      "short": "Cyber",
+      "name": {
+        "en": "Cybersecurity",
+        "zh": "資訊安全"
+      },
+      "color": "#3F4B5B",
+      "color_dark": "#9FB4C9",
+      "description": {
+        "en": "Global incidents, with a Hong Kong desk for local breaches.",
+        "zh": "全球事故，並聚焦香港本地資料外洩與網絡事故。"
+      }
+    },
+    {
+      "id": "rt",
+      "short": "RT",
+      "name": {
+        "en": "Red Teaming",
+        "zh": "紅隊測試"
+      },
+      "color": "#A33A4A",
+      "color_dark": "#FF8C9E",
+      "description": {
+        "en": "AI red teaming, offensive tooling, exploits and the CVEs that matter.",
+        "zh": "AI 紅隊測試、攻擊工具、漏洞利用與重要 CVE。"
+      }
+    }
+  ],
+  "workspaces": {
+    "me": {
+      "name": {
+        "en": "Siu Gai Mo's Brief",
+        "zh": "Siu Gai Mo's Brief"
+      },
+      "description": {
+        "en": "AI models and tools, Hong Kong, Mayday, cybersecurity and red teaming.",
+        "zh": "AI 模型與工具、香港、五月天、網絡安全與紅隊測試。"
+      },
+      "lang": "en",
+      "accent": "#0B6B5D",
+      "topic_ids": [
+        "ai",
+        "hk",
+        "mayday",
+        "cyber",
+        "rt"
+      ],
+      "cap": 12,
+      "picks": [
+        {
+          "card_id": "3d69a45954ace8ec",
+          "why": "The update provides a faster iteration cycle for native video generation, allowing users to test 15-second clips without changing cost structures or context limits.",
+          "bullets": [
+            "Google released Gemini Omni 1.2 Flash on OpenRouter, succeeding the 1.1 version as its native multimodal video generation and editing model.",
+            "The 1.2 model generates video clips up to 15 seconds long with native capabilities.",
+            "Both 1.1 and 1.2 versions feature a 131,072 token context window and share identical pricing at 0.0000015 per prompt token and 0.000009 per completion token."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "6b2764ee6baf5ddb",
+          "why": "反映本地建制機構高度介入涉外政治爭論，明確對外國評論黃之鋒案判刑採取強硬姿態。",
+          "bullets": [
+            "香港特區立法會於十一月六日發表聲明，強烈譴責並反對美西方國家、反華媒體及境外政客，詆毀和抹黑法庭就黃之鋒串謀勾結案的判刑。",
+            "立法會發言人表示，法庭已指出黃之鋒與羅冠聰為本案主腦，黃之鋒已承認控罪及相關犯罪事實並經依法判刑，並非因政治理念受懲處。",
+            "聲明指出，部分外部勢力要求無條件釋放黃之鋒並撤銷控罪是嚴重破壞法治，並批評美西方國家對香港事務持雙重標準。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "a9dcf6681fbacdf2",
+          "why": "It offers developers a new tool to improve explainable AI and reasoning in agent workflows.",
+          "bullets": [
+            "NVIDIA released Auto Ontology, a Python framework for semantic, graph-based reasoning layers.",
+            "It targets LLM and agent workflows to enable deterministic query generation and better context retrieval.",
+            "The repository gained 2,053 stars today, reaching 4,397 total stars on GitHub."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "3d9a4c8d2b672ac3",
+          "why": "It shows how AI tool capabilities are expanding into financial services as major AI developers move toward public markets.",
+          "bullets": [
+            "Anthropic has launched a new Personal Finance feature for Claude.",
+            "The rollout precedes the company's scheduled Nasdaq listing."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "2d40d66e563fc766",
+          "why": "元朗白沙村發生三級火警並已救熄，受濃煙影響區域的市民需注意室內空氣防護。",
+          "bullets": [
+            "元朗白沙村於十一月六日晚上十時五十八分發生火警，並在晚上十一時二十五分升為三級。",
+            "火勢已於十一月七日凌晨二時三十九分大致被救熄，消防共動用三條喉及三隊煙帽隊灌救。",
+            "事件中有十二人自行疏散到安全地方，暫時沒有接獲受傷報告。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "1638d873e59594c0",
+          "why": "This vulnerability allows attackers to hijack federated accounts by bypassing SAML signatures in Keycloak.",
+          "bullets": [
+            "Keycloak CVE-2026-117691 involves a SAML signature bypass vulnerability.",
+            "The flaw enables federated account takeover within the authentication system.",
+            "Rescana published details regarding the vulnerability on November 7, 2026."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "c7adcea9ca0bbb35",
+          "why": "元朗白沙村衣紙倉庫發生三級火並一度疏散居民，附近交通及居民安全短暫受影響。",
+          "bullets": [
+            "元朗白沙村一個衣紙倉庫在昨晚十時五十八分發生火警，大約半小時後升為三級。",
+            "消防員出動三條喉及三隊煙帽隊灌救，火警已在午夜十二時四十五分大致救熄。",
+            "火警期間大約十二人需要一度疏散，包括附近居民，暫時沒有收到人員受傷報告。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "88cc45b4b7289ad1",
+          "why": "Mass credential exposure in major analytics tools creates immediate supply chain risks for security teams.",
+          "bullets": [
+            "Blockchain firm Chainalysis revealed an agentic cyber attack exposed credentials and live tokens for all customers.",
+            "The breach compromised user names, usernames, password hashes, and live tokens across the platform.",
+            "Chainalysis temporarily shut down access to Reactor and Data Solutions while investigating the incident."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "7375dd8e094ff639",
+          "why": "此為樂團動態與後台花絮娛樂新聞，與AI模型、資安或實務技術無關，對通勤者的科技領域無實質影響。",
+          "bullets": [
+            "告五人重返小巨蛋開唱，票房吸引約新台幣七千萬元。",
+            "五月天送上百斤狗糧到後台表達支持，並與其他藝人送禮致意。",
+            "歌手頌樂在後台向告五人喊話暖心應援。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "0bb60d0f0a640a1c",
+          "why": "聯網車輛普及增加資安風險，車主需防範車輛連線漏洞以保障行車安全。",
+          "bullets": [
+            "香港電腦緊急應變協調中心發布聯網車輛網絡安全指引，提醒車主注意相關潛在風險。",
+            "報告指出聯網車輛普及帶來新的安全漏洞，車主需了解車輛連線所產生的威脅。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "adb48e6eb52ccbac",
+          "why": "It highlights evolving regulatory reporting rules for AI agents and prompt injection vulnerabilities.",
+          "bullets": [
+            "CERT-In chief discussed AI agent incidents, prompt injection, and reporting obligations during an interview with MediaNama.",
+            "The interview covered who must report security incidents related to emerging artificial intelligence deployments."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "035ecb0ac1c32503",
+          "why": "It shows how physical security networks and AI surveillance are expanding into private commercial spaces under local law.",
+          "bullets": [
+            "Police state that equipping CCTV with AI facial recognition complies with local privacy laws.",
+            "The AI facial recognition feature will be added to the SmartView surveillance system as early as this month.",
+            "Four private shopping malls will have their security cameras connected to the network."
+          ],
+          "summary_source": "ai"
+        }
+      ]
+    },
+    "her": {
+      "name": {
+        "en": "Siu Bak's Brief",
+        "zh": "Siu Bak's Brief"
+      },
+      "description": {
+        "en": "APAC legal with HK priority, Hong Kong news and 易烊千璽.",
+        "zh": "以香港優先的亞太法律、香港新聞與易烊千璽。"
+      },
+      "lang": "en",
+      "accent": "#8E3B4A",
+      "topic_ids": [
+        "legal",
+        "hk",
+        "jackson"
+      ],
+      "cap": 8,
+      "picks": [
+        {
+          "card_id": "6b2764ee6baf5ddb",
+          "why": "本港立法會就黃之鋒串謀勾結案判刑發表譴責聲明，反映司法程序與外部政治爭議的持續交鋒。",
+          "bullets": [
+            "香港特區立法會於二零二六年十一月六日發表聲明，強烈譴責和反對外部勢力詆毀和抹黑法庭就黃之鋒串謀勾結案的判刑。",
+            "發言人指美西方國家、反華媒體及政客發表失實言論，將黃之鋒損害國家和特區利益的犯罪行為歪曲為個人政治表達。",
+            "立法會強調黃之鋒已承認控罪及相關犯罪事實，法庭依法判刑，並指要求無條件釋放黃之鋒才是嚴重破壞法治。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "29bd870e08be1035",
+          "why": "香港持續完善數字資產生態的監管框架，對從事金融科技與合規業務的法律執業者而言，需密切留意相關法規落實與合規要求。",
+          "bullets": [
+            "中國香港，金融科技與合規：大公文匯網報道，香港將穩步推進並持續完善數字資產生態系統的監管框架。",
+            "中國香港，金融科技與合規：報道指出相關措施旨在共建數字資產生態，屬政策與監管框架推進方向。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "2d40d66e563fc766",
+          "why": "元朗白沙村昨日（十一月六日）晚上十時五十八分發生火警，並於晚上十一時二十五分升為三級。火勢於今日（十一月七日）凌晨一時零五分受到包圍、於凌晨一時五十一分受到控制，並於凌晨二時三十九分大致被救熄。",
+          "bullets": [
+            "元朗白沙村昨日（十一月六日）晚上十時五十八分發生火警，並於晚上十一時二十五分升為三級。火勢於今日（十一月七日）凌晨一時零五分受到包圍、於凌晨一時五十一分受到控制，並於凌晨二時三十九分大致被救熄。",
+            "電台及電視台當值宣布員注意，請盡快播出以下信息，並適時重播： 消防處昨日（十一月六日）晚上十時五十八分接獲報告，指元朗白沙村發生火警，並於昨日晚上十一時二十五分升為三級。消防人員正進行滅火行動。",
+            "元朗白沙村昨日（十一月六日）晚上十時五十八分發生火警，火警於昨日晚上十一時二十五分升為三級。"
+          ],
+          "summary_source": "extractive"
+        },
+        {
+          "card_id": "18fadead9a0c5256",
+          "why": "此備忘錄為兩地知識產權跨境保護提供政策指引，有助於處理涉及內地與香港的知識產權糾紛及註冊申請。",
+          "bullets": [
+            "香港與內地簽署知識產權合作備忘錄，旨在深化兩地在知識產權保護、推廣及人才培訓方面的合作。",
+            "此次簽署的備忘錄屬於行政層面的合作框架，旨在促進兩地知識產權制度的交流與銜接。",
+            "易烊千璽近期出席公開活動，其個人動態與法律事務無關。"
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "1c0c23df4d1679f5",
+          "why": "Signals potential tightening of Japan's cybersecurity regulations, impacting cross-border compliance.",
+          "bullets": [
+            "Japan: Cybersecurity. Takaichi is pushing for tougher cybersecurity laws amid a surge in attacks.",
+            "The reporting from Nikkei Asia highlights legislative efforts rather than a finalized enactment.",
+            "Affected entities should monitor upcoming legislative developments regarding stricter compliance obligations."
+          ],
+          "summary_source": "ai"
+        },
+        {
+          "card_id": "11d21435543516d3",
+          "why": "US: Today, the U.S.",
+          "bullets": [
+            "Today, the U.S."
+          ],
+          "summary_source": "extractive"
+        },
+        {
+          "card_id": "0d316caf00993e1a",
+          "why": "www.hkcna.hk 報導：請看原文了解對實務的影響。",
+          "bullets": [
+            "www.hkcna.hk 報導：詳情請看原文。"
+          ],
+          "summary_source": "extractive"
+        },
+        {
+          "card_id": "092bebf6b4538838",
+          "why": "三立新聞 報導：詳情請看原文。",
+          "bullets": [
+            "三立新聞 報導：詳情請看原文。"
+          ],
+          "summary_source": "extractive"
+        }
+      ]
+    }
+  },
+  "cards": [
+    {
+      "id": "3d69a45954ace8ec",
+      "topic": "ai",
+      "headline": "New on OpenRouter: Google: Gemini Omni 1.2 Flash",
+      "headline_lang": "en",
+      "publisher": "OpenRouter",
+      "published": "2026-11-06T21:35:27+08:00",
+      "url": "https://openrouter.ai/google/gemini-omni-1.2-flash",
+      "sources": [
+        {
+          "title": "New on OpenRouter: Google: Gemini Omni 1.2 Flash",
+          "url": "https://openrouter.ai/google/gemini-omni-1.2-flash",
+          "publisher": "OpenRouter",
+          "published": "2026-11-06T01:16:01+08:00"
+        },
+        {
+          "title": "New on OpenRouter: Google: Gemini Omni 1.1 Flash",
+          "url": "https://openrouter.ai/google/gemini-omni-1.1-flash",
+          "publisher": "OpenRouter",
+          "published": "2026-11-05T04:54:28+08:00"
+        },
+        {
+          "title": "Gemini Omni 1.2 Flash",
+          "url": "https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-omni-1-2-flash/",
+          "publisher": "Hacker News",
+          "published": "2026-11-06T21:35:27+08:00"
+        }
+      ],
+      "comments": [
+        {
+          "platform": "HN",
+          "author": "jonkrone",
+          "score": null,
+          "text": "Wait, I thought we were on Gemini 4?",
+          "url": "https://news.ycombinator.com/item?id=50392308"
+        },
+        {
+          "platform": "HN",
+          "author": "NitpickLawyer",
+          "score": null,
+          "text": "Waiting for someone to test it with \"~~A pelican~~Will Smith eating pasta while riding a bicycle\" or something...",
+          "url": "https://news.ycombinator.com/item?id=50392341"
+        },
+        {
+          "platform": "HN",
+          "author": "iruoy",
+          "score": null,
+          "text": "At least this one is available immediately.",
+          "url": "https://news.ycombinator.com/item?id=50392371"
+        },
+        {
+          "platform": "HN",
+          "author": "tabbiee",
+          "score": null,
+          "text": "Price is $1.50 in Input and $9.00/$12.00 (text/video) in Output per 1M tokens",
+          "url": "https://news.ycombinator.com/item?id=50392379"
+        },
+        {
+          "platform": "HN",
+          "author": "thisisauserid",
+          "score": null,
+          "text": "Extending an exiting video by 15 seconds is pretty nuts.",
+          "url": "https://news.ycombinator.com/item?id=50392389"
+        }
+      ],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.9821,
+      "score": 0.8803,
+      "first_seen": "2026-11-06T03:10:44+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 3,
+      "lang": "en",
+      "bullets": [
+        "Gemini Omni 1.2 Flash is Google's native multimodal video generation and editing model, the successor to Gemini Omni 1.1 Flash.",
+        "Gemini Omni 1.1 Flash is Google's native multimodal video generation and editing model, the generally available successor to Gemini Omni Flash Preview.",
+        "Hacker News: Gemini Omni 1.2 Flash"
+      ],
+      "why": "Gemini Omni 1.2 Flash is Google's native multimodal video generation and editing model, the successor to Gemini Omni 1.1 Flash."
+    },
+    {
+      "id": "6b2764ee6baf5ddb",
+      "topic": "hk",
+      "headline": "立法會強烈譴責外部勢力詆毀抹黑法庭就黃之鋒串謀勾結案判刑",
+      "headline_lang": "zh-HK",
+      "publisher": "rthk.hk - 即時新聞: 本地",
+      "published": "2026-11-07T01:21:00+08:00",
+      "url": "https://news.rthk.hk/rthk/ch/component/k2/1876884-20261107.htm",
+      "sources": [
+        {
+          "title": "立法會強烈譴責外部勢力詆毀抹黑法庭就黃之鋒串謀勾結案判刑",
+          "url": "https://news.rthk.hk/rthk/ch/component/k2/1876884-20261107.htm",
+          "publisher": "rthk.hk - 即時新聞: 本地",
+          "published": "2026-11-07T00:32:32+08:00"
+        },
+        {
+          "title": "香港特區立法會強烈譴責和反對外部勢力詆毀和抹黑法庭就「黃之鋒串謀勾結案」判刑",
+          "url": "https://www.info.gov.hk/gia/general/202611/06/P2026110600879.htm",
+          "publisher": "香港特區政府新聞公報",
+          "published": "2026-11-06T23:59:00+08:00"
+        },
+        {
+          "title": "立法會強烈譴責和反對外部勢力詆毀和抹黑法庭就黃之鋒判刑",
+          "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1vcjNQQnZFOHhxNEo5c3E2U0JBSDd4OHBoZnowd3ZLT3FvbDJwaUJhUFhFSG5HZ3NYZkpuZk1obmJmVmxwa3VobzBUVTB3b3YtaEhudUNnTjNKVGNKRm12YWJwcVVwQjFlV2FVaHpHVnd6RWpYYXc?oc=5",
+          "publisher": "香港商报",
+          "published": "2026-11-07T01:21:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.26,
+      "score": 0.8647,
+      "first_seen": "2026-11-07T01:23:36+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 3,
+      "lang": "zh-HK",
+      "bullets": [
+        "立法會強烈譴責和反對外部勢力詆毀和抹黑法庭就黃之鋒串謀勾結案的判刑。",
+        "下稿代立法會秘書處發出： 多個美西方國家、反華媒體、境外組織、政客等，近日藉法庭就黃之鋒「串謀勾結外國或者境外勢力危害國家安全罪」作出的判刑，發表失實言論，詆毀和抹黑香港特別行政區（香港特區）司法制度及國家安全法律，妄圖將黃之鋒損害國家和香港特區利益的犯罪行為，刻意歪曲為個人政治表達。香港特區立法會發言人今日（十一月六日）表示，這完全是政治操弄，旨在混淆視聽、誤導香港市民和國際社會。立法會對此表示堅決反對。",
+        "香港商报: 立法會強烈譴責和反對外部勢力詆毀和抹黑法庭就黃之鋒判刑"
+      ],
+      "why": "立法會強烈譴責和反對外部勢力詆毀和抹黑法庭就黃之鋒串謀勾結案的判刑。"
+    },
+    {
+      "id": "a9dcf6681fbacdf2",
+      "topic": "ai",
+      "headline": "NVIDIA/auto-ontology: Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data. It enables…",
+      "headline_lang": "en",
+      "publisher": "GitHub",
+      "published": "2026-11-07T03:19:56+08:00",
+      "url": "https://github.com/NVIDIA/auto-ontology",
+      "sources": [
+        {
+          "title": "NVIDIA/auto-ontology: Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data. It enables…",
+          "url": "https://github.com/NVIDIA/auto-ontology",
+          "publisher": "GitHub",
+          "published": "2026-11-07T03:19:56+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "Tool"
+      ],
+      "jurisdiction": "",
+      "heat": 0.8953,
+      "score": 0.8579,
+      "first_seen": "2026-11-05T01:38:18+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data."
+      ],
+      "why": "Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data."
+    },
+    {
+      "id": "3d9a4c8d2b672ac3",
+      "topic": "ai",
+      "headline": "Anthropic Launches Claude Personal Finance Ahead of Nasdaq Listing",
+      "headline_lang": "en",
+      "publisher": "PYMNTS.com",
+      "published": "2026-11-07T02:27:09+08:00",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxQTGVPOGo1UDd1TUxtU3AybjA3MXhXeWJmU0lkNndvc29oeTBpTWFJTnJJR3ZWSXlPak9rQUVSM2ZsbEFVUGlEdjMxMm5VbEtSdWprb3liSkp3dFFSdnJXMVBoM1dyQTJZNDZMMTc3UmgxVTFiUHpEcEJubVNUYTZlOGVFMkRNdGh1b3VuX3F5ekJwSGdFV21GNWFHVFRlZDIzdkRUZnhfdVhRa25ZZXRPWG02S0FXSURhbjBYMUZTekRVZw?oc=5",
+      "sources": [
+        {
+          "title": "Anthropic Launches Claude Personal Finance Ahead of Nasdaq Listing",
+          "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxQTGVPOGo1UDd1TUxtU3AybjA3MXhXeWJmU0lkNndvc29oeTBpTWFJTnJJR3ZWSXlPak9rQUVSM2ZsbEFVUGlEdjMxMm5VbEtSdWprb3liSkp3dFFSdnJXMVBoM1dyQTJZNDZMMTc3UmgxVTFiUHpEcEJubVNUYTZlOGVFMkRNdGh1b3VuX3F5ekJwSGdFV21GNWFHVFRlZDIzdkRUZnhfdVhRa25ZZXRPWG02S0FXSURhbjBYMUZTekRVZw?oc=5",
+          "publisher": "PYMNTS.com",
+          "published": "2026-11-07T02:27:09+08:00"
+        },
+        {
+          "title": "Anthropic upgrades Claude with new Personal Finance feature",
+          "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQLUZJbk5NTDd3ZnF6NTVTS3p5eENzUFE0Tk93bnprTWF2WmdBRm5rcFZTN0UzVVNpcnU0UjdRT1V0eUgzV2dXVDFNOEF0Z3Y4VXpzTVA5UmoxdHlHVXdJZXVQSUJlQVdIc1Y3MmQtQ2dIa1NiSkR2UVFBRnd5Q2VJejZoTW5WbGIzUGEtRTNZS1g4WU9VZnc?oc=5",
+          "publisher": "9to5Mac",
+          "published": "2026-11-06T02:14:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.22,
+      "score": 0.7842,
+      "first_seen": "2026-11-07T03:19:56+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 2,
+      "lang": "en",
+      "bullets": [
+        "9to5Mac: Anthropic upgrades Claude with new Personal Finance feature"
+      ],
+      "why": "Reported by PYMNTS.com. Open the source for the details."
+    },
+    {
+      "id": "2d40d66e563fc766",
+      "topic": "hk",
+      "headline": "元朗三級火警（二）",
+      "headline_lang": "zh-HK",
+      "publisher": "香港特區政府新聞公報",
+      "published": "2026-11-07T02:57:00+08:00",
+      "url": "https://www.info.gov.hk/gia/general/202611/07/P2026110700080.htm",
+      "sources": [
+        {
+          "title": "元朗三級火警（二）",
+          "url": "https://www.info.gov.hk/gia/general/202611/07/P2026110700080.htm",
+          "publisher": "香港特區政府新聞公報",
+          "published": "2026-11-07T02:57:00+08:00"
+        },
+        {
+          "title": "元朗火警特別通知",
+          "url": "https://www.info.gov.hk/gia/general/202611/07/P2026110700038.htm",
+          "publisher": "香港特區政府新聞公報",
+          "published": "2026-11-07T01:30:10+08:00"
+        },
+        {
+          "title": "元朗三級火警",
+          "url": "https://www.info.gov.hk/gia/general/202611/07/P2026110700016.htm",
+          "publisher": "香港特區政府新聞公報",
+          "published": "2026-11-07T00:25:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.26,
+      "score": 0.7698,
+      "first_seen": "2026-11-07T03:19:56+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 3,
+      "lang": "zh-HK",
+      "bullets": [
+        "元朗白沙村昨日（十一月六日）晚上十時五十八分發生火警，並於晚上十一時二十五分升為三級。火勢於今日（十一月七日）凌晨一時零五分受到包圍、於凌晨一時五十一分受到控制，並於凌晨二時三十九分大致被救熄。",
+        "電台及電視台當值宣布員注意，請盡快播出以下信息，並適時重播： 消防處昨日（十一月六日）晚上十時五十八分接獲報告，指元朗白沙村發生火警，並於昨日晚上十一時二十五分升為三級。消防人員正進行滅火行動。",
+        "元朗白沙村昨日（十一月六日）晚上十時五十八分發生火警，火警於昨日晚上十一時二十五分升為三級。"
+      ],
+      "why": "元朗白沙村昨日（十一月六日）晚上十時五十八分發生火警，並於晚上十一時二十五分升為三級。火勢於今日（十一月七日）凌晨一時零五分受到包圍、於凌晨一時五十一分受到控制，並於凌晨二時三十九分大致被救熄。"
+    },
+    {
+      "id": "1638d873e59594c0",
+      "topic": "rt",
+      "headline": "Keycloak CVE-2026-117691: SAML Signature Bypass Enables Federated Account Takeover",
+      "headline_lang": "en",
+      "publisher": "Rescana",
+      "published": "2026-11-07T01:29:39+08:00",
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNSmRPekNYbWJ5MndlaWRhVEJ6c01wOGJHMnozLUdONWN3WG9mTVcxMDJ6XzhqQUtzS3pZRHNFVkk4Ty03RzJQd1AwRUFMLXlXMDI3ZE0xU29ETGw0eUdmdlB6Q080QkhKaW1oQ3BPV1BXVHRETFF3bzk1dGE4MFRKV2FUQlhNaW0xQldoYUN3RDN4RGRPQWlLampiMGpzT3czRnVr?oc=5",
+      "sources": [
+        {
+          "title": "Keycloak CVE-2026-117691: SAML Signature Bypass Enables Federated Account Takeover",
+          "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNSmRPekNYbWJ5MndlaWRhVEJ6c01wOGJHMnozLUdONWN3WG9mTVcxMDJ6XzhqQUtzS3pZRHNFVkk4Ty03RzJQd1AwRUFMLXlXMDI3ZE0xU29ETGw0eUdmdlB6Q080QkhKaW1oQ3BPV1BXVHRETFF3bzk1dGE4MFRKV2FUQlhNaW0xQldoYUN3RDN4RGRPQWlLampiMGpzT3czRnVr?oc=5",
+          "publisher": "Rescana",
+          "published": "2026-11-07T01:29:39+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "Exploit"
+      ],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.7591,
+      "first_seen": "2026-11-07T03:19:56+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Reported by Rescana. Open the source for the confirmed details."
+      ],
+      "why": "Reported by Rescana. Open the source for the details."
+    },
+    {
+      "id": "88cc45b4b7289ad1",
+      "topic": "cyber",
+      "headline": "Chainalysis says breach exposed credentials for all customers",
+      "headline_lang": "en",
+      "publisher": "BleepingComputer",
+      "published": "2026-11-06T22:17:07+08:00",
+      "url": "https://www.bleepingcomputer.com/news/security/chainalysis-says-breach-exposed-credentials-for-all-customers/",
+      "sources": [
+        {
+          "title": "Chainalysis says breach exposed credentials for all customers",
+          "url": "https://www.bleepingcomputer.com/news/security/chainalysis-says-breach-exposed-credentials-for-all-customers/",
+          "publisher": "BleepingComputer",
+          "published": "2026-11-06T22:17:07+08:00"
+        },
+        {
+          "title": "Chainalysis Breach Exposes All Users' Credentials, Forces Shutdown of Key Services",
+          "url": "https://thehackernews.com/2026/11/chainalysis-breach-exposes-all-users.html",
+          "publisher": "The Hacker News",
+          "published": "2026-11-06T16:04:49+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "Global"
+      ],
+      "jurisdiction": "",
+      "heat": 0.22,
+      "score": 0.7142,
+      "first_seen": "2026-11-07T01:23:36+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 2,
+      "lang": "en",
+      "bullets": [
+        "Blockchain intelligence firm Chainalysis says a recent attack on its systems and internal tools has exposed credentials and live tokens for all customers.",
+        "Blockchain analysis firm Chainalysis has revealed that its ongoing investigation into the agentic cyber attack targeting its systems also exposed names, usernames, password hashes and live tokens for all users."
+      ],
+      "why": "Blockchain intelligence firm Chainalysis says a recent attack on its systems and internal tools has exposed credentials and live tokens for all customers."
+    },
+    {
+      "id": "c7adcea9ca0bbb35",
+      "topic": "hk",
+      "headline": "元朗白沙村一個衣紙倉庫發生三級火",
+      "headline_lang": "zh-HK",
+      "publisher": "rthk.hk - 即時新聞: 本地",
+      "published": "2026-11-07T01:23:21+08:00",
+      "url": "https://news.rthk.hk/rthk/ch/component/k2/1876887-20261107.htm",
+      "sources": [
+        {
+          "title": "元朗白沙村一個衣紙倉庫發生三級火",
+          "url": "https://news.rthk.hk/rthk/ch/component/k2/1876887-20261107.htm",
+          "publisher": "rthk.hk - 即時新聞: 本地",
+          "published": "2026-11-07T01:23:21+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6908,
+      "first_seen": "2026-11-07T03:19:56+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "，現已救熄。火警期間，包括附近居民在內約12人要一度疏散，暫時未有人員受傷報告。"
+      ],
+      "why": "，現已救熄。火警期間，包括附近居民在內約12人要一度疏散，暫時未有人員受傷報告。"
+    },
+    {
+      "id": "7375dd8e094ff639",
+      "topic": "mayday",
+      "headline": "告五人演唱會後台超多大咖！五月天送百斤狗糧 頌樂暖心喊話幫應援",
+      "headline_lang": "zh-Hant",
+      "publisher": "Yahoo新聞",
+      "published": "2026-11-06T23:05:00+08:00",
+      "url": "https://news.google.com/rss/articles/CBMisgNBVV95cUxOTWFKb3MyaDA4RXE5LS1CMUFIQ3hfaWdjOHlwM05rajZMb0hNdHY4TWFBS0tzdmZKc0NzeWtzQVdMU2U3RnI5WE5RSDJXMnRQcTk0YjRGQVFlZTZRempIXzBKZHRyQ1lvQnd1TEZfSHJhTXpHaW5yaU1KTDNTQVVlOHg4Tms2cDZNakoyNVJ2WmJiYW1TX2hYMHpVRG5sOFUydDFuSExNTDV2MHhjRTZxekQ0cVYyREFmOWxNX2RoQVJ5V2pjbS1zZ05KNlBFaEV1NnJtYWF6cFlJVGdjcHVscERucjRGay1nd2ZsNU43THVPRjAxXy1QbEl6LUJLTGk2VjZ3U0dfRmF5clFKTDdmRjIxcUV1RUtOdzI3X1hWRDFjSmQ0VEU0OGZoUmJkdUlNR0ozdVd2SUFuU1c0d2FCbjB5d3NmN2xIZTFEVjlOYVlnWTk0aGhvaVJYemdxTk1WX011Q3ZrSkFOVlJ2LWRuYjl6bklORlNpNnZtc3NaRUJlbnN0dENFN1ItN0U3ZmRwRUR3NjFvNzZnZDN4c2JDVzVKaG9CM1pCSUJyYU1XSTV1Zw?oc=5",
+      "sources": [
+        {
+          "title": "告五人演唱會後台超多大咖！五月天送百斤狗糧 頌樂暖心喊話幫應援",
+          "url": "https://news.google.com/rss/articles/CBMisgNBVV95cUxOTWFKb3MyaDA4RXE5LS1CMUFIQ3hfaWdjOHlwM05rajZMb0hNdHY4TWFBS0tzdmZKc0NzeWtzQVdMU2U3RnI5WE5RSDJXMnRQcTk0YjRGQVFlZTZRempIXzBKZHRyQ1lvQnd1TEZfSHJhTXpHaW5yaU1KTDNTQVVlOHg4Tms2cDZNakoyNVJ2WmJiYW1TX2hYMHpVRG5sOFUydDFuSExNTDV2MHhjRTZxekQ0cVYyREFmOWxNX2RoQVJ5V2pjbS1zZ05KNlBFaEV1NnJtYWF6cFlJVGdjcHVscERucjRGay1nd2ZsNU43THVPRjAxXy1QbEl6LUJLTGk2VjZ3U0dfRmF5clFKTDdmRjIxcUV1RUtOdzI3X1hWRDFjSmQ0VEU0OGZoUmJkdUlNR0ozdVd2SUFuU1c0d2FCbjB5d3NmN2xIZTFEVjlOYVlnWTk0aGhvaVJYemdxTk1WX011Q3ZrSkFOVlJ2LWRuYjl6bklORlNpNnZtc3NaRUJlbnN0dENFN1ItN0U3ZmRwRUR3NjFvNzZnZDN4c2JDVzVKaG9CM1pCSUJyYU1XSTV1Zw?oc=5",
+          "publisher": "Yahoo新聞",
+          "published": "2026-11-06T23:05:00+08:00"
+        },
+        {
+          "title": "告五人重返小巨蛋吸金7千萬 五月天送狗糧獻愛 頌樂喊一直應援",
+          "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1IaWVGOUdQN3lZVXc0T21qNm9EbFJoUnQ0UFZ5ajNtblJYdnVoQUZTN0Y2VVpPaTI5SUJCeDRMTUp0dTBOd25YTkRPTmhwRm1XcmRJenQ4cHJxcHJN0gFiQVVfeXFMTzg2OHVNQjdVdFpNSGFlcW8wYXcxQ2hMUEp0cy0zYTU4a3dlbk1WaFZhcDhyYUdrY1c4ekdQcWk5aFNoZ0JjZ25nSTBUT040aDdEcEpwbExlRThTRFVUMjFmVGc?oc=5",
+          "publisher": "自由娛樂",
+          "published": "2026-11-06T20:26:41+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.22,
+      "score": 0.6836,
+      "first_seen": "2026-11-07T01:23:36+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 2,
+      "lang": "zh-Hant",
+      "bullets": [
+        "自由娛樂: 告五人重返小巨蛋吸金7千萬 五月天送狗糧獻愛 頌樂喊一直應援"
+      ],
+      "why": "Yahoo新聞 報導：請看原文了解已確認的內容。"
+    },
+    {
+      "id": "29bd870e08be1035",
+      "topic": "legal",
+      "headline": "穩步推進/港續完善監管框架共建數字資產生態- 經濟",
+      "headline_lang": "zh-HK",
+      "publisher": "大公文匯網",
+      "published": "2026-11-06T04:26:38+08:00",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFB6OVpnNmRhRjR2UmxFdUxMTnR4UmRUSGhRbXloRjJtMUV2N00zdFh3ZU9uNExTT2VDM0M5MGc0aHZGWmZfUnNfR29LZjd1OVltOXdvYU4wTVAwTnU3dnM5UGM1RjF6REM3NUl1R1BwTno3NFFm?oc=5",
+      "sources": [
+        {
+          "title": "穩步推進/港續完善監管框架共建數字資產生態- 經濟",
+          "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFB6OVpnNmRhRjR2UmxFdUxMTnR4UmRUSGhRbXloRjJtMUV2N00zdFh3ZU9uNExTT2VDM0M5MGc0aHZGWmZfUnNfR29LZjd1OVltOXdvYU4wTVAwTnU3dnM5UGM1RjF6REM3NUl1R1BwTno3NFFm?oc=5",
+          "publisher": "大公文匯網",
+          "published": "2026-11-06T04:26:38+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK",
+        "Fintech"
+      ],
+      "jurisdiction": "Hong Kong",
+      "heat": 0.18,
+      "score": 0.681,
+      "first_seen": "2026-11-06T07:06:38+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "大公文匯網 報導：詳情請看原文。"
+      ],
+      "why": "大公文匯網 報導：請看原文了解對實務的影響。"
+    },
+    {
+      "id": "0bb60d0f0a640a1c",
+      "topic": "cyber",
+      "headline": "聯網車輛網絡安全：車主應注意的風險",
+      "headline_lang": "zh-HK",
+      "publisher": "Hong Kong Computer Emergency Response Team Coordination Centre",
+      "published": "2026-11-06T14:59:51+08:00",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNaHBWcnZwZWdFUmtHTE45a3lqUkVOUjR2VkVpd1picGUzQ0ZKQWxSM1ZwcE1DUFNPUGpBR3pDZ1JEcGVhQTZRbFR0N0hZU0lUOUhlbW5KVmsxb0dUQmItYkg1dU9Cem5ISUVIcjJkQUNiSTRMTUFGTFZfMEpDUHJpcGZfc0Jid3hpODJFUTkyejhrdmFpQW5jenh3?oc=5",
+      "sources": [
+        {
+          "title": "聯網車輛網絡安全：車主應注意的風險",
+          "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNaHBWcnZwZWdFUmtHTE45a3lqUkVOUjR2VkVpd1picGUzQ0ZKQWxSM1ZwcE1DUFNPUGpBR3pDZ1JEcGVhQTZRbFR0N0hZU0lUOUhlbW5KVmsxb0dUQmItYkg1dU9Cem5ISUVIcjJkQUNiSTRMTUFGTFZfMEpDUHJpcGZfc0Jid3hpODJFUTkyejhrdmFpQW5jenh3?oc=5",
+          "publisher": "Hong Kong Computer Emergency Response Team Coordination Centre",
+          "published": "2026-11-06T14:59:51+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK"
+      ],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.6458,
+      "first_seen": "2026-11-07T03:19:56+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "Hong Kong Computer Emergency Response Team Coordination Centre 報導：詳情請看原文。"
+      ],
+      "why": "Hong Kong Computer Emergency Response Team Coordination Centre 報導：詳情請看原文。"
+    },
+    {
+      "id": "18fadead9a0c5256",
+      "topic": "legal",
+      "headline": "兩地簽備忘錄深化知識產權合作- 香港",
+      "headline_lang": "zh-HK",
+      "publisher": "香港文匯報",
+      "published": "2026-11-05T04:52:41+08:00",
+      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE5vM3dHdHV0Y2M2M1ZBWlF1QzVETDBfTE1TM050djh6ZnBMa2pHZnc1Ti1sdGNYOFNfdzNlTzB1aE5OVmdwV2FYSEhabFdNVmFkUFh4S3VJMEpodG80Z0ZDRVpIdlVKUi1pb3BHVnJCbktRMzhjYTlz?oc=5",
+      "sources": [
+        {
+          "title": "兩地簽備忘錄深化知識產權合作- 香港",
+          "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE5vM3dHdHV0Y2M2M1ZBWlF1QzVETDBfTE1TM050djh6ZnBMa2pHZnc1Ti1sdGNYOFNfdzNlTzB1aE5OVmdwV2FYSEhabFdNVmFkUFh4S3VJMEpodG80Z0ZDRVpIdlVKUi1pb3BHVnJCbktRMzhjYTlz?oc=5",
+          "publisher": "香港文匯報",
+          "published": "2026-11-05T04:52:41+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK",
+        "IP"
+      ],
+      "jurisdiction": "Hong Kong",
+      "heat": 0.18,
+      "score": 0.6433,
+      "first_seen": "2026-11-06T03:10:44+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "香港文匯報 報導：詳情請看原文。"
+      ],
+      "why": "香港文匯報 報導：請看原文了解對實務的影響。"
+    },
+    {
+      "id": "1c0c23df4d1679f5",
+      "topic": "legal",
+      "headline": "Japan's Takaichi pushes for tougher cybersecurity laws as attacks surge",
+      "headline_lang": "en",
+      "publisher": "Nikkei Asia",
+      "published": "2026-11-07T01:19:00+08:00",
+      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQQ3VsOExsR0tDZkl0VHhaN29pRjBQTjBoSXZpZXhUY094VVQwdzd5V093V2VKdlltQkhIWUJUOWRBRUc1bEVKOWxhb1dMR2hYVUlvN1hYRjF6ejJDazUxNFpKa2dJSHdwQ3dRaEEwQ1hMa1pMa29lZUpSMGUwSHdtZVFlSzFBNm5lWURjWU9IY2NmNlNOTVF1UGpOZU5hSG9GNzN3akNvOUpXX0JTX25kQm1YMUJNTXRaSm5N?oc=5",
+      "sources": [
+        {
+          "title": "Japan's Takaichi pushes for tougher cybersecurity laws as attacks surge",
+          "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQQ3VsOExsR0tDZkl0VHhaN29pRjBQTjBoSXZpZXhUY094VVQwdzd5V093V2VKdlltQkhIWUJUOWRBRUc1bEVKOWxhb1dMR2hYVUlvN1hYRjF6ejJDazUxNFpKa2dJSHdwQ3dRaEEwQ1hMa1pMa29lZUpSMGUwSHdtZVFlSzFBNm5lWURjWU9IY2NmNlNOTVF1UGpOZU5hSG9GNzN3akNvOUpXX0JTX25kQm1YMUJNTXRaSm5N?oc=5",
+          "publisher": "Nikkei Asia",
+          "published": "2026-11-07T01:19:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "Cyber"
+      ],
+      "jurisdiction": "Japan",
+      "heat": 0.18,
+      "score": 0.6407,
+      "first_seen": "2026-11-07T01:23:36+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Reported by Nikkei Asia. Open the source for the confirmed details."
+      ],
+      "why": "Reported by Nikkei Asia. Check the source for the practical effect."
+    },
+    {
+      "id": "11d21435543516d3",
+      "topic": "legal",
+      "headline": "GAO Report: USPTO’s Backlog Reduction Goals Unsustainable if Workforce Strain, Examiner Attrition Continue",
+      "headline_lang": "en",
+      "publisher": "IPWatchdog.com | Patents & Intellectual Property Law",
+      "published": "2026-11-05T23:15:03+08:00",
+      "url": "https://ipwatchdog.com/2026/11/05/gao-report-usptos-backlog-reduction-goals-unsustainable-if-workforce-strain-examiner-attrition-continue/",
+      "sources": [
+        {
+          "title": "GAO Report: USPTO’s Backlog Reduction Goals Unsustainable if Workforce Strain, Examiner Attrition Continue",
+          "url": "https://ipwatchdog.com/2026/11/05/gao-report-usptos-backlog-reduction-goals-unsustainable-if-workforce-strain-examiner-attrition-continue/",
+          "publisher": "IPWatchdog.com | Patents & Intellectual Property Law",
+          "published": "2026-11-05T23:15:03+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "IP"
+      ],
+      "jurisdiction": "US",
+      "heat": 0.18,
+      "score": 0.6401,
+      "first_seen": "2026-11-07T03:19:56+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Today, the U.S."
+      ],
+      "why": "US: Today, the U.S."
+    },
+    {
+      "id": "0d316caf00993e1a",
+      "topic": "legal",
+      "headline": "當AI進入法律工作 香港以科技賦能應對“取代挑戰",
+      "headline_lang": "zh-HK",
+      "publisher": "www.hkcna.hk",
+      "published": "2026-11-06T20:17:00+08:00",
+      "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5nODBjLTJocl91UHctd1FNTFNsSWpOM3ZCRzdCYjJpa0M1ekdCWENQeUpDSFctTENVVkFzVFVxS1dLQnc1cXY3UUhZaG5LMktldGhHNFJVSXJ3c3BaaFlwTEZVbzZlUlJpVlFKUVZYVQ?oc=5",
+      "sources": [
+        {
+          "title": "當AI進入法律工作 香港以科技賦能應對“取代挑戰",
+          "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5nODBjLTJocl91UHctd1FNTFNsSWpOM3ZCRzdCYjJpa0M1ekdCWENQeUpDSFctTENVVkFzVFVxS1dLQnc1cXY3UUhZaG5LMktldGhHNFJVSXJ3c3BaaFlwTEZVbzZlUlJpVlFKUVZYVQ?oc=5",
+          "publisher": "www.hkcna.hk",
+          "published": "2026-11-06T20:17:00+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK",
+        "AI"
+      ],
+      "jurisdiction": "Hong Kong",
+      "heat": 0.18,
+      "score": 0.6326,
+      "first_seen": "2026-11-07T01:23:36+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "zh-HK",
+      "bullets": [
+        "www.hkcna.hk 報導：詳情請看原文。"
+      ],
+      "why": "www.hkcna.hk 報導：請看原文了解對實務的影響。"
+    },
+    {
+      "id": "035ecb0ac1c32503",
+      "topic": "cyber",
+      "headline": "Police say linking mall cameras to AI facial recognition network complies with Hong Kong privacy laws",
+      "headline_lang": "en",
+      "publisher": "Hong Kong Free Press HKFP",
+      "published": "2026-11-06T12:47:48+08:00",
+      "url": "https://hongkongfp.com/2026/11/06/police-say-linking-mall-cameras-to-ai-facial-recognition-network-complies-with-hong-kong-privacy-laws/",
+      "sources": [
+        {
+          "title": "Police say linking mall cameras to AI facial recognition network complies with Hong Kong privacy laws",
+          "url": "https://hongkongfp.com/2026/11/06/police-say-linking-mall-cameras-to-ai-facial-recognition-network-complies-with-hong-kong-privacy-laws/",
+          "publisher": "Hong Kong Free Press HKFP",
+          "published": "2026-11-06T12:47:48+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "HK"
+      ],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.5805,
+      "first_seen": "2026-11-06T18:12:45+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Equipping Hong Kong’s CCTV network with AI facial recognition software and connecting it to shopping mall security cameras would not breach local privacy laws, police have said."
+      ],
+      "why": "Equipping Hong Kong’s CCTV network with AI facial recognition software and connecting it to shopping mall security cameras would not breach local privacy laws, police have said."
+    },
+    {
+      "id": "adb48e6eb52ccbac",
+      "topic": "rt",
+      "headline": "Interview: CERT-In chief on AI agent incidents, prompt injection and who must report them",
+      "headline_lang": "en",
+      "publisher": "MediaNama",
+      "published": "2026-11-04T16:55:55+08:00",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQaTdzYVRkd243NHR1UDlNMjJNT2pUbzZGMnZ6bFRVMzVhbDhXcjNESWxwcWZIZF9yUlUyemdxNGpXbTlDbHotLTAxV2MzazRlOUdsN09sVVFROVZMdWRQM244UzFTU2JDSS1rX1BaUHdKdi1zOUNRbkFVcC16NWVBX0pjNDdKWF9ycUpXYUlEeW0wc3c?oc=5",
+      "sources": [
+        {
+          "title": "Interview: CERT-In chief on AI agent incidents, prompt injection and who must report them",
+          "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQaTdzYVRkd243NHR1UDlNMjJNT2pUbzZGMnZ6bFRVMzVhbDhXcjNESWxwcWZIZF9yUlUyemdxNGpXbTlDbHotLTAxV2MzazRlOUdsN09sVVFROVZMdWRQM244UzFTU2JDSS1rX1BaUHdKdi1zOUNRbkFVcC16NWVBX0pjNDdKWF9ycUpXYUlEeW0wc3c?oc=5",
+          "publisher": "MediaNama",
+          "published": "2026-11-04T16:55:55+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [
+        "AI"
+      ],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.5675,
+      "first_seen": "2026-11-05T01:38:18+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "en",
+      "bullets": [
+        "Reported by MediaNama. Open the source for the confirmed details."
+      ],
+      "why": "Reported by MediaNama. Open the source for the details."
+    },
+    {
+      "id": "092bebf6b4538838",
+      "topic": "jackson",
+      "headline": "時尚就是任性！易烊千璽衣服反穿露標籤 走在潮流最尖端",
+      "headline_lang": "zh-Hant",
+      "publisher": "三立新聞",
+      "published": "2026-11-03T20:47:20+08:00",
+      "url": "https://news.google.com/rss/articles/CBMiR0FVX3lxTFBHbzBPS01lQnJXbUVJVlhnWjZyVzI4UzRxWVAyTHNUc19jTi1Ubk82QW5fNVFaRWFlMFFmMnVwbUd3a1FWa1RR0gFLQVVfeXFMT1p6TlJadUJDOTNFNkk2Mk15cGF3RGc0ZGdyQjVBNTNjb0F3T0JiYUp4c1EzbnBFMW84YXFKV2liU2xJVkh0Q2xrbDdr?oc=5",
+      "sources": [
+        {
+          "title": "時尚就是任性！易烊千璽衣服反穿露標籤 走在潮流最尖端",
+          "url": "https://news.google.com/rss/articles/CBMiR0FVX3lxTFBHbzBPS01lQnJXbUVJVlhnWjZyVzI4UzRxWVAyTHNUc19jTi1Ubk82QW5fNVFaRWFlMFFmMnVwbUd3a1FWa1RR0gFLQVVfeXFMT1p6TlJadUJDOTNFNkk2Mk15cGF3RGc0ZGdyQjVBNTNjb0F3T0JiYUp4c1EzbnBFMW84YXFKV2liU2xJVkh0Q2xrbDdr?oc=5",
+          "publisher": "三立新聞",
+          "published": "2026-11-03T20:47:20+08:00"
+        }
+      ],
+      "comments": [],
+      "tags": [],
+      "jurisdiction": "",
+      "heat": 0.18,
+      "score": 0.5413,
+      "first_seen": "2026-11-04T02:40:36+08:00",
+      "updated": "2026-11-07T03:19:56+08:00",
+      "cluster_size": 1,
+      "lang": "zh-Hant",
+      "bullets": [
+        "三立新聞 報導：詳情請看原文。"
+      ],
+      "why": "三立新聞 報導：詳情請看原文。"
+    }
+  ],
+  "source_status": [
+    {
+      "id": "openai-news",
+      "name": "OpenAI news",
+      "topic": "ai",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-ai-blog",
+      "name": "Google AI blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "deepmind-blog",
+      "name": "Google DeepMind blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "qwen-blog",
+      "name": "Qwen blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "research-google",
+      "name": "Google Research blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 3,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "openrouter-new",
+      "name": "OpenRouter new models",
+      "topic": "ai",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "hn-front",
+      "name": "Hacker News front page",
+      "topic": "ai",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-anthropic",
+      "name": "Google News · Anthropic",
+      "topic": "ai",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-ai-vendors",
+      "name": "Google News · AI vendors",
+      "topic": "ai",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "producthunt-ai",
+      "name": "Product Hunt · AI tools",
+      "topic": "ai",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "github-trending-ai",
+      "name": "GitHub Trending · AI",
+      "topic": "ai",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "github-ai-agents",
+      "name": "GitHub · new AI agent tools",
+      "topic": "ai",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "huggingface-blog",
+      "name": "Hugging Face blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-open-source",
+      "name": "Google Open Source blog",
+      "topic": "ai",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-ai-tools",
+      "name": "Google News · open AI tools",
+      "topic": "ai",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "artificial-analysis",
+      "name": "Artificial Analysis leaderboard",
+      "topic": "ai",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "rthk-zh-local",
+      "name": "RTHK 本地新聞",
+      "topic": "hk",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "rthk-en-local",
+      "name": "RTHK English news",
+      "topic": "hk",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "hkfp",
+      "name": "Hong Kong Free Press",
+      "topic": "hk",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "scmp-hk",
+      "name": "South China Morning Post",
+      "topic": "hk",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "mingpao-google-news",
+      "name": "Ming Pao · Google News",
+      "topic": "hk",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "info-gov-hk",
+      "name": "info.gov.hk",
+      "topic": "hk",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk",
+      "name": "Google News · Hong Kong",
+      "topic": "hk",
+      "ok": true,
+      "items": 12,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "hko-warnings",
+      "name": "Hong Kong Observatory warnings",
+      "topic": "hk",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "telegram-inmediahk",
+      "name": "Telegram · InMediaHK",
+      "topic": "hk",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-mayday-tw",
+      "name": "Google News · 五月天 TW",
+      "topic": "mayday",
+      "ok": true,
+      "items": 3,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-mayday-hk",
+      "name": "Google News · 五月天 HK",
+      "topic": "mayday",
+      "ok": true,
+      "items": 3,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "ltn-mayday",
+      "name": "自由娛樂 · 五月天",
+      "topic": "mayday",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "ptt-mayday",
+      "name": "PTT MayDay",
+      "topic": "mayday",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "ipkat",
+      "name": "IPKat",
+      "topic": "legal",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "ipwatchdog",
+      "name": "IPWatchdog",
+      "topic": "legal",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "wipo-press",
+      "name": "WIPO press room",
+      "topic": "legal",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "uspto",
+      "name": "USPTO",
+      "topic": "legal",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "us-copyright",
+      "name": "US Copyright Office",
+      "topic": "legal",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "govuk-ipo",
+      "name": "GOV.UK Intellectual Property Office",
+      "topic": "legal",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "hunton-privacy",
+      "name": "Hunton Privacy & Information Security Law Blog",
+      "topic": "legal",
+      "ok": true,
+      "items": 3,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-ip-apac",
+      "name": "Google News · IP APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-privacy-apac",
+      "name": "Google News · privacy law APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-fintech-apac",
+      "name": "Google News · fintech APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 5,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-ai-law-apac",
+      "name": "Google News · AI law APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-cyber-law-apac",
+      "name": "Google News · cyber law APAC",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk-ip",
+      "name": "Google News · 香港知識產權",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk-privacy",
+      "name": "Google News · 香港私隱",
+      "topic": "legal",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk-fintech",
+      "name": "Google News · 香港金融科技法規",
+      "topic": "legal",
+      "ok": true,
+      "items": 3,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk-ai-law",
+      "name": "Google News · 香港 AI 法例",
+      "topic": "legal",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk-cyber-law",
+      "name": "Google News · 香港網絡罪行法例",
+      "topic": "legal",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-jackson-tw",
+      "name": "Google News · 易烊千璽 TW",
+      "topic": "jackson",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-jackson-hk",
+      "name": "Google News · 易烊千璽 HK",
+      "topic": "jackson",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "ltn-jackson",
+      "name": "自由娛樂 · 易烊千璽",
+      "topic": "jackson",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "bleepingcomputer",
+      "name": "BleepingComputer",
+      "topic": "cyber",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "krebs",
+      "name": "Krebs on Security",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "thehackernews",
+      "name": "The Hacker News",
+      "topic": "cyber",
+      "ok": true,
+      "items": 8,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "darkreading",
+      "name": "Dark Reading",
+      "topic": "cyber",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "securityweek",
+      "name": "SecurityWeek",
+      "topic": "cyber",
+      "ok": true,
+      "items": 3,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk-breach",
+      "name": "Google News · 香港資料外洩",
+      "topic": "cyber",
+      "ok": true,
+      "items": 10,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-hk-hkcert",
+      "name": "Google News · HKCERT",
+      "topic": "cyber",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "rthk-cyber",
+      "name": "RTHK · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "scmp-cyber",
+      "name": "SCMP · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "hkfp-cyber",
+      "name": "HKFP · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "unwire-cyber",
+      "name": "Unwire HK · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "telegram-cyber",
+      "name": "Telegram · InMediaHK cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "info-gov-cyber",
+      "name": "info.gov.hk · cyber",
+      "topic": "cyber",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-rt-ai",
+      "name": "Google News · AI red teaming",
+      "topic": "rt",
+      "ok": true,
+      "items": 1,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "google-news-rt-exploit",
+      "name": "Google News · exploits & CVEs",
+      "topic": "rt",
+      "ok": true,
+      "items": 6,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "cisa-kev-rt",
+      "name": "CISA Known Exploited Vulnerabilities",
+      "topic": "rt",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "project-zero",
+      "name": "Google Project Zero",
+      "topic": "rt",
+      "ok": true,
+      "items": 0,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "github-redteam-new",
+      "name": "GitHub · new offensive-security tools",
+      "topic": "rt",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "github-llmsec-new",
+      "name": "GitHub · LLM security tools",
+      "topic": "rt",
+      "ok": true,
+      "items": 2,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    },
+    {
+      "id": "github-cve-poc",
+      "name": "GitHub · new CVE PoCs",
+      "topic": "rt",
+      "ok": true,
+      "items": 4,
+      "error": null,
+      "fetched_at": "2026-11-07T03:19:56+08:00"
+    }
+  ],
+  "stats": {
+    "fetched": 263,
+    "sources_ok": 69,
+    "sources_total": 69,
+    "clusters": 231,
+    "cards": 18,
+    "brief_cards": {
+      "me": 12,
+      "her": 8
+    },
+    "llm": {
+      "calls": 8,
+      "limit": 48,
+      "cache_hits": 11,
+      "failures": 1
+    }
+  }
+}
