@@ -89,41 +89,14 @@ scheduled Actions run; the normal Pages deploy on push is enough.
 
 ## Hosting
 
-The production site is served by **Cloudflare Pages**, project `bonzili`,
-because GitHub Pages is currently unavailable while the GitHub account/payment
-verification issue is unresolved. The static app is unchanged; only the host
-changed.
+The production site is served by **GitHub Pages** from the public repository
+`bonzili/bonzili.github.io`. There is no Cloudflare Pages project, Worker proxy
+or DNS bridge for this app. The custom domain is `bonzili.me`, and GitHub Pages
+is configured with **Source: GitHub Actions**.
 
-- Cloudflare Pages URL: `https://bonzili.pages.dev/`
-- Custom domain: `https://bonzili.me/dailybrief/` is currently bridged to Pages
-  by the small `bonzili-pages-proxy` Worker while the Cloudflare DNS records
-  still point at GitHub Pages.
-- To remove the bridge permanently, point `bonzili.me` and `www.bonzili.me` at
-  `bonzili.pages.dev` with proxied CNAME records, wait for the Pages custom
-  domains to become active, then remove the Worker routes
-  `bonzili.me/*` and `www.bonzili.me/*` and delete `bonzili-pages-proxy`.
-- Cloudflare Pages direct uploads are deployed with
-  `scripts/publish-cloudflare.sh`. The free plan covers 500 deployments per
-  month; twice-daily publishing uses about 60.
-
-The pipeline can run on the outbound-only server instead of GitHub Actions:
-
-```bash
-cd /path/to/bonzili.github.io
-export GEMINI_API_KEY="..."   # optional; without it, cards use excerpts
-./scripts/publish-cloudflare.sh
-```
-
-For twice-daily updates, use a cron/systemd timer. Keep the key in a
-root-readable environment file, not in the crontab:
-
-```cron
-0 7,18 * * * cd /path/to/bonzili.github.io && set -a && . $HOME/.config/dailybrief.env && set +a && ./scripts/publish-cloudflare.sh >> /var/log/dailybrief.log 2>&1
-```
-
-The script runs the tests, fetches sources, writes `today.json` and the archive,
-then deploys the whole static site to Cloudflare Pages. GitHub Actions remains
-in the repository as a legacy path, but it is not the production host.
+The workflow is the only deployment path: pushes deploy the committed static
+files, and the scheduled/manual runs fetch sources, build the brief and deploy
+the generated `dailybrief/data` directory.
 
 ## Free only
 
@@ -135,7 +108,7 @@ This project is deliberately built to avoid a surprise bill.
 | GitHub Pages | Hosting + deploy | Free for this public site. |
 | GitHub Models | Default summarizer | Free, rate-limited, uses the built-in `GITHUB_TOKEN`. No paid fallback. |
 | Gemini API | Opt-in summarizer | **Not used by default in Actions.** To enable it, set `summarization.provider: gemini` (or run with `--provider gemini`) and use a free key from a project with no billing account. |
-| Cloudflare | Existing proxy | No Worker, KV, D1 or API token is used by this app. |
+| Cloudflare | DNS/proxy | The domain is on Cloudflare, but no Worker, KV, D1 or Pages project is used by this app. |
 | Sources | RSS / public APIs | No keys, no paid feeds, no authenticated scraping. |
 
 The pipeline also has a hard **48 LLM calls per run** budget. When it is
@@ -164,9 +137,9 @@ fonts. Read state and saved cards never leave the browser.
 
 ## One-time setup
 
-1. **Cloudflare Pages.** The production site is deployed directly with
-   `scripts/publish-cloudflare.sh`. GitHub Pages is a legacy fallback only; its
-   workflow remains in `.github/workflows/dailybrief.yml`.
+1. **Settings → Pages → Source → GitHub Actions.** The repo is public, so
+   GitHub Pages is available on the free plan. The workflow enables Pages if it
+   is missing.
 2. Optional: **Settings → Secrets and variables → Actions → New repository
    secret** → `GEMINI_API_KEY`, only if you want Gemini instead of GitHub
    Models. Then set `summarization.provider: gemini` in
