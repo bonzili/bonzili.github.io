@@ -25,7 +25,7 @@ from util import (
     now_hkt, truncate, write_json_atomic,
 )
 
-PROMPT_VERSION = "2026-11-04.1"
+PROMPT_VERSION = "2026-11-07.1"
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 DEFAULT_GITHUB_MODEL = "openai/gpt-4o-mini"
 MAX_SOURCE_CHARS = 900
@@ -39,7 +39,11 @@ class SummaryError(RuntimeError):
     pass
 
 
-class BudgetExceeded(SummaryError):
+class ProviderUnavailable(SummaryError):
+    """The provider cannot be used for the rest of this run."""
+
+
+class BudgetExceeded(RuntimeError):
     pass
 
 
@@ -158,7 +162,9 @@ def prompt_for(card: dict, cluster: dict, topic: dict, workspace: dict,
         )
     if card.get("topic") == "mayday":
         legal_rules = (
-            "\n- This is Mayday news. Separate confirmed news from rumours and social posts."
+            "\n- This is Mayday news. Separate confirmed news from rumours and social posts. "
+            "Mayday is the reader's break section: explain the band update and do not write "
+            "that it is unrelated to AI, security, or work."
         )
     user = (
         f"Topic: {topic_name}\n"
@@ -188,7 +194,13 @@ def _summary_sentence(item: dict) -> str:
         summary = summary[:-len(publisher)].strip(" .:-—|")
     if len(summary) < 30 or summary.casefold() == title.casefold():
         return ""
-    return first_sentence(summary, 220)
+    sentence = first_sentence(summary, 220)
+    # Abbreviations such as "U.S." can make the first "sentence" uselessly
+    # short. In that case keep the fuller source text instead of shipping a
+    # fragment like "US: Today, the U.S." as the takeaway.
+    if len(sentence) < 60:
+        sentence = truncate(summary, 220)
+    return sentence
 
 
 ZH_JURISDICTION = {
@@ -256,7 +268,7 @@ class ExtractiveProvider:
                 if is_zh else
                 f"{jurisdiction}: "
             )
-        if lead_sentence:
+        if lead_sentence and len(lead_sentence) >= 40:
             why = f"{prefix}{lead_sentence}"
         elif card.get("topic") == "legal":
             why = (
@@ -335,9 +347,9 @@ class GeminiProvider:
                 log(f"  Gemini model selected: {candidate}")
                 return candidate
             if response.status_code in (401, 403):
-                raise SummaryError(f"Gemini not permitted ({response.status_code})")
+                raise ProviderUnavailable(f"Gemini not permitted ({response.status_code})")
             # 404: not available on this key/API; 429: try the next free model.
-        raise SummaryError("no available Gemini free-tier model")
+        raise ProviderUnavailable("no available Gemini free-tier model")
 
     def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
                   bullet_lang: str, why_lang: str) -> dict:
@@ -540,13 +552,20 @@ class SummaryService:
                 log(f"  free LLM call budget reached: {error}")
                 self.providers = []
                 break
-            except SummaryError as error:
+            except ProviderUnavailable as error:
                 self.failures += 1
                 self.provider_notes.append(f"{provider.name}: {error}")
                 log(f"  {provider.name} disabled for this run: {error}")
                 # A bad key, a missing model, or a rate limit should not be
                 # retried once per card. Move to the next free provider.
                 self.providers = [p for p in self.providers if p is not provider]
+                continue
+            except SummaryError as error:
+                # A malformed or low-quality summary is a card-level failure,
+                # not a reason to stop using the provider for every later card.
+                self.failures += 1
+                self.provider_notes.append(f"{provider.name}: {error}")
+                log(f"  {provider.name} summary rejected for {card.get('id', '')}: {error}")
                 continue
             except Exception as error:
                 # Providers must never be able to fail the edition. A proxy

@@ -511,13 +511,16 @@
 
   // ---------- data ----------
 
-  async function fetchJSON(path) {
+  async function fetchJSON(path, { fresh = false } = {}) {
     const url = new URL(path, new URL('data/', document.baseURI));
-    url.searchParams.set('v', String(Date.now()));
+    if (fresh) url.searchParams.set('v', String(Date.now()));
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 12000);
     try {
-      const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      const response = await fetch(url, {
+        cache: fresh ? 'no-store' : 'no-cache',
+        signal: controller.signal,
+      });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json();
     } finally {
@@ -537,7 +540,7 @@
     }
 
     try {
-      const data = await fetchJSON(state.demo ? 'demo.json' : 'today.json');
+      const data = await fetchJSON(state.demo ? 'demo.json' : 'today.json', { fresh: refresh });
       if (!data || !data.workspaces || !Array.isArray(data.cards)) {
         throw new Error('Invalid brief data');
       }

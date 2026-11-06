@@ -5,7 +5,10 @@ from collections import Counter
 from datetime import datetime, timedelta
 from typing import Any
 
-from util import age_hours, clamp, iso, parse_datetime, text_has_keyword
+from util import (
+    age_hours, clamp, iso, near_duplicate_titles, parse_datetime,
+    text_has_keyword,
+)
 
 
 def score_clusters(clusters: list[dict], seen: dict[str, Any], topics: dict[str, Any],
@@ -122,6 +125,13 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
                 return False
         return True
 
+    def duplicate_of_selected(cluster: dict) -> bool:
+        return any(
+            other.get("topic") == cluster.get("topic")
+            and near_duplicate_titles(other.get("headline") or "", cluster.get("headline") or "")
+            for other in selected
+        )
+
     def add(cluster: dict) -> None:
         selected.append(cluster)
         selected_ids.add(cluster["id"])
@@ -140,7 +150,7 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
             cluster = first_by_topic.get(topic_id)
             if not cluster or len(selected) >= cap:
                 continue
-            if not tag_cap_allows(cluster):
+            if not tag_cap_allows(cluster) or duplicate_of_selected(cluster):
                 continue
             add(cluster)
 
@@ -171,7 +181,7 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
                     continue
                 if counts[topic_id] >= topic_cap:
                     break
-                if not tag_cap_allows(cluster):
+                if not tag_cap_allows(cluster) or duplicate_of_selected(cluster):
                     continue
                 add(cluster)
                 current += 1
@@ -186,7 +196,7 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
         topic_cap = int(caps.get(topic_id, default_cap))
         if counts[topic_id] >= topic_cap:
             continue
-        if not tag_cap_allows(cluster):
+        if not tag_cap_allows(cluster) or duplicate_of_selected(cluster):
             continue
         add(cluster)
 

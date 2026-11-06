@@ -185,6 +185,23 @@ def title_similarity(a: str, b: str) -> tuple[float, float]:
     return jaccard, ratio
 
 
+def near_duplicate_titles(a: str, b: str) -> bool:
+    """Catch same-event headlines that the clusterer left as two cards.
+
+    The clusterer is deliberately conservative. That can leave a short update
+    like "元朗三級火警（二）" beside "元朗白沙村一個衣紙倉庫發生三級火". This
+    later guard only fires when at least three meaningful tokens are shared
+    and they cover half of the shorter title.
+    """
+    ta, tb = title_tokens(a), title_tokens(b)
+    if not ta or not tb:
+        return False
+    shared = ta & tb
+    if len(shared) < 3:
+        return False
+    return len(shared) / min(len(ta), len(tb)) >= 0.5
+
+
 GENERIC_SUMMARY_TOKENS = {
     "hong", "kong", "china", "chinese", "city", "new", "say", "says", "said",
 }

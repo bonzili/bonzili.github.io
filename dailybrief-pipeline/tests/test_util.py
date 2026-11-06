@@ -8,7 +8,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from util import (
     clean_title, first_sentence, infer_jurisdiction, is_cjk_text,
-    summary_matches_title, text_has_keyword, title_tokens,
+    near_duplicate_titles, summary_matches_title, text_has_keyword,
+    title_tokens,
 )
 
 
@@ -40,6 +41,16 @@ class UtilTests(unittest.TestCase):
                 "Hong Kong's economy grew by 5.2 per cent year on year in the third quarter, marking its 15th consecutive quarter of expansion, while retail sales rose by 6.4 per cent in September.")
         self.assertFalse(summary_matches_title(*bad))
         self.assertTrue(summary_matches_title(*good))
+
+    def test_near_duplicate_fire_headlines(self):
+        self.assertTrue(near_duplicate_titles(
+            "元朗三級火警（二）",
+            "元朗白沙村一個衣紙倉庫發生三級火",
+        ))
+        self.assertFalse(near_duplicate_titles(
+            "香港第三季 GDP 增長 5.2%",
+            "香港零售銷售連續三個月上升",
+        ))
 
     def test_jurisdiction_inference(self):
         self.assertEqual(infer_jurisdiction("The UPC in Milan ruled on Sandoz", "US"), "EU")

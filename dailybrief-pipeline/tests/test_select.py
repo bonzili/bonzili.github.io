@@ -97,6 +97,24 @@ class SelectionTests(unittest.TestCase):
         scored = score_clusters([tool, model], {}, topics, datetime(2026, 11, 4, 7, 0, tzinfo=HKT))
         self.assertEqual([row["id"] for row in scored], ["tool"])
 
+    def test_near_duplicate_stories_are_not_selected_twice(self):
+        topics = {"hk": {"min_score": 0.0}}
+        workspace = {"topics": ["hk"], "cap": 3, "topic_cap": 3}
+        fire1 = cluster("fire1", "hk", 0.9)
+        fire1["headline"] = "元朗三級火警（二）"
+        fire2 = cluster("fire2", "hk", 0.8)
+        fire2["headline"] = "元朗白沙村一個衣紙倉庫發生三級火"
+        other = cluster("other", "hk", 0.7)
+        other["headline"] = "香港第三季 GDP 增長 5.2%"
+        selected = select_for_workspace(
+            [fire1, fire2, other], workspace, topics,
+            datetime(2026, 11, 7, 3, 0, tzinfo=HKT),
+        )
+        headlines = [row["headline"] for row in selected]
+        self.assertIn("元朗三級火警（二）", headlines)
+        self.assertNotIn("元朗白沙村一個衣紙倉庫發生三級火", headlines)
+        self.assertIn("香港第三季 GDP 增長 5.2%", headlines)
+
     def test_old_items_drop_out(self):
         topics = {"a": {"min_score": 0.0, "max_age_hours": 48, "half_life_hours": 18}}
         old = cluster("old", "a", 0.9)
