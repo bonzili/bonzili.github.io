@@ -97,6 +97,30 @@ def clean_html(value: Any) -> str:
     return SPACE_RE.sub(" ", text).strip()
 
 
+def body_text(item: dict) -> str:
+    """Return the part of an item summary that is not just its headline.
+
+    Google News and several RSS feeds put the headline and publisher in the
+    description. Treating that as article text makes the extractive fallback
+    repeat the headline and makes the LLM think it has facts when it does not.
+    """
+    summary = clean_html(item.get("summary") or "")
+    title = clean_html(item.get("title") or "")
+    publisher = clean_html(item.get("publisher") or "")
+    if summary and title and summary.casefold().startswith(title.casefold()):
+        summary = summary[len(title):].strip(" .:-—|")
+    if summary and publisher and summary.casefold().endswith(publisher.casefold()):
+        summary = summary[:-len(publisher)].strip(" .:-—|")
+    return summary
+
+
+def has_body_text(cluster: dict) -> bool:
+    return any(
+        len(body_text(item)) >= 30
+        for item in (cluster.get("items") or [])
+    )
+
+
 def clean_title(value: Any, publisher: str | None = None) -> str:
     title = clean_html(value)
     title = URL_RE.sub(" ", title)

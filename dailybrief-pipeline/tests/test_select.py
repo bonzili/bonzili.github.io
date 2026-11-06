@@ -97,6 +97,29 @@ class SelectionTests(unittest.TestCase):
         scored = score_clusters([tool, model], {}, topics, datetime(2026, 11, 4, 7, 0, tzinfo=HKT))
         self.assertEqual([row["id"] for row in scored], ["tool"])
 
+    def test_thin_card_is_demoted_below_explained_card(self):
+        topics = {"a": {"min_score": 0.0, "thin_penalty": 0.7}}
+        workspace = {"topics": ["a"], "cap": 1, "topic_cap": 1}
+        thin = cluster("thin", "a", 0.9)
+        thin["headline"] = "Headline only"
+        thin["items"] = [{
+            "title": "Headline only",
+            "summary": "Headline only - Publisher",
+            "publisher": "Publisher",
+        }]
+        full = cluster("full", "a", 0.8)
+        full["headline"] = "Explained story"
+        full["items"] = [{
+            "title": "Explained story",
+            "summary": "The regulator said the new rule takes effect next month and covers all providers.",
+            "publisher": "Publisher",
+        }]
+        selected = select_for_workspace(
+            [thin, full], workspace, topics,
+            datetime(2026, 11, 7, 3, 0, tzinfo=HKT),
+        )
+        self.assertEqual([row["id"] for row in selected], ["full"])
+
     def test_workspace_topic_filter_drops_unrelated_hk_story(self):
         topics = {"hk": {"min_score": 0.0}}
         workspace = {

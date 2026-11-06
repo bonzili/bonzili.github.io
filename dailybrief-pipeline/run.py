@@ -23,7 +23,7 @@ from typing import Any
 import yaml
 
 from cluster import cluster_items
-from fetch import enrich_comments, fetch_all
+from fetch import enrich_comments, enrich_thin_sources, fetch_all
 from selection import score_clusters, select_for_workspace, update_seen
 from summarize import ExtractiveProvider, SummaryService
 from util import (
@@ -234,6 +234,7 @@ def build(args: argparse.Namespace) -> int:
         for cluster in selected
     }
     selected_clusters = [cluster for cluster in scored if cluster["id"] in all_selected_ids]
+    asyncio.run(enrich_thin_sources(selected_clusters, now, limit=8))
     rest = [cluster for cluster in scored if cluster["id"] not in all_selected_ids]
     remaining = max(0, args.max_cards - len(selected_clusters))
     pool = selected_clusters + rest[:remaining]

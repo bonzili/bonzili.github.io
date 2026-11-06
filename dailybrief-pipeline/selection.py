@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from util import (
-    age_hours, clamp, iso, near_duplicate_titles, parse_datetime,
+    age_hours, clamp, has_body_text, iso, near_duplicate_titles, parse_datetime,
     text_has_keyword,
 )
 
@@ -105,6 +105,12 @@ def select_for_workspace(clusters: list[dict], workspace: dict[str, Any],
         if not topic_filter_allows(cluster):
             continue
         rank = float(cluster.get("score", 0)) * float(weights.get(topic_id, 1.0))
+        # A headline with no body text is still worth showing, but it should
+        # not outrank a story the summarizer can actually explain. CVEs and
+        # breaking local headlines carry more meaning on their own than a
+        # product launch or a legal commentary piece does.
+        if not has_body_text(cluster):
+            rank *= float(topic.get("thin_penalty", 0.9))
         candidates.append((rank, cluster))
     candidates.sort(key=lambda row: (
         row[0],

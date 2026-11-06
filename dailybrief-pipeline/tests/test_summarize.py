@@ -9,7 +9,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from summarize import (
     ExtractiveProvider, ProviderUnavailable, SummaryError, SummaryService,
-    numbers_grounded, prompt_for, strip_off_topic_bullets,
+    normalize_break_why, numbers_grounded, prompt_for,
+    strip_off_topic_bullets,
 )
 
 
@@ -147,6 +148,21 @@ class SummaryFallbackTests(unittest.TestCase):
         self.assertIsNone(strip_off_topic_bullets(
             result, "A real fact from the source.", "legal",
         ))
+
+    def test_negative_jackson_takeaway_is_replaced(self):
+        card = {"topic": "jackson", "headline_lang": "zh-Hant"}
+        result = {
+            "bullets": ["易烊千璽以反穿造型亮相。"],
+            "why": "此為藝人個人穿搭之娛樂花絮，與法律業務無關。",
+        }
+        cleaned = normalize_break_why(result, card)
+        self.assertNotIn("法律", cleaned["why"])
+        self.assertIn("輕鬆", cleaned["why"])
+
+    def test_positive_break_takeaway_is_kept(self):
+        card = {"topic": "mayday", "headline_lang": "zh-Hant"}
+        result = {"bullets": ["五月天送上狗糧。"], "why": "樂團動態：為繁忙日程留一點輕鬆。"}
+        self.assertEqual(normalize_break_why(result, card), result)
 
     def test_jackson_break_does_not_use_negative_legal_framing(self):
         card = {

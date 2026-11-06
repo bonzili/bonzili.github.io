@@ -157,6 +157,7 @@ topics:
     tool_max_age_hours: 336
     half_life_hours: 18
     min_score: 0.12
+    thin_penalty: 0.70
     boost_factor: 1.10
     penalty_factor: 0.5
     boost_keywords:
@@ -215,6 +216,8 @@ topics:
       - "case study"
       - "is changing"
       - "partnership"
+      - "partnering"
+      - "partners with"
       - "sponsor"
       - "webinar"
       - "news we announced in"
@@ -538,6 +541,7 @@ topics:
     max_age_hours: 60
     half_life_hours: 18
     min_score: 0.08
+    thin_penalty: 0.90
     boost_factor: 1.12
     penalty_factor: 0.45
     boost_keywords:
@@ -785,6 +789,7 @@ topics:
     max_age_hours: 720
     half_life_hours: 168
     min_score: 0.06
+    thin_penalty: 1.0
     exclude_keywords:
       - "八首歌"
       - "歌單"
@@ -905,6 +910,7 @@ topics:
     max_age_hours: 720
     half_life_hours: 168
     min_score: 0.08
+    thin_penalty: 0.80
     boost_factor: 1.12
     penalty_factor: 0.4
     boost_keywords:
@@ -982,6 +988,9 @@ topics:
       - "Miscellany"
       - "roundup"
       - "weekly"
+      - "last week"
+      - "Never Too Late"
+      - "Moot Court"
       - "showcases"
       - "solutions"
       - "summit"
@@ -1461,6 +1470,7 @@ topics:
     max_age_hours: 720
     half_life_hours: 168
     min_score: 0.05
+    thin_penalty: 1.0
     exclude_keywords:
       - "貌似"
       - "撞臉"
@@ -1551,6 +1561,7 @@ topics:
     max_age_hours: 168
     half_life_hours: 24
     min_score: 0.08
+    thin_penalty: 0.90
     boost_factor: 1.10
     penalty_factor: 0.45
     boost_keywords:
@@ -1768,6 +1779,7 @@ topics:
     max_age_hours: 720
     half_life_hours: 96
     min_score: 0.08
+    thin_penalty: 0.95
     boost_factor: 1.12
     penalty_factor: 0.45
     boost_keywords:

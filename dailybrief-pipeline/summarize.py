@@ -21,7 +21,7 @@ from typing import Any
 import httpx
 
 from util import (
-    clean_html, first_sentence, iso, label_lang, load_json, log,
+    body_text, clean_html, first_sentence, iso, label_lang, load_json, log,
     now_hkt, truncate, write_json_atomic,
 )
 
@@ -98,6 +98,48 @@ CROSS_TOPIC_MARKERS = {
     "mayday": ("五月天", "mayday", "阿信", "相信音樂"),
     "jackson": ("易烊千璽", "千璽", "易烊"),
 }
+
+
+BREAK_NEGATIVE_MARKERS = (
+    "與法律業務無關",
+    "與法律事務無涉",
+    "與法律無關",
+    "與工作無關",
+    "與亞太地區法律事務",
+    "與智慧財產權或法規遵循無涉",
+    "與知識產權或法規遵循無涉",
+    "unrelated to legal",
+    "unrelated to work",
+    "not related to legal",
+    "no legal impact",
+    "no direct legal",
+    "not relevant to legal",
+    "與 ai 無關",
+    "與人工智能無關",
+    "與網絡安全無關",
+    "與資安無關",
+)
+
+
+def normalize_break_why(result: dict, card: dict) -> dict:
+    """Keep break items positive instead of saying they are not work."""
+    topic_id = card.get("topic")
+    if topic_id not in ("jackson", "mayday"):
+        return result
+    why = str(result.get("why") or "")
+    folded = why.casefold()
+    if not any(marker.casefold() in folded for marker in BREAK_NEGATIVE_MARKERS):
+        return result
+    lang = str(card.get("headline_lang") or "en").lower()
+    if lang.startswith("zh"):
+        fallback = (
+            "輕鬆一則：為繁忙日程留一點空間。"
+            if topic_id == "jackson"
+            else "樂團動態：為繁忙日程留一點輕鬆。"
+        )
+    else:
+        fallback = "A light break from the day's heavier news."
+    return {**result, "why": truncate(fallback, MAX_WHY_CHARS)}
 
 
 def strip_off_topic_bullets(result: dict, source_text: str, topic_id: str) -> dict | None:
@@ -226,13 +268,8 @@ def prompt_for(card: dict, cluster: dict, topic: dict, workspace: dict,
 
 
 def _summary_sentence(item: dict) -> str:
-    summary = clean_html(item.get("summary") or "")
+    summary = body_text(item)
     title = clean_html(item.get("title") or "")
-    publisher = clean_html(item.get("publisher") or "")
-    if summary and title and summary.casefold().startswith(title.casefold()):
-        summary = summary[len(title):].strip(" .:-—|")
-    if summary and publisher and summary.casefold().endswith(publisher.casefold()):
-        summary = summary[:-len(publisher)].strip(" .:-—|")
     if len(summary) < 30 or summary.casefold() == title.casefold():
         return ""
     sentence = first_sentence(summary, 220)
@@ -546,18 +583,24 @@ class SummaryService:
         if chosen == "extractive" or not self.providers:
             self.providers = []
 
-    def _cache_key(self, card: dict, workspace: dict, bullet_lang: str, why_lang: str) -> str:
+    def _cache_key(self, card: dict, cluster: dict, workspace: dict,
+                   bullet_lang: str, why_lang: str) -> str:
         persona = workspace.get("persona") or ""
+        source_text = " ".join(
+            f"{item.get('title') or ''} {item.get('summary') or ''}"
+            for item in cluster.get("items", [])
+        )
         raw = "|".join([
             card.get("id", ""), bullet_lang, why_lang,
             hashlib.sha1(persona.encode("utf-8")).hexdigest()[:12],
+            hashlib.sha1(source_text.encode("utf-8")).hexdigest()[:12],
             self.prompt_version,
         ])
         return hashlib.sha1(raw.encode("utf-8")).hexdigest()
 
     def summarize(self, card: dict, cluster: dict, topic: dict, workspace: dict,
                   bullet_lang: str, why_lang: str) -> dict:
-        key = self._cache_key(card, workspace, bullet_lang, why_lang)
+        key = self._cache_key(card, cluster, workspace, bullet_lang, why_lang)
         cached = self.cache.get(key)
         if isinstance(cached, dict) and cached.get("bullets") and cached.get("why"):
             self.cache_hits += 1
@@ -585,7 +628,7 @@ class SummaryService:
                     fallback = self.extractive.summarize(card, cluster, topic, workspace, bullet_lang, why_lang)
                     fallback["mode"] = "extractive"
                     return fallback
-                result = cleaned
+                result = normalize_break_why(cleaned, card)
                 self.cache[key] = {
                     "bullets": result["bullets"],
                     "why": result["why"],

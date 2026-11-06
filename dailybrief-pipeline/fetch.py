@@ -20,9 +20,9 @@ import httpx
 from bs4 import BeautifulSoup
 
 from util import (
-    HKT, clamp, clean_html, clean_title, iso, load_json, log, log_heat,
-    now_hkt, parse_datetime, summary_matches_title, title_similarity, truncate,
-    url_key, write_json_atomic,
+    HKT, body_text, clamp, clean_html, clean_title, has_body_text, iso,
+    load_json, log, log_heat, now_hkt, parse_datetime, summary_matches_title,
+    title_similarity, truncate, url_key, write_json_atomic,
 )
 
 UA = "Mozilla/5.0 (compatible; BonziliBrief/1.0; +https://bonzili.me/dailybrief/)"
@@ -910,6 +910,90 @@ async def search_hn_comments(client: httpx.AsyncClient, title: str) -> list[dict
         if max(jaccard, ratio * 0.86) >= 0.54 and hit.get("objectID"):
             return await fetch_hn_comments(client, str(hit["objectID"]), limit=4)
     return []
+
+
+GENERIC_PAGE_TEXT = (
+    "comprehensive up-to-date news coverage",
+    "aggregated from sources all over the world",
+)
+
+
+def useful_page_text(text: str) -> bool:
+    value = clean_html(text).casefold()
+    if len(value) < 60:
+        return False
+    return not any(marker in value for marker in GENERIC_PAGE_TEXT)
+
+
+async def enrich_thin_sources(clusters: list[dict], now: datetime, limit: int = 8) -> None:
+    """Fetch article metadata for selected cards that only have a headline.
+
+    Several Google News feeds return no body text. Without this step the
+    reader gets a generic "open the source" line, and the LLM has nothing
+    concrete to compress. Fetching the public page description is a small,
+    bounded cost: only selected thin cards are attempted, and failures are
+    ignored.
+    """
+    targets = [cluster for cluster in clusters if not has_body_text(cluster)][:limit]
+    if not targets:
+        return
+    async with httpx.AsyncClient(
+        headers=HEADERS, timeout=TIMEOUT, follow_redirects=True,
+        limits=httpx.Limits(max_connections=6, max_keepalive_connections=3),
+    ) as client:
+        for cluster in targets:
+            items = sorted(
+                cluster.get("items") or [],
+                key=lambda item: (float(item.get("trust", 0)), item.get("published") or ""),
+                reverse=True,
+            )
+            for item in items[:2]:
+                url = item.get("url") or ""
+                if not url:
+                    continue
+                # Google News article links are JavaScript redirects; fetching
+                # them only returns Google's own boilerplate description.
+                if "news.google.com" in url:
+                    continue
+                try:
+                    page = await get(
+                        client, url,
+                        headers={"User-Agent": UA, "Accept": "text/html"},
+                        timeout=httpx.Timeout(15.0, connect=8.0),
+                    )
+                except Exception as error:
+                    log(f"  article fetch failed: {url[:80]} ({type(error).__name__})")
+                    continue
+                soup = BeautifulSoup(page.text, "html.parser")
+                description = ""
+                for selector in (
+                    'meta[name="description"]',
+                    'meta[property="og:description"]',
+                    'meta[name="twitter:description"]',
+                ):
+                    node = soup.select_one(selector)
+                    if node and node.get("content"):
+                        text = clean_html(node.get("content"))
+                        if len(text) >= 60:
+                            description = text
+                            break
+                if len(description) < 80:
+                    for paragraph in soup.select("p"):
+                        text = clean_html(paragraph.get_text(" ", strip=True))
+                        if len(text) >= 120:
+                            description = text
+                            break
+                if not useful_page_text(description):
+                    continue
+                # Never replace a short but genuine feed summary with a
+                # longer boilerplate page description.
+                if len(description) <= len(body_text(item)) + 20:
+                    continue
+                item["summary"] = truncate(description, 1400)
+                if not cluster.get("summary") or len(clean_html(cluster.get("summary"))) < 120:
+                    cluster["summary"] = item["summary"]
+                log(f"  article text added: {str(cluster.get('headline') or '')[:70]}")
+                break
 
 
 async def enrich_comments(cards: list[dict], now: datetime, limit: int = 6) -> None:

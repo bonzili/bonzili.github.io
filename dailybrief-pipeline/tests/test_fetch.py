@@ -10,10 +10,11 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fetch import (
-    artificial_analysis_item, contains_keyword, fetch_hn, matches_filter,
-    parse_artificial_analysis, parse_count, strip_news_date_suffix,
+    artificial_analysis_item, contains_keyword, enrich_thin_sources, fetch_hn,
+    matches_filter, parse_artificial_analysis, parse_count,
+    strip_news_date_suffix, useful_page_text,
 )
-from util import HKT
+from util import HKT, body_text, has_body_text
 
 
 AA_HTML = """
@@ -100,6 +101,61 @@ class FetchTests(unittest.TestCase):
         self.assertIn("(59)", item["title"])
         self.assertIn("Benchmark", item["tags"])
         self.assertIn("top models", item["summary"])
+
+
+class ThinSourceTests(unittest.IsolatedAsyncioTestCase):
+    def test_google_news_title_is_not_article_text(self):
+        item = {
+            "title": "Japan's Takaichi pushes for tougher cybersecurity laws",
+            "summary": "Japan's Takaichi pushes for tougher cybersecurity laws - Nikkei Asia",
+            "publisher": "Nikkei Asia",
+        }
+        self.assertEqual(body_text(item), "")
+        self.assertFalse(has_body_text({"items": [item]}))
+
+    def test_google_news_boilerplate_is_not_article_text(self):
+        self.assertFalse(useful_page_text(
+            "Comprehensive up-to-date news coverage, aggregated from sources all over the world by Google News."
+        ))
+        self.assertTrue(useful_page_text(
+            "The minister said Japan will submit a tougher cybersecurity bill to parliament next year."
+        ))
+
+    def test_a_real_summary_counts_as_article_text(self):
+        item = {
+            "title": "Japan's Takaichi pushes for tougher cybersecurity laws",
+            "summary": "The minister said the government will submit a bill to parliament next year.",
+            "publisher": "Nikkei Asia",
+        }
+        self.assertTrue(has_body_text({"items": [item]}))
+
+    async def test_thin_card_gets_article_description(self):
+        html = """
+        <html><head>
+        <meta name="description" content="The minister said Japan will submit a tougher cybersecurity bill to parliament next year after a surge in attacks.">
+        </head><body></body></html>
+        """
+
+        class FakeResponse:
+            text = html
+
+        async def fake_get(*args, **kwargs):
+            return FakeResponse()
+
+        cluster = {
+            "headline": "Japan's Takaichi pushes for tougher cybersecurity laws",
+            "summary": "",
+            "items": [{
+                "title": "Japan's Takaichi pushes for tougher cybersecurity laws",
+                "summary": "Japan's Takaichi pushes for tougher cybersecurity laws - Nikkei Asia",
+                "publisher": "Nikkei Asia", "url": "https://example.com/story",
+                "trust": 0.8, "published": "",
+            }],
+        }
+        with patch("fetch.get", fake_get):
+            await enrich_thin_sources([cluster], datetime(2026, 11, 7, 4, 0, tzinfo=HKT))
+        self.assertIn("tougher cybersecurity bill", cluster["summary"])
+        self.assertTrue(has_body_text(cluster))
 
 
 class HNFilterTests(unittest.IsolatedAsyncioTestCase):
