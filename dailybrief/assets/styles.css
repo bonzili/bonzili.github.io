@@ -276,9 +276,9 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  min-height: 40px;
   color: var(--ink);
   text-decoration: none;
-  min-height: 32px;
 }
 
 .wordmark__mark {
@@ -313,7 +313,7 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 38px;
+  min-height: 40px;
   max-width: 58vw;
   padding: 0 10px;
   border: 1px solid var(--rule);
@@ -381,9 +381,9 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  margin: -9px -8px -9px auto;
+  width: 40px;
+  height: 40px;
+  margin: -12px -11px -12px auto;
   border: 0;
   border-radius: 50%;
   background: transparent;
@@ -468,6 +468,10 @@ a {
 }
 
 .brief-shortcut a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -477,7 +481,7 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 32px;
+  min-height: 40px;
   margin: 18px 0 0;
   color: var(--muted);
   font: 500 10px/1 var(--font-mono);
@@ -1049,9 +1053,11 @@ a.comment__meta:active {
 }
 
 .lunch-pick__another {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  min-height: 40px;
   padding: 0;
   border: 0;
   background: none;
@@ -1152,6 +1158,11 @@ a.comment__meta:active {
 }
 
 .lunch-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
   color: var(--accent);
   font: 600 8.5px/1.2 var(--font-mono);
   letter-spacing: 0.05em;
@@ -1174,8 +1185,8 @@ a.comment__meta:active {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 32px;
-  padding: 0 8px;
+  min-height: 40px;
+  padding: 0 10px;
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
@@ -1462,7 +1473,7 @@ a.comment__meta:active {
 }
 
 .tag-filter__item {
-  min-height: 32px;
+  min-height: 40px;
   padding: 0 10px;
   border: 1px solid var(--rule);
   border-radius: 999px;
@@ -1644,6 +1655,9 @@ a.comment__meta:active {
 }
 
 .footer-note a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   color: var(--muted);
   text-decoration: underline;
   text-underline-offset: 2px;
