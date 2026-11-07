@@ -1545,6 +1545,58 @@ a.comment__meta:active {
   text-align: right;
 }
 
+/* ---------- more from today ---------- */
+
+.more-stories {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+
+.more-stories__head {
+  padding-bottom: 8px;
+}
+
+.more-stories__sub {
+  margin: 6px 0 0;
+  max-width: 52ch;
+  color: var(--muted);
+  font: 400 12px/1.5 var(--font-sans);
+  text-wrap: pretty;
+}
+
+.more-stories .stories {
+  border-top: 1px solid var(--rule);
+}
+
+.more-stories .stories:empty {
+  display: none;
+}
+
+.more-stories__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 2px;
+}
+
+.more-stories__foot .button {
+  margin-top: 0;
+}
+
+.more-stories__end {
+  margin: 0;
+  color: var(--muted);
+  font: 400 10px/1.5 var(--font-mono);
+}
+
+.more-stories__end a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ---------- empty, error, sources ---------- */
 
 .empty {

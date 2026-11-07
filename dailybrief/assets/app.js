@@ -28,6 +28,11 @@
       savedEmptyBody: 'Tap the bookmark on a story and it will wait here, on this phone.',
       savedSub: 'Kept on this phone. Not synced.',
       topicsSub: 'Everything pulled today, by subject. The brief is still the finite read.',
+      moreKicker: 'More from today',
+      moreSub: 'A few more from the rest of today’s wire. These are unedited excerpts, not the curated picks.',
+      loadMore: 'Load more stories',
+      moreEnd: 'You’ve reached the end of today’s wire.',
+      browseTopics: 'Browse all topics',
       archiveSub: 'The last 30 days of editions.',
       archiveEmptyTitle: 'No archive yet.',
       archiveEmptyBody: 'The first scheduled edition will appear here.',
@@ -142,6 +147,11 @@
       savedEmptyBody: '點按報導上的書籤，它會留在這部手機。',
       savedSub: '只存於此手機，不會同步。',
       topicsSub: '今日抓取的所有內容，按主題排列。簡報仍然是有限的一讀。',
+      moreKicker: '今日更多',
+      moreSub: '今日其他報導的原文摘錄，並非上方精選簡報。',
+      loadMore: '載入更多報導',
+      moreEnd: '已到今日報導的盡頭。',
+      browseTopics: '瀏覽所有主題',
       archiveSub: '過去 30 天的版本。',
       archiveEmptyTitle: '尚未有存檔。',
       archiveEmptyBody: '第一次排程更新後，版本會出現在這裡。',
@@ -271,9 +281,15 @@
     error: null,
     tagFilter: 'All',
     tagFilterTopic: null,
+    moreCount: 0,
+    moreLoading: false,
+    renderKey: null,
   };
 
   let routeToken = 0;
+  let moreObserver = null;
+  const MORE_BATCH = 6;
+  const MORE_LIMIT = 24;
 
   // ---------- small helpers ----------
 
@@ -465,6 +481,39 @@
     ));
   }
 
+  function headlineKey(value) {
+    return String(value || '').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+  }
+
+  function morePool(edition, ws) {
+    if (!edition || !ws) return [];
+    const picks = new Set((ws.picks || []).map((pick) => pick.card_id));
+    const topics = new Set(ws.topic_ids || []);
+    const seen = new Set();
+    for (const pick of ws.picks || []) {
+      const card = edition.cards?.find((item) => item.id === pick.card_id);
+      const key = headlineKey(card?.headline);
+      if (key) seen.add(key);
+    }
+    return (edition.cards || [])
+      .filter((card) => topics.has(card.topic))
+      .filter((card) => !picks.has(card.id))
+      .filter((card) => !isMutedTopic(card.topic) && !isMutedCard(card.id))
+      .filter((card) => !readInPreviousEdition(card.id, edition))
+      .sort((a, b) => (
+        (Number(b.score) || 0) - (Number(a.score) || 0)
+        || String(b.published || '').localeCompare(String(a.published || ''))
+        || String(a.id || '').localeCompare(String(b.id || ''))
+      ))
+      .filter((card) => {
+        const key = headlineKey(card.headline);
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, MORE_LIMIT);
+  }
+
   function sourceStatus() {
     if (Array.isArray(state.archiveEdition?.source_status)) return state.archiveEdition.source_status;
     return Array.isArray(state.data?.source_status) ? state.data.source_status : [];
@@ -569,6 +618,8 @@
         }
       }
     }
+    state.moreCount = 0;
+    state.moreLoading = false;
     render();
     if (pendingToast) showToast(pendingToast);
   }
@@ -639,6 +690,8 @@
     if (!state.data?.workspaces?.[id]) return;
     if (persist) writeJSON(KEY.workspace, id);
     loadWorkspaceState(id);
+    state.moreCount = 0;
+    state.moreLoading = false;
     if (document.getElementById('ws-dialog')) {
       try { document.getElementById('ws-dialog').close(); } catch (err) { /* ignore */ }
     }
@@ -920,6 +973,15 @@
   }
 
   function render() {
+    const previousMain = document.querySelector('main.main');
+    const previousScroll = previousMain?.scrollTop || 0;
+    const renderKey = [
+      location.hash,
+      state.workspaceId || '',
+      state.data?.generated_at || '',
+      state.archiveEdition?.__file || '',
+    ].join('|');
+    const sameView = state.renderKey === renderKey;
     if (state.booting) return;
     if (state.loading && !state.data) {
       app.innerHTML = renderBoot();
@@ -938,7 +1000,11 @@
       return;
     }
     app.innerHTML = renderShell();
+    const main = document.querySelector('main.main');
+    if (sameView && main && previousScroll) main.scrollTop = previousScroll;
+    state.renderKey = renderKey;
     updateProgress();
+    setupMoreObserver();
   }
 
   function renderError() {
@@ -1059,6 +1125,7 @@
       : '';
     const failed = workspaceStatuses().filter((source) => !source.ok).length;
     const total = picks.length;
+    const more = !archive ? renderMoreSection(edition, ws, total) : '';
     const lunchShortcut = !archive && state.workspaceId === 'me'
       ? `<p class="brief-shortcut"><a href="#/lunch">${esc(t('lunchLink'))} ↗</a></p>`
       : '';
@@ -1098,6 +1165,7 @@
           <p class="empty__body">${esc(caughtUp ? t('caughtUpBody') : t('quietBody'))}</p>
           ${caughtUp ? `<a class="button button--quiet" href="#/topics">${esc(t('topics'))}</a>` : ''}
         </div>
+        ${caughtUp ? '' : more}
         ${renderSourceFooter(failed)}`;
     }
 
@@ -1107,7 +1175,7 @@
         ? `${readHidden} 則先前已讀的故事未顯示於此版本。`
         : `${readHidden} previously read ${readHidden === 1 ? 'story' : 'stories'} hidden from this edition.`)}</p>`
       : '';
-    return `${hero}${mutedTopicNote}<div class="stories">${stories}</div>${readNote}${mutedCardNote}${renderSourceFooter(failed)}`;
+    return `${hero}${mutedTopicNote}<div class="stories">${stories}</div>${readNote}${mutedCardNote}${more}${renderSourceFooter(failed)}`;
   }
 
   function renderSourceFooter(failed) {
@@ -1225,6 +1293,81 @@
           </div>
         </div>
       </article>`;
+  }
+
+  function renderMoreSection(edition, ws, baseIndex) {
+    const pool = morePool(edition, ws);
+    if (!pool.length) return '';
+    const shown = Math.min(state.moreCount || 0, pool.length);
+    const cards = pool.slice(0, shown);
+    const body = cards.map((card, index) => renderStory(card, null, baseIndex + index)).join('');
+    const remaining = pool.length - shown;
+    const foot = remaining
+      ? `<button class="button button--quiet" type="button" data-action="load-more">${esc(t('loadMore'))}</button>`
+      : `<p class="more-stories__end">${esc(t('moreEnd'))} <a href="#/topics">${esc(t('browseTopics'))}</a></p>`;
+    return `<section class="more-stories" id="more-stories" data-more-base="${baseIndex}">
+      <div class="more-stories__head">
+        <p class="eyebrow"><span class="eyebrow__dot"></span>${esc(t('moreKicker'))}</p>
+        <p class="more-stories__sub">${esc(t('moreSub'))}</p>
+      </div>
+      <div class="stories" id="more-stories-list">${body}</div>
+      <div class="more-stories__foot" id="more-stories-foot">${foot}</div>
+    </section>`;
+  }
+
+  function updateMoreFooter(pool) {
+    const foot = document.getElementById('more-stories-foot');
+    if (!foot) return;
+    const shown = Math.min(state.moreCount || 0, pool.length);
+    const remaining = pool.length - shown;
+    if (!remaining) {
+      foot.innerHTML = `<p class="more-stories__end">${esc(t('moreEnd'))} <a href="#/topics">${esc(t('browseTopics'))}</a></p>`;
+      if (moreObserver) {
+        moreObserver.disconnect();
+        moreObserver = null;
+      }
+      return;
+    }
+    foot.innerHTML = `<button class="button button--quiet" type="button" data-action="load-more">${esc(t('loadMore'))}</button>`;
+  }
+
+  function loadMoreStories() {
+    if (state.moreLoading) return;
+    const edition = currentEdition();
+    const ws = currentWorkspace();
+    const section = document.getElementById('more-stories');
+    const list = document.getElementById('more-stories-list');
+    if (!edition || !ws || !section || !list) return;
+    const pool = morePool(edition, ws);
+    const shown = Math.min(state.moreCount || 0, pool.length);
+    const next = pool.slice(shown, shown + MORE_BATCH);
+    if (!next.length) {
+      updateMoreFooter(pool);
+      return;
+    }
+    state.moreLoading = true;
+    const base = Number(section.dataset.moreBase || 0) + shown;
+    list.insertAdjacentHTML(
+      'beforeend',
+      next.map((card, index) => renderStory(card, null, base + index)).join(''),
+    );
+    state.moreCount = shown + next.length;
+    state.moreLoading = false;
+    updateMoreFooter(pool);
+  }
+
+  function setupMoreObserver() {
+    if (moreObserver) {
+      moreObserver.disconnect();
+      moreObserver = null;
+    }
+    const foot = document.getElementById('more-stories-foot');
+    if (!foot || !('IntersectionObserver' in window)) return;
+    const root = document.querySelector('main.main');
+    moreObserver = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) loadMoreStories();
+    }, { root: root || null, rootMargin: '280px 0px' });
+    moreObserver.observe(foot);
   }
 
   function renderTopics() {
@@ -1588,7 +1731,7 @@
         </section>
         <section class="about__item">
           <h2>Summaries</h2>
-          <p>Only the selected cards go to Gemini 3.5 Flash-Lite on the free tier. If a summary is unavailable or contains an unsupported number, that card falls back to a source excerpt. Headlines, bullets and takeaways stay in the source language; the interface is English.</p>
+          <p>Only the selected cards go to Gemini 3.5 Flash-Lite on the free tier. If a summary is unavailable or contains an unsupported number, that card falls back to a source excerpt. The “More from today” section loads unedited excerpts from cards already in the edition; those extra cards never call the model. Headlines, bullets and takeaways stay in the source language; the interface is English.</p>
         </section>
         <section class="about__item">
           <h2>AI models and tools</h2>
@@ -1766,6 +1909,11 @@
       toggleStory(target);
       return;
     }
+    if (action === 'load-more') {
+      event.preventDefault();
+      loadMoreStories();
+      return;
+    }
     if (action === 'save-story') {
       event.preventDefault();
       toggleSaved(target.dataset.cardId);
@@ -1844,6 +1992,10 @@
     const route = parseHash();
     if (!state.data) return;
     if (!state.workspaceId) return;
+    if (route.view !== 'today') {
+      state.moreCount = 0;
+      state.moreLoading = false;
+    }
 
     if (route.view === 'topic') {
       const ws = currentWorkspace();

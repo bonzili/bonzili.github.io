@@ -36,9 +36,12 @@ again after installing, pick the brief once inside the installed app.
 
 ## What is in the app
 
-- **Today** — a finite brief: 12 cards for Siu Gai Mo's Brief, 8 for Siu Bak's Brief. No
-  infinite scroll. Siu Gai Mo's brief mixes AI models, benchmarks and new
-  tools; Hong Kong; Mayday; cybersecurity; and red teaming.
+- **Today** — a finite brief: 12 cards for Siu Gai Mo's Brief, 8 for Siu Bak's Brief.
+  The curated picks stay finite. Below them, **More from today** can load up to
+  24 extra stories on demand; those extras are unedited excerpts from cards
+  already in the edition and never call Gemini. Siu Gai Mo's brief mixes AI
+  models, benchmarks and new tools; Hong Kong; Mayday; cybersecurity; and red
+  teaming.
 - **Topics** — the deeper list for the day. APAC legal has a tag filter (HK,
   IP, Privacy, Fintech, AI, Cyber); Cybersecurity has HK / Global tags; AI has
   Model / Tool / Benchmark tags; Red Teaming has AI / Tool / Exploit tags.
@@ -72,6 +75,10 @@ GitHub Actions runs the pipeline twice a day:
 Each run fetches a rolling window, clusters same-language stories, scores them,
 selects a finite brief per workspace, summarizes the selected cards and deploys
 the whole static site through GitHub Pages.
+
+Only the curated picks are sent to the summarizer. **More from today** reuses
+the extractive card text already included in the edition, so loading extra
+stories adds no Gemini calls and does not consume the 48-call budget.
 
 The in-app refresh button only re-fetches the current deployment. To force a new
 fetch and summarization now, run **Actions → Daily Brief → Run workflow**.
