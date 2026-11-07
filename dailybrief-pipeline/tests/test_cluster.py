@@ -65,6 +65,15 @@ class ClusterTests(unittest.TestCase):
         clusters = cluster_items(items, now)
         self.assertEqual(len(clusters), 2)
 
+    def test_no_cluster_items_stay_separate_despite_shared_prefix(self):
+        now = datetime(2026, 11, 4, 7, 0, tzinfo=HKT)
+        first = item("New on OpenRouter: LiquidAI: LFM3-1.7B", url="https://openrouter.ai/liquid/lfm-3-1.7b")
+        second = item("New on OpenRouter: Google: Gemini Omni 1.2 Flash", url="https://openrouter.ai/google/gemini-omni-1.2-flash")
+        first["no_cluster"] = True
+        second["no_cluster"] = True
+        clusters = cluster_items([first, second], now)
+        self.assertEqual(len(clusters), 2)
+
     def test_short_titles_do_not_merge_on_words_alone(self):
         now = datetime(2026, 11, 4, 7, 0, tzinfo=HKT)
         items = [

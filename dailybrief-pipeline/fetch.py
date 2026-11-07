@@ -74,6 +74,7 @@ def base_item(source: dict[str, Any], *, title: str, url: str, publisher: str,
         "tag": source.get("tag"),
         "tags": source_tags,
         "always_hk": bool(source.get("always_hk")),
+        "no_cluster": bool(source.get("no_cluster")),
         "jurisdiction": source.get("jurisdiction"),
     }
     if extra:

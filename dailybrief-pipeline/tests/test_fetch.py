@@ -61,6 +61,19 @@ class FetchTests(unittest.TestCase):
             "",
         ))
 
+    def test_no_cluster_flag_is_carried_to_items(self):
+        from fetch import base_item
+        source = {
+            "id": "openrouter-new", "name": "OpenRouter", "topic": "ai",
+            "trust": 0.8, "lang": "en", "no_cluster": True,
+        }
+        row = base_item(
+            source, title="New on OpenRouter: Model A", url="https://example.com/a",
+            publisher="OpenRouter", published=datetime(2026, 11, 7, 4, 0, tzinfo=HKT),
+            summary="A model.", now=datetime(2026, 11, 7, 4, 0, tzinfo=HKT),
+        )
+        self.assertTrue(row["no_cluster"])
+
     def test_business_story_is_filtered_from_ai_topic(self):
         source = {"exclude_keywords": ["valuation", "IPO", "funding", "stock"]}
         self.assertFalse(matches_filter(

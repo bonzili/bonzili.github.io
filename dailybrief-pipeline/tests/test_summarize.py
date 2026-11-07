@@ -182,6 +182,34 @@ class SummaryFallbackTests(unittest.TestCase):
         self.assertNotIn("法律", cleaned["why"])
         self.assertIn("輕鬆", cleaned["why"])
 
+    def test_cached_negative_break_takeaway_is_normalized(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = {"summarization": {"cache_path": str(Path(tmp) / "cache.json"), "max_calls": 4}}
+            service = SummaryService(config, "extractive")
+            service.providers = []
+            card = {
+                "id": "c1", "headline": "易烊千璽穿搭", "publisher": "Example",
+                "headline_lang": "zh-Hant", "topic": "jackson",
+            }
+            cluster = {"items": [{
+                "title": "易烊千璽穿搭",
+                "summary": "易烊千璽穿搭 - Example",
+                "publisher": "Example", "trust": 0.8, "published": "",
+            }]}
+            workspace = {"persona": "reader"}
+            key = service._cache_key(card, cluster, workspace, "zh-Hant", "zh-Hant")
+            service.cache[key] = {
+                "bullets": ["易烊千璽以反穿造型亮相。"],
+                "why": "此為讀者的輕鬆休息時間，未涉及法律、智慧財產權或合規爭議。",
+            }
+            result = service.summarize(
+                card, cluster, {"name": {"en": "Jackson Yee"}},
+                workspace, "zh-Hant", "zh-Hant",
+            )
+            self.assertTrue(result["cached"])
+            self.assertIn("輕鬆", result["why"])
+            self.assertNotIn("法律", result["why"])
+
     def test_positive_break_takeaway_is_kept(self):
         card = {"topic": "mayday", "headline_lang": "zh-Hant"}
         result = {"bullets": ["五月天送上狗糧。"], "why": "樂團動態：為繁忙日程留一點輕鬆。"}

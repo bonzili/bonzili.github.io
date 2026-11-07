@@ -42,8 +42,24 @@ def cluster_items(items: list[dict], now: datetime) -> list[dict]:
             best: dict | None = None
             best_score = 0.0
 
+            if item.get("no_cluster"):
+                # Sources such as OpenRouter publish several distinct model
+                # releases under the same "New on OpenRouter:" prefix. The
+                # shared prefix must not merge them into one story.
+                new_cluster = {
+                    "topic": topic,
+                    "cjk": cjk,
+                    "items": [],
+                    "titles": [],
+                    "urls": set(),
+                    "no_cluster": True,
+                }
+                _add_to_cluster(new_cluster, item)
+                topic_clusters.append(new_cluster)
+                continue
+
             for cluster in topic_clusters:
-                if cluster["cjk"] != cjk:
+                if cluster.get("no_cluster") or cluster["cjk"] != cjk:
                     continue
                 if item_url and item_url in cluster["urls"]:
                     best = cluster

@@ -635,7 +635,16 @@ class SummaryService:
         cached = self.cache.get(key)
         if isinstance(cached, dict) and cached.get("bullets") and cached.get("why"):
             self.cache_hits += 1
-            return {"bullets": cached["bullets"], "why": cached["why"], "cached": True, "mode": "ai"}
+            normalized = normalize_break_why(
+                {"bullets": cached["bullets"], "why": cached["why"]},
+                card,
+            )
+            return {
+                "bullets": normalized["bullets"],
+                "why": normalized["why"],
+                "cached": True,
+                "mode": "ai",
+            }
 
         thin = not has_body_text(cluster)
         for provider in self.providers:

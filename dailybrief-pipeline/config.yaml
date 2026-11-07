@@ -289,6 +289,9 @@ topics:
         trust: 0.80
         max_items: 6
         days: 3
+        # Each model is its own story; the shared "New on OpenRouter:" title
+        # prefix is not enough to cluster them together.
+        no_cluster: true
       - id: hn-front
         name: Hacker News front page
         type: hn
