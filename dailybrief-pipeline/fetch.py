@@ -390,7 +390,7 @@ async def fetch_github_trending(client: httpx.AsyncClient, source: dict[str, Any
         if stars_today < min_stars_today:
             continue
         title = f"{full_name}: {description}" if description else full_name
-        title = truncate(title, 140)
+        title = truncate(title, 90)
         summary_parts = [description] if description else []
         if language:
             summary_parts.append(f"Language: {language}.")
@@ -458,7 +458,7 @@ async def fetch_github_search(client: httpx.AsyncClient, source: dict[str, Any],
         created = parse_datetime(repo.get("created_at"), now)
         pushed = parse_datetime(repo.get("pushed_at"), now)
         title = f"{full_name}: {description}" if description else full_name
-        title = truncate(title, 140)
+        title = truncate(title, 90)
         summary_parts = [description] if description else []
         if language:
             summary_parts.append(f"Language: {language}.")

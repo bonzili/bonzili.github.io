@@ -176,7 +176,7 @@ class SummaryFallbackTests(unittest.TestCase):
         card = {"topic": "jackson", "headline_lang": "zh-Hant"}
         result = {
             "bullets": ["易烊千璽以反穿造型亮相。"],
-            "why": "此為藝人個人穿搭之娛樂花絮，與法律業務無關。",
+            "why": "此為讀者的輕鬆休息時間，內容僅客觀報導相關時尚動態，未涉及法律、智慧財產權或合規爭議。",
         }
         cleaned = normalize_break_why(result, card)
         self.assertNotIn("法律", cleaned["why"])
