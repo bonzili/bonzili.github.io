@@ -485,6 +485,16 @@
     return String(value || '').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
   }
 
+  function moreCardQuality(card) {
+    const why = String(card.why || '');
+    const bullets = Array.isArray(card.bullets) ? card.bullets : [];
+    const generic = bullets.length <= 1 && (
+      /^(?:Reported by|.*報導：|.*報道：)/i.test(why)
+      || /Open the source|請看原文/i.test(why)
+    );
+    return generic ? 0 : 1;
+  }
+
   function morePool(edition, ws) {
     if (!edition || !ws) return [];
     const picks = new Set((ws.picks || []).map((pick) => pick.card_id));
@@ -501,7 +511,8 @@
       .filter((card) => !isMutedTopic(card.topic) && !isMutedCard(card.id))
       .filter((card) => !readInPreviousEdition(card.id, edition))
       .sort((a, b) => (
-        (Number(b.score) || 0) - (Number(a.score) || 0)
+        moreCardQuality(b) - moreCardQuality(a)
+        || (Number(b.score) || 0) - (Number(a.score) || 0)
         || String(b.published || '').localeCompare(String(a.published || ''))
         || String(a.id || '').localeCompare(String(b.id || ''))
       ))
