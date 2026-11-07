@@ -536,6 +536,30 @@ CISSP.domains = [
         ]
       },
       {
+        title: "Digital identity lifecycle",
+        lead: "The lifecycle is ordered. The exam often asks what comes next, who approves the step, or what failed when a step was skipped.",
+        points: [
+          "The six stages: <strong>create identity → provision account → provision access → authenticate → manage access → deprovision access</strong>. Keep the order; each stage answers a different question.",
+          "<strong>Create identity.</strong> Registration and identity proofing establish that the person is who they claim to be. Use evidence proportionate to the account's risk and issue a unique identifier. The identity record is not yet an account or an entitlement.",
+          "<strong>Provision the account.</strong> Create the account object and credentials, assign an owner, and record the approved request. The account can exist with no resource access.",
+          "<strong>Provision access.</strong> Grant entitlements through roles, groups, permissions, or attributes after the resource or application owner approves. Apply least privilege, need-to-know, and separation of duties; never copy a predecessor's access without reviewing the current role.",
+          "<strong>Authenticate.</strong> The user proves the claimed identity with one or more factors. Authentication succeeds or fails; it does not by itself authorize a resource. A valid login with no entitlement is still denied.",
+          "<strong>Manage access.</strong> Joiner-mover-leaver changes, access reviews and recertification, role changes, privileged access, and time-bound or just-in-time entitlements. The manager or resource owner attests to continued need; security facilitates but does not rubber-stamp.",
+          "<strong>Deprovision access.</strong> Revoke access, sessions, tokens, keys, and shared secrets; disable the account; transfer ownership; then remove or retain the record under policy and legal hold. Deleting the account before revoking access can leave live credentials.",
+          "Lifecycle failures are common findings: <strong>orphaned accounts</strong> (owner left), <strong>dormant accounts</strong> (no use), <strong>entitlement creep</strong> (access accumulates), and <strong>shared accounts</strong> (no accountability). Provisioning workflows, periodic reviews, and prompt deprovisioning are the controls.",
+          "The IAAA chain (identification, authentication, authorization, accountability) describes the access decision; the lifecycle describes the account's life. A federation trust relationship is a trust agreement between domains, not a stage of the individual identity lifecycle."
+        ],
+        terms: [
+          { t: "Digital identity lifecycle", d: "Create identity → provision account → provision access → authenticate → manage access → deprovision access." },
+          { t: "Account provisioning", d: "Creating the account record and credentials and assigning an owner. It does not by itself grant resource access." },
+          { t: "Access provisioning", d: "Granting entitlements after approval, based on the current role and least privilege. It is a separate step from account creation." },
+          { t: "Entitlement", d: "A specific right or permission granted to an identity, often through a role, group, or attribute." },
+          { t: "Access recertification", d: "Periodic or event-driven attestation by the manager or resource owner that an entitlement is still required." },
+          { t: "Joiner-mover-leaver (JML)", d: "The events that trigger account and access changes. A mover must lose old entitlements while gaining new ones; a leaver must be deprovisioned promptly." },
+          { t: "Deprovisioning", d: "Revoking access and credentials, disabling the account, and removing or retaining the record under policy." }
+        ]
+      },
+      {
         title: "Authentication factors",
         lead: "A factor is a category, not a count. Two passwords are still one factor.",
         points: [
@@ -635,11 +659,16 @@ CISSP.domains = [
       "FAR is the security error (wrong person in); FRR is the usability error (right person out).",
       "DAC lets the owner decide; MAC lets labels decide; RBAC lets the role decide; ABAC lets attributes decide.",
       "Kerberos is symmetric and time-sensitive. Clock skew is a real exam answer.",
-      "SSO reduces password fatigue but increases the impact of a compromised identity provider."
+      "SSO reduces password fatigue but increases the impact of a compromised identity provider.",
+      "Provisioning an account is not provisioning access. The lifecycle order is create identity → account → access → authentication → manage → deprovision.",
+      "Authentication proves identity; authorization grants access. A valid login with no entitlement is still denied.",
+      "A mover must lose the old role's entitlements while gaining the new ones. Access reviews are how that gets caught.",
+      "Deprovision access before deleting the account. Live sessions, tokens, and credentials can outlive the record.",
+      "A federation trust relationship is not a lifecycle stage; it is a trust agreement between domains."
     ],
     mnemonic: {
       label: "Carry this",
-      text: "Know, have, are. OAuth delegates, OIDC identifies, SAML federates. Lower CER is better."
+      text: "Know, have, are. OAuth delegates, OIDC identifies, SAML federates. Lifecycle: create → account → access → authenticate → manage → deprovision. Lower CER is better."
     }
   },
 

@@ -179,5 +179,50 @@
     whyText: "Identity proofing verifies the claimed identity using evidence such as a government identity document and a liveness check, proportionate to the account's risk.",
     lens: "Authentication assumes an identity already exists. Proofing decides whether the identity should exist at all.",
     why: { 0: "A password protects an account but does not prove identity.", 2: "Knowledge-based questions are weak and often compromised.", 3: "Email verification proves control of an address, not that the person is who they claim." }
+  },
+  {
+    id: "d5q21", d: 5, topic: "Digital identity lifecycle", diff: 1,
+    stem: "An identity team has created a new user's identity record and provisioned the user's account. According to the digital identity lifecycle, which step should happen NEXT?",
+    options: ["Provision access to the resources the user's role requires", "Authenticate the user for the first time", "Deprovision the account after the onboarding period", "Establish a federation trust relationship with the user's department"],
+    answer: 0,
+    whyText: "The lifecycle order is create identity, provision account, provision access, authentication, manage access, and deprovision access. The account exists, but no entitlements have been granted; the next step is to provision access through an approved request.",
+    lens: "Account provisioning is not access provisioning. Authentication comes after access has been provisioned in the lifecycle model.",
+    why: { 1: "Authentication follows access provisioning in the lifecycle model; a login before entitlements exist is not the next step.", 2: "Deprovisioning is the final stage, not an onboarding step.", 3: "A federation trust relationship is a trust agreement between domains, not a stage of the individual identity lifecycle." }
+  },
+  {
+    id: "d5q22", d: 5, topic: "Access provisioning", diff: 2,
+    stem: "A new hire is assigned the same role and entitlements as the departing employee whose position they fill, including approval rights for payments outside the new hire's duties. Which lifecycle stage was performed incorrectly?",
+    options: ["Create identity", "Provision account", "Provision access", "Deprovision access"],
+    answer: 2,
+    whyText: "The identity and account are valid, but access provisioning must be based on the new hire's current duties, an approved request, least privilege, and separation of duties. Copying the predecessor's entitlements creates excessive access before the new hire has demonstrated a need.",
+    lens: "A new account is not a clone of the old one. Provisioning access is an authorization decision, not a convenience.",
+    why: { 0: "Identity creation is proofing and registration; the problem is the entitlements granted.", 1: "Creating the account was necessary; the error is the access granted to it.", 3: "Deprovisioning is the removal stage; the failure occurred when access was granted." }
+  },
+  {
+    id: "d5q23", d: 5, topic: "Manage access", diff: 2,
+    stem: "An employee transfers from finance to marketing but retains the finance role's approval entitlements. Which lifecycle stage failed most directly?",
+    options: ["Authentication", "Manage access", "Create identity", "Provision account"],
+    answer: 1,
+    whyText: "A mover event must trigger an access review and role change: old entitlements are removed and new ones are approved. Retaining finance approval rights is entitlement creep and a separation-of-duties risk. Managing access covers joiner-mover-leaver changes and recertification.",
+    lens: "Movers are not just new access requests. Remove the old role before or while granting the new one.",
+    why: { 0: "Authentication may still work; the problem is stale authorization.", 2: "The identity already exists; a transfer does not create a new identity.", 3: "The account exists; the failure is in managing its entitlements after the move." }
+  },
+  {
+    id: "d5q24", d: 5, topic: "Deprovisioning", diff: 2,
+    stem: "A contractor's engagement ends today. Which action should the security team take FIRST?",
+    options: ["Delete the contractor's account record and mailbox", "Disable the account and revoke active sessions, tokens, and credentials", "Ask the contractor to return the laptop before any access change", "Archive the contractor's files for the retention period"],
+    answer: 1,
+    whyText: "Deprovisioning begins by cutting off access: disable the account and revoke sessions, tokens, keys, and credentials. Then remove or retain the account and data under policy. Deleting the record first can leave live credentials or destroy audit evidence.",
+    lens: "Deprovisioning is an access decision first and a records decision second.",
+    why: { 0: "Deletion is not first; live sessions and tokens can outlive the account record.", 2: "Equipment return matters, but logical access must be revoked promptly.", 3: "Retention is a later records decision; access must be cut off immediately." }
+  },
+  {
+    id: "d5q25", d: 5, topic: "Authentication vs authorization", diff: 1,
+    stem: "A user authenticates successfully to the identity provider but receives an access-denied message from a finance application. Which statement is MOST accurate?",
+    options: ["Authentication failed because the user's credentials are invalid", "Authentication succeeded, but the user lacks the required entitlement", "The identity lifecycle is complete because the user authenticated", "The user should be deprovisioned because access was denied"],
+    answer: 1,
+    whyText: "Authentication proves the identity; authorization determines what that identity may access. A valid login without the required entitlement is an access-provisioning or authorization issue, not an authentication failure. The access request and role mapping should be checked.",
+    lens: "Authentication is not authorization. A valid login can still have no access.",
+    why: { 0: "The prompt says authentication succeeded; the denial is an authorization result.", 2: "The lifecycle continues through access management; authentication is not the end.", 3: "A denial does not justify deprovisioning; investigate the missing entitlement." }
   }
 ]);

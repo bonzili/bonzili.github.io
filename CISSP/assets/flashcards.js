@@ -101,6 +101,10 @@ CISSP.cards = [
   { id: "c5-18", d: 5, term: "Session fixation", topic: "Sessions", definition: "An attack that forces a known session identifier on a victim. Issuing a new identifier after login prevents it." },
   { id: "c5-19", d: 5, term: "Identity proofing", topic: "Lifecycle", definition: "Verifying that a person is who they claim to be before creating an identity, using evidence proportionate to the account's risk." },
   { id: "c5-20", d: 5, term: "Deprovisioning", topic: "Lifecycle", definition: "Promptly removing or disabling access when a person leaves or changes roles. Orphaned accounts are a common audit finding." },
+  { id: "c5-21", d: 5, term: "Digital identity lifecycle", topic: "Lifecycle", definition: "Create identity → provision account → provision access → authenticate → manage access → deprovision access. The order matters: account provisioning is not access provisioning." },
+  { id: "c5-22", d: 5, term: "Account vs access provisioning", topic: "Lifecycle", definition: "Account provisioning creates the account record and credentials; access provisioning grants entitlements after approval. An account can exist with no resource access." },
+  { id: "c5-23", d: 5, term: "Joiner-mover-leaver (JML)", topic: "Lifecycle", definition: "The events that trigger account and access changes. A mover must lose old entitlements while gaining new ones; a leaver must be deprovisioned promptly." },
+  { id: "c5-24", d: 5, term: "Access recertification", topic: "Lifecycle", definition: "Periodic or event-driven attestation by the manager or resource owner that an entitlement is still required. It controls entitlement creep; security facilitates, the business attests." },
 
   /* Domain 6 — Security Assessment and Testing */
   { id: "c6-1", d: 6, term: "Vulnerability assessment", topic: "Assessment", definition: "Systematic discovery and ranking of weaknesses, usually without exploitation. It finds; it does not prove impact." },

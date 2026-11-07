@@ -1711,7 +1711,7 @@
         })();
     } else {
       packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Load a JSON pack built from your own book. The questions stay in this browser; nothing is committed or uploaded.</p></div></div>' +
-        '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank remains the original 160-question practice set. A local pack is optional; import one to add official domain drills that count toward domain readiness.</p>' +
+        '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank remains the original ' + QUESTIONS.length + '-question practice set. A local pack is optional; import one to add official domain drills that count toward domain readiness.</p>' +
         '<button type="button" class="btn" data-pack-import>Load question pack</button></div>';
     }
 

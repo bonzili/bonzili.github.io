@@ -11,8 +11,8 @@ A static, no-build study site for the CISSP exam. It lives at:
 | `index.html` | Application shell and script loading |
 | `assets/styles.css` | Visual system: binder spine, answer sheet, question and flashcard layouts |
 | `assets/data.js` | Domain notes, exam metadata, and the manager-mindset primer |
-| `assets/questions-d1.js` … `d8.js` | 20 original practice questions per domain (160 total) |
-| `assets/flashcards.js` | 150 key-term cards with spaced repetition |
+| `assets/questions-d1.js` … `d8.js` | 20 original practice questions per domain, plus five extra Domain 5 lifecycle questions (165 total) |
+| `assets/flashcards.js` | 154 key-term cards with spaced repetition |
 | `assets/sync.js` | Sync core: sync code, AES-GCM envelopes, per-device merge rules, Worker API client |
 | `sync-worker/` | Optional Cloudflare Worker + D1 service for cross-device sync |
 | `manifest.webmanifest`, `assets/icon-*.png` | Installable Home Screen metadata and icons |
@@ -22,9 +22,9 @@ A static, no-build study site for the CISSP exam. It lives at:
 
 - **A date-aware four-week study plan** (defaults to the 30 November 2026 exam; change it in the sidebar) with weekly milestones and a daily hour.
 - **Condensed notes** for all eight domains, with key terms, traps, and mnemonics.
-- **160 original scenario questions** with immediate explanations and a “manager’s lens” note. The distractors are written to be defensible under a different misread, not obvious throwaways.
+- **165 original scenario questions** with immediate explanations and a “manager’s lens” note. The distractors are written to be defensible under a different misread, not obvious throwaways.
 - **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
-- **150 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
+- **154 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final. When a local pack is loaded, the exam desk also offers a **125-question mixed pack mock** drawn from the official items.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
 - **Progress export/import**: download a JSON backup and restore it on another browser or device.
