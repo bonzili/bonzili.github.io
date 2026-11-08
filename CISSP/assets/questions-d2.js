@@ -163,13 +163,13 @@
     why: { 0: "Access controls do not cure over-collection; minimisation limits what is collected.", 2: "Retention limits are part of minimisation; keeping data for optional future use is not necessary.", 3: "Sharing the full dataset is the opposite of minimisation and purpose limitation." }
   },
   {
-    id: "d2q19", d: 2, topic: "Asset lifecycle", diff: 2,
-    stem: "At which point in the data lifecycle should classification and handling requirements first be assigned?",
-    options: ["When the data is first migrated to a shared repository", "When the data is created or acquired", "When the data owner approves the retention schedule", "When the data is indexed for search"],
+    id: "d2q21", d: 2, topic: "Data lifecycle management (DLM)", diff: 2,
+    stem: "A consulting firm has just acquired a large dataset from a third party and stored it on its central server. It is now determining the proper classification levels for the data. In the ISC2 data lifecycle management (DLM) model, which stage is this?",
+    options: ["Creation", "Storage", "Usage", "Archival"],
     answer: 1,
-    whyText: "Classification at creation or acquisition ensures the correct handling controls follow the data from the beginning. Retrofitting classification later leaves periods of uncontrolled use.",
-    lens: "Security follows the data from birth to destruction. Assign the label when the asset appears, not after it has moved.",
-    why: { 0: "Migration is a later lifecycle event; classification should precede handling.", 2: "Retention approval may follow classification; it is not the first assignment point.", 3: "Indexing is a processing step that should already be governed by a classification." }
+    whyText: "In the ISC2 DLM model, data is created through acquisition, entry, or capture. Once it is stored and being protected, the Storage stage includes classifying it for retrieval and access control. Classification is therefore tested as part of Storage, not Creation.",
+    lens: "Creation is how the data arrives; Storage is where it is classified and protected. If the data is already acquired and sitting on a server, the classification work belongs to Storage.",
+    why: { 0: "Acquisition is a Creation activity, but the formal classification step is part of Storage.", 2: "Usage is when data supports business activities; classification should already be in place.", 3: "Archival moves inactive data to long-term storage; classification is not first performed there." }
   },
   {
     id: "d2q20", d: 2, topic: "Baselines", diff: 2,

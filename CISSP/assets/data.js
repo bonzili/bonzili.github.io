@@ -155,7 +155,7 @@ CISSP.domains = [
     short: "Asset Security",
     weight: 10,
     blurb: "Classify what you have, decide who owns it, protect it through its life, and destroy it so nothing survives.",
-    ask: "Expect classification levels, owner-versus-custodian duties, retention, and the difference between clearing, purging, and destruction.",
+    ask: "Expect classification levels, owner-versus-custodian duties, retention, the five-stage data lifecycle (DLM), and the difference between clearing, purging, and destruction.",
     sections: [
       {
         title: "Classification and ownership",
@@ -166,12 +166,31 @@ CISSP.domains = [
           "Labels drive handling: storage, transmission, sharing, printing, and disposal. A label with no handling rules is decoration.",
           "<strong>Data owner</strong> — senior manager accountable for the data, classification, and access decisions. <strong>Data steward</strong> — day-to-day quality and policy compliance. <strong>Data custodian</strong> — technical protection, backups, and access implementation. <strong>User</strong> — follows the rules.",
           "The <strong>system owner</strong> is accountable for a system, including its security posture; the <strong>administrator</strong> operates it within policy.",
-          "Data must be classified at creation and reclassified when its value or context changes. Declassification is an owner decision."
+          "Data is classified as it is brought under control. In the ISC2 DLM model, formal classification sits in the <strong>Storage</strong> stage — even when the data was acquired during Creation — and it is revisited when value or context changes. Declassification is an owner decision."
         ],
         terms: [
           { t: "Data owner", d: "Business role accountable for classification, access rules, and destruction decisions." },
           { t: "Data custodian", d: "Operational role that implements and maintains the owner's controls." },
           { t: "Labeling", d: "Attaching the classification to the asset so handling rules can follow it." }
+        ]
+      },
+      {
+        title: "Data lifecycle management (DLM)",
+        lead: "The ISC2 five-stage model is a favourite exam trap: acquisition is Creation, but classification of stored data is Storage.",
+        points: [
+          "<strong>Creation</strong> — data comes into the organisation by acquisition, data entry, or capture. Acquiring a third-party dataset is still a Creation activity.",
+          "<strong>Storage</strong> — data is stored and protected. The model places classification for retrieval and access-control decisions here, even if the data was acquired earlier.",
+          "<strong>Usage</strong> — data is viewed, processed, modified, and saved to support business activities.",
+          "<strong>Archival</strong> — data is copied to a long-term archive and removed from active production. The archive supports retention and legal needs; retrieval is possible, but there is no routine maintenance or general use.",
+          "<strong>Destruction</strong> — every copy is removed at end of life, including replicas, backups, and archives, subject to legal hold.",
+          "<strong>Exam trap:</strong> if the stem says the data was acquired and is now sitting on a server while you determine its classification level, the DLM stage is <strong>Storage</strong>, not Creation. Do not choose Creation just because the word “acquired” appears.",
+          "Do not confuse the records-management lifecycle (creation, distribution, use, maintenance, disposition) with the ISC2 DLM five-stage model (Creation, Storage, Usage, Archival, Destruction)."
+        ],
+        terms: [
+          { t: "DLM", d: "Data lifecycle management: Creation → Storage → Usage → Archival → Destruction." },
+          { t: "Creation", d: "Acquisition, data entry, or capture brings data into the organisation." },
+          { t: "Storage", d: "Data is stored, protected, classified for retrieval, and access controls are determined." },
+          { t: "Archival", d: "Data is copied to long-term storage and removed from active production." }
         ]
       },
       {
@@ -247,6 +266,7 @@ CISSP.domains = [
     ],
     traps: [
       "The data owner classifies; the custodian implements. If the question asks who decides the label, it is the owner.",
+      "DLM trap: acquiring data is a Creation activity, but classifying data that is already stored is part of Storage. Read where the data is now, not where it came from.",
       "Clearing is for reuse; purging is for leaving organisational control; destruction is for end of life.",
       "Degaussing does not work on SSDs. Crypto-erase or physical destruction is the safe answer.",
       "A legal hold overrides the retention schedule — do not destroy just because the timer expired.",
@@ -254,7 +274,7 @@ CISSP.domains = [
     ],
     mnemonic: {
       label: "Carry this",
-      text: "Owner classifies. Custodian protects. Steward governs. User handles. Nothing leaves without a sanitisation decision."
+      text: "Owner classifies. Custodian protects. Steward governs. User handles. Nothing leaves without a sanitisation decision. DLM: Create → Store → Use → Archive → Destroy."
     }
   },
 
