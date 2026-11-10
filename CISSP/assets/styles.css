@@ -1403,7 +1403,7 @@ h1, h2, h3, .display { font-family: var(--serif); font-weight: 500; letter-spaci
   padding: 34px 28px;
   text-align: center;
 }
-.empty h1, .empty h3 { font-size: 22px; margin-bottom: 6px; }
+.empty h1, .empty h2, .empty h3 { font-size: 22px; margin-bottom: 6px; }
 .empty p { font-size: 13px; color: var(--ink-3); max-width: 46ch; margin: 0 auto 16px; }
 
 

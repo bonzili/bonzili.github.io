@@ -29,6 +29,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
 - **Progress export/import**: download a JSON backup and restore it on another browser or device.
 - **Local question packs**: import a JSON pack of your own official practice questions. The pack stays in the browser and is never committed, uploaded, or included in sync. Pack drills and the pack mock prefer unseen questions, then least recently seen; duplicate stems and figure-dependent items are skipped on import. Wrong answers from the core bank and the loaded pack both flow into **Review mistakes** and survive a reload while the pack is loaded. If the pack tags questions with `d` 1–8, Practice also lists **Official domain drills** so you can drill one domain at a time.
+- **Local CAT debrief**: import a debrief JSON with the score, domain percentages, failed-question pack, patterns, and a repair plan. It stays in this browser only and is never committed, uploaded, or synced.
 - **Optional encrypted cross-device sync**: create a 128-bit sync code, enter it on your phone, and each device syncs its own encrypted snapshot through a small Cloudflare Worker. No accounts, email, or analytics; the Worker stores ciphertext only. See `sync-worker/README.md` for deployment.
 - **Local-first progress**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`. Sync is additive and per-device, so one device cannot overwrite another.
 - **A− / A+ reading-size control** in the top bar: 90–130% in 10% steps, remembered per browser.
@@ -112,6 +113,43 @@ The public site does not ship official practice-test questions. The Practice pag
 Pack questions are stored in this browser only. They are not included in cross-device sync, progress export, or the repository. Import the pack again on another device. Questions tagged `d` 1–8 feed domain accuracy and coverage when answered through an **Official domain drill**. Mixed pack sets (`d` 0) and the pack mock stay separate from domain readiness. Importing a pack does not lower an existing score until official questions are answered, and removing the pack returns readiness to the core bank only.
 
 A local pack generated from the practice tests you own is intentionally kept outside the repository (for example, in `~/Downloads/CISSP/`). Do not commit it or redistribute it.
+
+## CAT debrief (local only)
+
+The **CAT debrief** page is a local reader for one exam attempt. It shows the score, domain percentages, failed-question drills, the error patterns, and a short repair plan. It can also load the failed questions as a local pack.
+
+Minimal shape:
+
+```json
+{
+  "title": "CAT attempt",
+  "source": "Attempt source",
+  "date": "2026-11-10",
+  "score": 548.64,
+  "passMark": 700,
+  "questionCount": 105,
+  "correct": 56,
+  "incorrect": 48,
+  "unanswered": 1,
+  "time": "02:35:40",
+  "domains": [
+    { "id": 1, "correct": 42.35, "incorrect": 57.65 }
+  ],
+  "attemptGraph": {
+    "start": 560.21, "peak": 789.78, "peakQuestion": 32,
+    "end": 523.08, "endQuestion": 80, "plotted": 80,
+    "note": "Optional interpretation."
+  },
+  "failedDomains": { "1": 13 },
+  "patterns": ["Optional observation."],
+  "plan": [
+    { "week": "Week 1", "focus": "Domain 4 + Domain 8", "summary": "Optional.", "actions": ["Optional action."] }
+  ],
+  "packQuestions": []
+}
+```
+
+Open **Progress → CAT debrief** or `#/debrief`, then load the JSON. If `packQuestions` is present, the same import loads the failed-question pack. The debrief and the pack are stored in this browser only; they are not uploaded, published, exported with progress, or included in sync.
 
 ## Progress portability
 

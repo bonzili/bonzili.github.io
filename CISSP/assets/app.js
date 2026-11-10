@@ -55,6 +55,8 @@
   var packMeta = null;
   var PACK_KEY = "cissp.fieldmanual.pack.v1";
   var PACK_SEEN_KEY = "cissp.fieldmanual.packseen.v1";
+  var DEBRIEF_KEY = "cissp.fieldmanual.debrief.v1";
+  var debriefData = null;
   var packSeen = {};
 
   function normalizePack(raw) {
@@ -114,6 +116,18 @@
       PACK_QUESTIONS = [];
       PACK_QID = {};
       packMeta = null;
+    }
+  }
+
+  function loadDebrief() {
+    try {
+      var raw = localStorage.getItem(DEBRIEF_KEY);
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return;
+      debriefData = parsed;
+    } catch (err) {
+      debriefData = null;
     }
   }
 
@@ -183,6 +197,7 @@
 
   loadPack();
   loadPackSeen();
+  loadDebrief();
 
   var CARDS = ((window.CISSP && CISSP.cards) || []).slice();
   var CARDID = {};
@@ -715,6 +730,128 @@
     });
   }
 
+  function normalizeDebrief(raw) {
+    if (!raw || typeof raw !== "object") throw new Error("Invalid CAT debrief");
+    var domains = Array.isArray(raw.domains) ? raw.domains.filter(function (d) {
+      return d && d.id != null && isFinite(Number(d.id));
+    }).map(function (d) {
+      return {
+        id: safeNumber(d.id, 1, 8, 1),
+        correct: clamp(Number(d.correct) || 0, 0, 100),
+        incorrect: clamp(Number(d.incorrect) || 0, 0, 100)
+      };
+    }).sort(function (a, b) { return a.id - b.id; }) : [];
+    if (!domains.length) throw new Error("No domain data");
+    var plan = Array.isArray(raw.plan) ? raw.plan.slice(0, 8).map(function (week) {
+      return {
+        week: String(week.week || ""),
+        focus: String(week.focus || ""),
+        summary: String(week.summary || ""),
+        actions: Array.isArray(week.actions) ? week.actions.map(String).slice(0, 8) : []
+      };
+    }) : [];
+    var graph = raw.attemptGraph && typeof raw.attemptGraph === "object" ? raw.attemptGraph : null;
+    return {
+      title: String(raw.title || "CAT debrief").slice(0, 120),
+      source: String(raw.source || "").slice(0, 200),
+      date: String(raw.date || "").slice(0, 40),
+      score: Number(raw.score) || 0,
+      passMark: Number(raw.passMark) || 700,
+      questionCount: Number(raw.questionCount) || 0,
+      correct: Number(raw.correct) || 0,
+      incorrect: Number(raw.incorrect) || 0,
+      unanswered: Number(raw.unanswered) || 0,
+      time: String(raw.time || "").slice(0, 40),
+      domains: domains,
+      attemptGraph: graph ? {
+        start: Number(graph.start) || null,
+        peak: Number(graph.peak) || null,
+        peakQuestion: Number(graph.peakQuestion) || null,
+        end: Number(graph.end) || null,
+        endQuestion: Number(graph.endQuestion) || null,
+        plotted: Number(graph.plotted) || null,
+        note: String(graph.note || "").slice(0, 400)
+      } : null,
+      failedDomains: raw.failedDomains && typeof raw.failedDomains === "object" ? raw.failedDomains : {},
+      patterns: Array.isArray(raw.patterns) ? raw.patterns.map(String).slice(0, 20) : [],
+      plan: plan,
+      note: String(raw.note || "").slice(0, 500)
+    };
+  }
+
+  function saveDebrief(debrief) {
+    localStorage.setItem(DEBRIEF_KEY, JSON.stringify(debrief));
+    debriefData = debrief;
+  }
+
+  function clearDebrief() {
+    try { localStorage.removeItem(DEBRIEF_KEY); } catch (err) { /* ignore */ }
+    debriefData = null;
+  }
+
+  function importDebriefFile(file) {
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { toast("That debrief file is too large."); return; }
+    file.text().then(function (text) {
+      var parsed;
+      try { parsed = JSON.parse(text); } catch (err) { toast("That file is not valid JSON."); return; }
+      var debrief;
+      try { debrief = normalizeDebrief(parsed); } catch (err) { toast("That file is not a valid CAT debrief."); return; }
+      var pack = null;
+      if (Array.isArray(parsed.packQuestions) && parsed.packQuestions.length) {
+        try {
+          pack = normalizePack({
+            title: parsed.packTitle || (debrief.title + " — failed questions"),
+            source: parsed.packSource || debrief.source,
+            questions: parsed.packQuestions
+          });
+        } catch (err) { pack = null; }
+      }
+      var body = "<p><strong>" + esc(debrief.title) + "</strong></p>" +
+        "<p>" + esc(debrief.score) + " / " + esc(debrief.passMark) + " · " +
+        plural(debrief.questionCount, "question") + " · " + debrief.correct + " correct · " +
+        debrief.incorrect + " incorrect · " + debrief.unanswered + " unanswered.</p>" +
+        "<p>Stored in this browser only. It is not uploaded or included in cross-device sync.</p>" +
+        (pack ? "<p><strong>" + pack.questions.length + " failed questions</strong> will also be loaded as the local question pack.</p>" : "");
+      var dialog = openDialog({
+        title: "Load this CAT debrief?",
+        body: body,
+        actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Cancel</button><button type="button" class="btn btn--small" data-confirm-debrief>Load debrief</button>'
+      });
+      dialog.querySelector("[data-confirm-debrief]").addEventListener("click", function () {
+        dialog.close();
+        try {
+          debrief.importedAt = Date.now();
+          saveDebrief(debrief);
+          if (pack) {
+            pack.importedAt = Date.now();
+            savePack(pack);
+            practiceSession = null;
+            clearPracticeState();
+          }
+          render();
+          toast(pack ? "CAT debrief and failed questions loaded locally." : "CAT debrief loaded locally.");
+        } catch (err) {
+          toast("The debrief could not be stored in this browser.");
+        }
+      });
+    }).catch(function () { toast("The file could not be read."); });
+  }
+
+  function removeDebrief() {
+    var dialog = openDialog({
+      title: "Remove the CAT debrief?",
+      body: "<p>This removes the debrief analysis from this browser. The failed-question pack is separate; remove it from Practice if you want.</p>",
+      actions: '<button type="button" class="btn btn--ghost btn--small" data-close>Keep debrief</button><button type="button" class="btn btn--signal btn--small" data-confirm-debrief-remove>Remove</button>'
+    });
+    dialog.querySelector("[data-confirm-debrief-remove]").addEventListener("click", function () {
+      dialog.close();
+      clearDebrief();
+      render();
+      toast("CAT debrief removed.");
+    });
+  }
+
   function ensureDaily() {
     if (!localState.daily || localState.daily.date !== todayKey()) {
       localState.daily = { date: todayKey(), drill: false, review: false, cards: false };
@@ -942,6 +1079,7 @@
       return { name: "exam", section: "exam" };
     }
     if (p === "progress") return { name: "progress", section: "progress" };
+    if (p === "debrief") return { name: "debrief", section: "debrief" };
     return { name: "notFound", section: "home" };
   }
 
@@ -989,6 +1127,7 @@
       case "examRun": return viewExamRun();
       case "examResults": return viewExamResults();
       case "progress": return viewProgress();
+      case "debrief": return viewDebrief();
       default:
         return {
           title: "Not found",
@@ -1007,7 +1146,8 @@
     { section: "practice", href: "#/practice", label: "Practice drills", icon: "target" },
     { section: "flashcards", href: "#/flashcards", label: "Flashcards", icon: "card" },
     { section: "exam", href: "#/exam", label: "Mock exam", icon: "clock" },
-    { section: "progress", href: "#/progress", label: "Progress", icon: "chart" }
+    { section: "progress", href: "#/progress", label: "Progress", icon: "chart" },
+    { section: "debrief", href: "#/debrief", label: "CAT debrief", icon: "target" }
   ];
 
   function loadTextScale() {
@@ -3216,7 +3356,8 @@
         '<header class="page-head"><div class="page-head__copy"><p class="eyebrow">Candidate record</p>' +
           '<h1 class="display-l">' + (r == null ? (stats.attempts ? "Not enough evidence yet." : "The sheet is still blank.") : r + " / 100 readiness.") + "</h1>" +
           '<p class="lede">' + (r == null ? "Answer at least eight counted questions — core bank or an official domain drill — to establish a baseline. Until then, every number below is an empty container." : readinessLabel(r) + ". Readiness is a weighted practice estimate — useful for direction, not a prediction of your ISC2 score.") + "</p></div>" +
-          '<div class="page-head__aside"><button type="button" class="btn btn--ghost btn--small" data-export-progress>Export</button>' +
+          '<div class="page-head__aside"><a class="btn btn--ghost btn--small" href="#/debrief">CAT debrief</a>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-export-progress>Export</button>' +
           '<button type="button" class="btn btn--ghost btn--small" data-import-progress>Import</button>' +
           '<button type="button" class="btn btn--ghost btn--small" data-set-exam-date>Exam date</button>' +
           '<button type="button" class="btn btn--ghost btn--small" data-reset>Reset data</button></div></header>' +
@@ -3246,6 +3387,128 @@
 
         '<section class="section"><div class="callout"><p class="callout__label">Your data</p><p>Progress is local to this browser. Use <strong>Export</strong> for a JSON backup, or turn on <strong>sync</strong> above to keep this device and your phone together. Import is available only while sync is off.</p></div></section>' +
         '<input type="file" id="progress-import" accept=".json,application/json" hidden>'
+    };
+  }
+
+  /* ---------------------------------------------------------------- debrief */
+
+  function debriefDomainLabel(id) {
+    var d = domainById(id);
+    return d ? pad(d.id) + " · " + d.short : "Domain " + pad(id);
+  }
+
+  function viewDebrief() {
+    if (!debriefData) {
+      return {
+        title: "CAT debrief",
+        html:
+          '<header class="page-head"><div class="page-head__copy">' +
+            '<p class="eyebrow">CAT debrief · local only</p>' +
+            '<h1 class="display-l">Turn a CAT score<br>into a study list.</h1>' +
+            '<p class="lede">Import a debrief JSON to see the score, domain breakdown, failed-question drills, and a short repair plan. The file can carry the failed-question pack too. Nothing is uploaded or published.</p>' +
+          "</div>" +
+          '<div class="page-head__aside"><span class="chip">Local only</span></div></header>' +
+          '<section class="empty"><h2>No CAT debrief loaded</h2>' +
+            '<p>Export or build a debrief file from your CAT review, then load it here. If the file includes the failed questions, they are loaded as a local question pack at the same time.</p>' +
+            '<button type="button" class="btn" data-debrief-import>Load CAT debrief</button>' +
+            '<p class="label" style="margin-top:16px">Already have the pack? <a href="#/practice">Load it from Practice</a>.</p></section>' +
+          '<input type="file" id="debrief-import" accept=".json,application/json" hidden>'
+      };
+    }
+
+    var d = debriefData;
+    var lowest = d.domains.slice().sort(function (a, b) { return a.correct - b.correct; })[0];
+    var below = d.score < d.passMark;
+
+    var domainRows = d.domains.map(function (row) {
+      var failed = PACK_QUESTIONS.length
+        ? PACK_QUESTIONS.filter(function (q) { return q.d === row.id; }).length
+        : Number(d.failedDomains[String(row.id)] || 0);
+      return "<tr><td>" + debriefDomainLabel(row.id) + "</td>" +
+        '<td class="num">' + Math.round(row.correct) + "%</td>" +
+        '<td class="num">' + Math.round(row.incorrect) + "%</td>" +
+        '<td class="num">' + (failed || "—") + "</td>" +
+        '<td class="bar-cell"><div class="bar-cell__track"><i style="width:' + row.correct + '%"></i><span>' + Math.round(row.correct) + "%</span></div></td></tr>";
+    }).join("");
+
+    var failedButtons = "";
+    if (PACK_QUESTIONS.length) {
+      failedButtons = d.domains.map(function (row) {
+        var count = PACK_QUESTIONS.filter(function (q) { return q.d === row.id; }).length;
+        if (!count) return "";
+        return '<button type="button" data-start="packDomain" data-domain="' + row.id + '">' + debriefDomainLabel(row.id) + " · " + count + "</button>";
+      }).join("");
+    }
+
+    var graph = "";
+    if (d.attemptGraph && (d.attemptGraph.start != null || d.attemptGraph.peak != null)) {
+      graph = '<section class="section"><div class="section-head"><div><h2>Ability trajectory</h2><p>The estimate of your ability as the CAT adapted.</p></div>' +
+        (d.attemptGraph.plotted ? '<span class="label">' + d.attemptGraph.plotted + " plotted points</span>" : "") + "</div>" +
+        '<div class="stat-grid">' +
+          '<div class="stat"><p class="stat__label">Start</p><p class="stat__value">' + (d.attemptGraph.start == null ? "—" : d.attemptGraph.start) + '</p><p class="stat__note">Q1 ability</p></div>' +
+          '<div class="stat"><p class="stat__label">Peak</p><p class="stat__value">' + (d.attemptGraph.peak == null ? "—" : d.attemptGraph.peak) + '</p><p class="stat__note">' + (d.attemptGraph.peakQuestion ? "Q" + d.attemptGraph.peakQuestion : "Highest point") + "</p></div>" +
+          '<div class="stat"><p class="stat__label">Last plotted</p><p class="stat__value">' + (d.attemptGraph.end == null ? "—" : d.attemptGraph.end) + '</p><p class="stat__note">' + (d.attemptGraph.endQuestion ? "Q" + d.attemptGraph.endQuestion : "Final point") + "</p></div>" +
+          '<div class="stat"><p class="stat__label">Gap to pass</p><p class="stat__value">' + (below ? "+" + Math.round(d.passMark - d.score) : "—") + '</p><p class="stat__note">' + (below ? "Points below " + d.passMark : "At or above the practice line") + "</p></div>" +
+        "</div>" +
+        (d.attemptGraph.note ? '<p class="label" style="margin-top:14px;line-height:1.6">' + esc(d.attemptGraph.note) + "</p>" : "") +
+        "</section>";
+    }
+
+    var patterns = d.patterns.length
+      ? '<section class="section"><div class="section-head"><div><h2>What the misses have in common</h2><p>Read the pattern before the next drill.</p></div></div>' +
+        '<ul class="plan-week__actions">' + d.patterns.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></section>"
+      : "";
+
+    var plan = d.plan.length
+      ? '<section class="section"><div class="section-head"><div><h2>Repair plan</h2><p>Use the failed pack by domain, then retest.</p></div></div>' +
+        '<div class="plan-timeline">' + d.plan.map(function (week, index) {
+          return '<article class="plan-week">' +
+            '<div class="plan-week__no">' + pad(index + 1) + "</div>" +
+            '<div class="plan-week__body">' +
+              '<div class="plan-week__meta"><span>' + esc(week.week || ("Week " + (index + 1))) + "</span>" + (week.focus ? "<span>" + esc(week.focus) + "</span>" : "") + "</div>" +
+              "<h2>" + esc(week.focus || week.week || "Repair") + "</h2>" +
+              (week.summary ? '<p class="plan-week__summary">' + esc(week.summary) + "</p>" : "") +
+              (week.actions.length ? '<ul class="plan-week__actions">' + week.actions.map(function (action) { return "<li>" + esc(action) + "</li>"; }).join("") + "</ul>" : "") +
+            "</div></article>";
+        }).join("") + "</div></section>"
+      : "";
+
+    var failedSection = '<section class="section"><div class="section-head"><div><h2>Failed-question drills</h2><p>Drill one domain at a time, then re-answer the misses after 48 hours.</p></div>' +
+      (PACK_QUESTIONS.length ? '<span class="label">' + PACK_QUESTIONS.length + " questions loaded</span>" : '<span class="label">Pack not loaded</span>') + "</div>" +
+      (PACK_QUESTIONS.length && failedButtons
+        ? '<div class="domain-picker">' + failedButtons + "</div>" +
+          '<div class="q-actions" style="margin-top:18px"><a class="btn" href="#/practice" data-start="pack">Start 20 mixed ' + icon("arrow") + "</a>" +
+          '<a class="btn btn--ghost" href="#/practice" data-start="review">Review mistakes</a></div>'
+        : '<div class="empty"><h3>No failed-question pack loaded</h3><p>Load the debrief file with its failed questions, or import the pack from Practice → Local question pack.</p><a class="btn btn--ghost" href="#/practice">Open Practice</a></div>') +
+      "</section>";
+
+    return {
+      title: "CAT debrief",
+      html:
+        '<header class="page-head"><div class="page-head__copy">' +
+          '<p class="eyebrow">CAT debrief · local only' + (d.date ? " · " + esc(d.date) : "") + "</p>" +
+          '<h1 class="display-l">' + esc(d.title) + "<br>" + (d.score ? d.score : "—") + " / " + esc(d.passMark) + ".</h1>" +
+          '<p class="lede">' + (d.source ? esc(d.source) + ". " : "") + "This page is stored in this browser only. It is not uploaded, published, or synced.</p>" +
+        "</div>" +
+        '<div class="page-head__aside"><span class="chip ' + (below ? "chip--signal" : "chip--ok") + '">' + (below ? "Below pass line" : "At or above pass line") + "</span>" +
+          '<button type="button" class="btn btn--ghost btn--small" data-debrief-import>Load another</button>' +
+          '<button type="button" class="btn btn--ghost btn--small" data-debrief-remove>Remove</button></div></header>' +
+
+        '<div class="stat-grid">' +
+          '<div class="stat"><p class="stat__label">Score</p><p class="stat__value">' + (d.score || "—") + "</p><p class=\"stat__note\">Practice pass line " + esc(d.passMark) + "</p></div>" +
+          '<div class="stat"><p class="stat__label">Correct</p><p class="stat__value">' + d.correct + "</p><p class=\"stat__note\">of " + (d.questionCount || "—") + " questions</p></div>" +
+          '<div class="stat"><p class="stat__label">Incorrect</p><p class="stat__value">' + d.incorrect + "</p><p class=\"stat__note\">" + d.unanswered + " unanswered</p></div>" +
+          '<div class="stat"><p class="stat__label">Time</p><p class="stat__value" style="font-size:22px">' + esc(d.time || "—") + "</p><p class=\"stat__note\">" + (lowest ? "Weakest: " + debriefDomainLabel(lowest.id) : "") + "</p></div>" +
+        "</div>" +
+
+        '<section class="section"><div class="section-head"><div><h2>Domain performance</h2><p>Quantum’s percentages, plus the failed items from the review.</p></div>' +
+          (lowest ? '<span class="label">Weakest: ' + debriefDomainLabel(lowest.id) + " · " + Math.round(lowest.correct) + "%</span>" : "") + "</div>" +
+          '<table class="summary-table"><thead><tr><th scope="col">Domain</th><th scope="col">Correct</th><th scope="col">Incorrect</th><th scope="col">Failed items</th><th scope="col">Correct %</th></tr></thead><tbody>' + domainRows + "</tbody></table></section>" +
+
+        graph + patterns + failedSection + plan +
+
+        '<div class="callout" style="margin-top:18px"><p class="callout__label">Privacy</p><p>This debrief and the failed questions live only in this browser. Removing it here does not remove the question pack; use Practice → Local question pack to remove that separately.</p></div>' +
+        '<input type="file" id="debrief-import" accept=".json,application/json" hidden>'
     };
   }
 
@@ -3530,6 +3793,19 @@
       return;
     }
 
+    if (event.target.closest("[data-debrief-import]")) {
+      event.preventDefault();
+      var debriefInput = document.getElementById("debrief-import");
+      if (debriefInput) debriefInput.click();
+      return;
+    }
+
+    if (event.target.closest("[data-debrief-remove]")) {
+      event.preventDefault();
+      removeDebrief();
+      return;
+    }
+
     if (event.target.closest("[data-export-progress]")) {
       event.preventDefault();
       exportProgress();
@@ -3753,6 +4029,12 @@
       var packFile = event.target.files && event.target.files[0];
       event.target.value = "";
       if (packFile) importPackFile(packFile);
+      return;
+    }
+    if (event.target.id === "debrief-import") {
+      var debriefFile = event.target.files && event.target.files[0];
+      event.target.value = "";
+      if (debriefFile) importDebriefFile(debriefFile);
       return;
     }
     if (event.target.id === "progress-import") {
