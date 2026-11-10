@@ -36,12 +36,14 @@ again after installing, pick the brief once inside the installed app.
 
 ## What is in the app
 
-- **Today** — a finite brief: 12 cards for Siu Gai Mo's Brief, 8 for Siu Bak's Brief.
-  The curated picks stay finite. Below them, **More from today** can load up to
-  24 extra stories on demand; those extras are unedited excerpts from cards
-  already in the edition and never call Gemini. Siu Gai Mo's brief mixes AI
-  models, benchmarks and new tools; Hong Kong; Mayday; cybersecurity; and red
-  teaming.
+- **Today** — a finite brief: up to 12 cards for Siu Gai Mo's Brief, up to 8
+  for Siu Bak's Brief. The general Hong Kong slot is kept small (2 / 1) because
+  HK news is easy to follow elsewhere; HK legal and cyber coverage have their
+  own tag minimums. The curated picks stay finite. Below them, **More from today**
+  can load up to 24 extra stories on demand; those extras are unedited excerpts
+  from cards already in the edition and never call Gemini. Siu Gai Mo's brief
+  mixes AI models, benchmarks and new tools; Hong Kong; Mayday; cybersecurity;
+  and red teaming.
 - **Topics** — the deeper list for the day. APAC legal has a tag filter (HK,
   IP, Privacy, Fintech, AI, Cyber); Cybersecurity has HK / Global tags; AI has
   Model / Tool / Benchmark tags; Red Teaming has AI / Tool / Exploit tags.

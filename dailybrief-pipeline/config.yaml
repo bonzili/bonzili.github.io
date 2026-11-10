@@ -34,7 +34,9 @@ workspaces:
     topic_cap: 4
     topic_caps:
       ai: 3
-      hk: 3
+      # General Hong Kong news is easy to get elsewhere; keep one fewer slot.
+      # The HK legal/cyber tag minimums below still protect local coverage.
+      hk: 2
       cyber: 3
       rt: 2
       mayday: 1
@@ -75,7 +77,9 @@ workspaces:
     topic_cap: 4
     topic_caps:
       legal: 5
-      hk: 2
+      # General Hong Kong news is easy to get elsewhere; the legal desk keeps
+      # its own three-HK-card minimum below.
+      hk: 1
       jackson: 1
     tag_min:
       legal:
@@ -1016,6 +1020,10 @@ topics:
       - "service updates"
       - "office closure"
       - "holiday closure"
+      - "Incoming Faxes"
+      - "Learn to assess"
+      - "時評"
+      - "迷思"
       - "VIEWPOINT"
       - "frontline computing"
       - "金融科技周"
