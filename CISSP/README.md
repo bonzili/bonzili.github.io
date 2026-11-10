@@ -12,7 +12,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 | `assets/styles.css` | Visual system: binder spine, answer sheet, question and flashcard layouts |
 | `assets/data.js` | Domain notes, exam metadata, and the manager-mindset primer |
 | `assets/questions-d1.js` … `d8.js` | 20 original practice questions per domain, plus five extra Domain 5 lifecycle questions (165 total) |
-| `assets/flashcards.js` | 157 key-term cards with spaced repetition |
+| `assets/flashcards.js` | 177 key-term cards with spaced repetition |
 | `assets/sync.js` | Sync core: sync code, AES-GCM envelopes, per-device merge rules, Worker API client |
 | `sync-worker/` | Optional Cloudflare Worker + D1 service for cross-device sync |
 | `manifest.webmanifest`, `assets/icon-*.png` | Installable Home Screen metadata and icons |
@@ -24,7 +24,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **Condensed notes** for all eight domains, with key terms, traps, and mnemonics.
 - **165 original scenario questions** with immediate explanations and a “manager’s lens” note. The distractors are written to be defensible under a different misread, not obvious throwaways.
 - **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
-- **157 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
+- **177 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final. When a local pack is loaded, the exam desk also offers a **125-question mixed pack mock** drawn from the official items.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
 - **Progress export/import**: download a JSON backup and restore it on another browser or device.

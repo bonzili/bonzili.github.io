@@ -1475,6 +1475,15 @@
 
     var examDay = PLAN.examDay.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("");
 
+    var debrief = "";
+    if (PLAN.debrief) {
+      var debriefSteps = PLAN.debrief.steps.map(function (step, index) {
+        return '<li><span class="n">' + pad(index + 1) + "</span><span>" + esc(step) + "</span></li>";
+      }).join("");
+      debrief = '<section class="section"><div class="section-head"><div><h2>' + esc(PLAN.debrief.title) + "</h2><p>" + esc(PLAN.debrief.intro) + "</p></div></div>" +
+        '<div class="plan-note"><ol class="rules-list">' + debriefSteps + "</ol><p>" + esc(PLAN.debrief.note) + "</p></div></section>";
+    }
+
     var countdown = "";
     if (info) {
       countdown = '<span class="chip ' + (info.days >= 0 && info.days <= 28 ? "chip--signal" : "") + '">' +
@@ -1501,6 +1510,8 @@
           : "Cover the register once, then spend the rest of the time retrieving it. The mock in week three is the midpoint, not the finish line.") + "</p></div>" +
 
         '<section class="plan-timeline">' + weeks + "</section>" +
+
+        debrief +
 
         '<section class="section"><div class="section-head"><div><h2>The daily hour</h2><p>Short, repeatable, and mostly retrieval.</p></div><span class="label">' + esc(dailyNote) + "</span></div>" +
         '<div class="plan-daily">' + daily + "</div></section>" +

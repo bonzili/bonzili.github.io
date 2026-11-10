@@ -18,6 +18,11 @@ CISSP.cards = [
   { id: "c1-14", d: 1, term: "BIA (business impact analysis)", topic: "Continuity", definition: "The analysis that identifies critical processes, dependencies, and the operational and financial impact of disruption over time. It produces recovery objectives." },
   { id: "c1-15", d: 1, term: "Separation of duties", topic: "People controls", definition: "Splitting a sensitive process so no single person can complete it alone. Dual control requires two people to act together; split knowledge means neither holds the full secret." },
   { id: "c1-16", d: 1, term: "Risk treatment options", topic: "Risk", definition: "Avoid (stop the activity), mitigate (reduce likelihood or impact), transfer (shift financial consequence, e.g. insurance), accept (retain with owner approval)." },
+  { id: "c1-17", d: 1, term: "BCP/DR sequence", topic: "Continuity", definition: "BIA → select continuity strategies → develop the plan → test/exercise → maintain. Alternate-site location is driven by the calculated risk and the scope of the threat, not a fixed radius." },
+  { id: "c1-18", d: 1, term: "RMF steps", topic: "Risk", definition: "NIST RMF: categorize → select controls → implement → assess → authorize → monitor. Continuous monitoring follows authorization." },
+  { id: "c1-19", d: 1, term: "Due diligence vs due care", topic: "Governance", definition: "Due diligence is the investigation and verification (homework); due care is acting on it (operating the controls)." },
+  { id: "c1-20", d: 1, term: "HIPAA vs HITECH", topic: "Legal", definition: "HIPAA sets the privacy and security rules; HITECH adds breach notification, enforcement, and business-associate obligations. A U.S. PHI breach usually triggers HITECH notification." },
+  { id: "c1-21", d: 1, term: "SOC 1 vs SOC 2 vs SLA", topic: "Vendor risk", definition: "SOC 1 covers financial-reporting controls; SOC 2 covers security, availability, processing integrity, confidentiality, and privacy; an SLA is the contractual service commitment. Match the report to the assurance question." },
 
   /* Domain 2 — Asset Security */
   { id: "c2-1", d: 2, term: "Data owner", topic: "Roles", definition: "The business role accountable for a dataset's classification, access rules, and destruction decisions. Usually a senior manager, not a technician." },
@@ -40,6 +45,8 @@ CISSP.cards = [
   { id: "c2-18", d: 2, term: "Data lifecycle management (DLM)", topic: "Lifecycle", definition: "The five-stage ISC2 model: Creation (acquisition, entry, capture), Storage (store, protect, classify, control access), Usage (view, process, modify, save), Archival (copy to a long-term archive and remove from active production), Destruction (remove every copy at end of life)." },
   { id: "c2-19", d: 2, term: "Storage stage (DLM)", topic: "Lifecycle", definition: "The stage where stored data is protected and classified for retrieval and access control. Exam trap: data may have arrived during Creation, but classification of data already on a server is part of Storage." },
   { id: "c2-20", d: 2, term: "Archival stage (DLM)", topic: "Lifecycle", definition: "Copying data to a long-term archive and removing it from active production. The archive supports retention and legal needs; retrieval is possible, but there is no routine maintenance or general use." },
+  { id: "c2-21", d: 2, term: "Crypto-erase", topic: "Sanitisation", definition: "Destroys the encryption key so the ciphertext is unrecoverable. Best fit for SSDs and self-encrypting drives, where overwrite and degauss are unreliable." },
+  { id: "c2-22", d: 2, term: "Tokenization vs encryption", topic: "Data protection", definition: "Tokenization replaces a sensitive value with a non-sensitive token; encryption transforms the value but remains reversible with the key. Tokenization reduces scope and exposure." },
 
   /* Domain 3 — Security Architecture and Engineering */
   { id: "c3-1", d: 3, term: "TCB (trusted computing base)", topic: "Architecture", definition: "The set of hardware, firmware, and software components that must be trusted to enforce the security policy. Smaller and simpler is better." },
@@ -60,6 +67,8 @@ CISSP.cards = [
   { id: "c3-16", d: 3, term: "Fail-safe vs fail-secure", topic: "Physical", definition: "Fail-safe releases locks on failure, prioritising life safety. Fail-secure keeps them locked, prioritising asset protection. People come first." },
   { id: "c3-17", d: 3, term: "CPTED", topic: "Physical", definition: "Crime prevention through environmental design: natural surveillance, natural access control, and territorial reinforcement." },
   { id: "c3-18", d: 3, term: "VM escape", topic: "Virtualisation", definition: "An attack that breaks the isolation between a guest virtual machine and its hypervisor or host, potentially compromising other guests." },
+  { id: "c3-19", d: 3, term: "Side-channel attack", topic: "Cryptography", definition: "Exploits physical leakage such as timing, power, cache, or electromagnetic emissions. It is not a covert channel or a direct cryptanalytic break." },
+  { id: "c3-20", d: 3, term: "Cloud deployment models", topic: "Cloud", definition: "Public is shared and open; private is single-organization; community is shared by organizations with common concerns; hybrid combines models." },
 
   /* Domain 4 — Communication and Network Security */
   { id: "c4-1", d: 4, term: "OSI layers", topic: "Fundamentals", definition: "Physical, data link, network, transport, session, presentation, application. Mnemonic: Please Do Not Throw Sausage Pizza Away." },
@@ -82,6 +91,10 @@ CISSP.cards = [
   { id: "c4-18", d: 4, term: "VLAN", topic: "Architecture", definition: "Logical layer-2 segmentation that groups ports independently of physical location. It is not a hard security boundary; VLAN hopping is possible." },
   { id: "c4-19", d: 4, term: "NAT", topic: "Architecture", definition: "Network address translation conserves public addresses and obscures internal addressing. It does not enforce security policy and is not a firewall." },
   { id: "c4-20", d: 4, term: "Zero trust", topic: "Architecture", definition: "A model that removes implicit trust based on network location and verifies identity, device, and context for every request." },
+  { id: "c4-21", d: 4, term: "IPsec AH vs ESP and NAT", topic: "IPsec", definition: "AH authenticates the IP header and does not survive NAT; ESP can encrypt the payload and NAT-T handles traversal. For confidentiality, use ESP." },
+  { id: "c4-22", d: 4, term: "EAP methods", topic: "Wireless", definition: "LEAP is Cisco proprietary and weak but does not require PKI; PEAP uses a server certificate and inner authentication; EAP-TLS requires client certificates and PKI." },
+  { id: "c4-23", d: 4, term: "OSI PDUs", topic: "OSI", definition: "Application, presentation, and session carry data; transport carries segments (TCP) or datagrams (UDP); network carries packets; data link carries frames; physical carries bits." },
+  { id: "c4-24", d: 4, term: "Firewall rule order", topic: "Firewalls", definition: "Rules are evaluated top-down. Put specific permits before broad denies and finish with an explicit default deny. Logging is a detective control, not the primary rule-writing task." },
 
   /* Domain 5 — Identity and Access Management */
   { id: "c5-1", d: 5, term: "Authentication factors", topic: "Authentication", definition: "Something you know, something you have, something you are — plus somewhere you are and something you do. MFA requires different categories." },
@@ -108,6 +121,7 @@ CISSP.cards = [
   { id: "c5-22", d: 5, term: "Account vs access provisioning", topic: "Lifecycle", definition: "Account provisioning creates the account record and credentials; access provisioning grants entitlements after approval. An account can exist with no resource access." },
   { id: "c5-23", d: 5, term: "Joiner-mover-leaver (JML)", topic: "Lifecycle", definition: "The events that trigger account and access changes. A mover must lose old entitlements while gaining new ones; a leaver must be deprovisioned promptly." },
   { id: "c5-24", d: 5, term: "Access recertification", topic: "Lifecycle", definition: "Periodic or event-driven attestation by the manager or resource owner that an entitlement is still required. It controls entitlement creep; security facilitates, the business attests." },
+  { id: "c5-25", d: 5, term: "SSO and authenticity", topic: "Identity", definition: "SSO centralizes authentication; a misconfigured SSO trust or assertion weakens authenticity across every connected application. Least privilege and availability controls are different properties." },
 
   /* Domain 6 — Security Assessment and Testing */
   { id: "c6-1", d: 6, term: "Vulnerability assessment", topic: "Assessment", definition: "Systematic discovery and ranking of weaknesses, usually without exploitation. It finds; it does not prove impact." },
@@ -128,6 +142,7 @@ CISSP.cards = [
   { id: "c6-16", d: 6, term: "MTTD and MTTR", topic: "Metrics", definition: "Mean time to detect and mean time to respond or remediate. They measure detection and response effectiveness, not activity volume." },
   { id: "c6-17", d: 6, term: "Audit sampling", topic: "Audit", definition: "Selecting a representative subset of a population to test controls. The method must be documented and independent; biased samples undermine the conclusion." },
   { id: "c6-18", d: 6, term: "Double-blind test", topic: "Pen testing", definition: "A test in which the testers have limited knowledge and most defenders are unaware. It evaluates realistic detection and response." },
+  { id: "c6-19", d: 6, term: "Security control assessments", topic: "Assessment", definition: "SCAs verify that controls are implemented and effective without disrupting operations. They support continuous monitoring; a formal audit or red team has a different objective." },
 
   /* Domain 7 — Security Operations */
   { id: "c7-1", d: 7, term: "PICERL", topic: "Incident response", definition: "Prepare, Identify, Contain, Eradicate, Recover, Lessons learned. Containment comes before eradication and recovery." },
@@ -149,6 +164,7 @@ CISSP.cards = [
   { id: "c7-17", d: 7, term: "Worm", topic: "Malware", definition: "Self-propagating malware that spreads across networks without attaching to a host file or requiring user action." },
   { id: "c7-18", d: 7, term: "Logic bomb", topic: "Malware", definition: "Malicious code that activates when a condition or date is met." },
   { id: "c7-19", d: 7, term: "Lessons learned", topic: "Incident response", definition: "The post-incident review that identifies root causes, response gaps, and tracked improvements. Recovery is not the end of the lifecycle." },
+  { id: "c7-20", d: 7, term: "Mobile device forensics", topic: "Forensics", definition: "Isolate the phone in a Faraday bag first to preserve evidence and block remote wipe or communication. Do not power it off or connect it before isolation." },
 
   /* Domain 8 — Software Development Security */
   { id: "c8-1", d: 8, term: "SDLC", topic: "Lifecycle", definition: "The structured lifecycle for requirements, design, build, test, deploy, and maintain. Security activities belong in every phase." },
@@ -172,5 +188,9 @@ CISSP.cards = [
   { id: "c8-19", d: 8, term: "Verification", topic: "Testing", definition: "Confirms that the implementation matches its specifications: was the product built right?" },
   { id: "c8-20", d: 8, term: "Validation", topic: "Testing", definition: "Confirms that the product meets the user's actual need: was the right product built?" },
   { id: "c8-21", d: 8, term: "Software escrow", topic: "Acquisition", definition: "Third-party custody of source code or build materials, released under defined conditions such as vendor failure, to support continuity." },
-  { id: "c8-22", d: 8, term: "Release control", topic: "Change", definition: "Ensures only approved, tested changes are deployed to production, complementing change and configuration management." }
+  { id: "c8-22", d: 8, term: "Release control", topic: "Change", definition: "Ensures only approved, tested changes are deployed to production, complementing change and configuration management." },
+  { id: "c8-23", d: 8, term: "SAST vs DAST vs fuzzing", topic: "Testing", definition: "SAST inspects source or bytecode without running the app; DAST tests a running application; fuzzing sends malformed or unexpected input to find crashes and validation failures." },
+  { id: "c8-24", d: 8, term: "ACID properties", topic: "Databases", definition: "Atomicity: all-or-nothing; consistency: valid state; isolation: concurrent transactions do not interfere; durability: committed data survives failure." },
+  { id: "c8-25", d: 8, term: "SQL injection remediation", topic: "App security", definition: "Use parameterized queries or prepared statements so input is treated as data, not code. Escaping, error hiding, and file encryption are not root-cause fixes." },
+  { id: "c8-26", d: 8, term: "COTS vs custom software", topic: "Acquisition", definition: "COTS can be cheaper and faster to procure, but it is not inherently more secure and still needs configuration, patching, and assurance." }
 ];

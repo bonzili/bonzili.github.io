@@ -1168,6 +1168,18 @@ CISSP.mindset = {
 
 CISSP.studyPlan = {
   intro: "The final four weeks are for retrieval, simulation, and repair — not for starting a new textbook. You already have the material. This route turns it into decisions under time pressure.",
+  debrief: {
+    title: "After a CAT: turn the score into the next week",
+    intro: "A CAT is a diagnostic, not a verdict. The failed questions are the highest-value study list you own.",
+    steps: [
+      "Export or write down every missed question with the correct answer and the explanation.",
+      "Tag each miss by domain and by the operative word: FIRST, NEXT, BEST, GREATEST, LEAST.",
+      "Drill the two weakest domains first. Do not spread across all eight.",
+      "Re-answer the missed questions after 48 hours, then take a timed CAT within seven days.",
+      "Keep one line per miss: wrong role, wrong phase, wrong control type, or wrong scope."
+    ],
+    note: "If you imported a failed-question pack, use Practice → Official domain drills to run only the weak domains."
+  },
   weeks: [
     {
       theme: "Risk, governance, and the asset register",
