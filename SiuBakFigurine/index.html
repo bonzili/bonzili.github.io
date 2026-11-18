@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Siu Bak &amp; Siu Gai Mo — in 3D</title>
+<meta name="description" content="Two little drawings, standing up in 3D. Turn them around, or put them on the table in front of you.">
+<meta name="theme-color" content="#bfe3fb">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/gif" href="../SiuBakChar/assets/favicon.gif">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script type="module" src="../vendor/model-viewer.min.js"></script>
+<style>
+  :root{
+    --sky-50:#eef8ff; --sky-200:#aed9f5; --sky-400:#54a9dd; --sky-600:#2E79AC;
+    --blossom:#ffc2dc; --mint:#a9e8d4; --butter:#ffe39a;
+    --paper:#fffbf4; --ink:#3a3a55; --ink-soft:#6d6d88;
+    --shadow:0 20px 46px -22px rgba(46,121,172,.5);
+    --font-display:"Baloo 2",system-ui,sans-serif;
+    --font-body:"Nunito",system-ui,-apple-system,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;background:#bfe3fb}
+  body{
+    margin:0;padding:calc(28px + env(safe-area-inset-top)) 18px calc(36px + env(safe-area-inset-bottom));
+    font-family:var(--font-body);color:var(--ink);line-height:1.65;
+    background:radial-gradient(120% 90% at 50% -10%,#eaf7ff 0%,#bfe3fb 55%,#a9d8f2 100%);
+    min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  }
+  .wrap{width:100%;max-width:760px;display:flex;flex-direction:column;gap:18px}
+  header{text-align:center;display:flex;flex-direction:column;gap:8px}
+  .kicker{
+    margin:0;font-size:.74rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sky-600);opacity:.85;
+  }
+  h1{
+    margin:0;font-family:var(--font-display);font-size:clamp(1.6rem,6vw,2.5rem);line-height:1.15;
+    color:#2b5f86;font-weight:800;
+  }
+  h1 em{font-style:normal;color:var(--blossom);text-shadow:0 2px 0 #fff}
+  .lede{margin:0 auto;max-width:46ch;color:var(--ink-soft);font-size:.98rem}
+
+  /* ---------- the shelf ---------- */
+  .shelf{
+    position:relative;border-radius:30px;overflow:hidden;box-shadow:var(--shadow);
+    background:linear-gradient(180deg,#d6efff 0%,#eaf8ff 46%,#f3fbe9 54%,#e3f5d7 100%);
+    padding:clamp(18px,4vw,34px) clamp(10px,3vw,26px) clamp(26px,6vw,44px);
+    isolation:isolate;
+  }
+  .shelf::before{ /* soft clouds */
+    content:"";position:absolute;inset:0 0 42% 0;pointer-events:none;
+    background:
+      radial-gradient(closest-side,#fff 0%,rgba(255,255,255,0) 100%) 12% 26%/38% 26% no-repeat,
+      radial-gradient(closest-side,#fff 0%,rgba(255,255,255,0) 100%) 78% 16%/30% 20% no-repeat;
+    opacity:.75;
+  }
+  .lawn{
+    position:absolute;left:-6%;right:-6%;bottom:0;height:42%;
+    background:radial-gradient(120% 150% at 50% 0%,#c6e8b4 0%,#a8d795 42%,#8cc47c 100%);
+    border-radius:54% 50% 0 0/32% 38% 0 0;
+    box-shadow:inset 0 14px 30px -18px rgba(74,120,60,.5);
+    z-index:0;
+  }
+  .figures{
+    position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:center;
+    gap:clamp(6px,3vw,28px);
+  }
+  .figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;flex:1 1 0;max-width:280px}
+  .figure model-viewer{
+    width:100%;height:clamp(190px,46vw,300px);
+    background:transparent;display:block;
+    --poster-color:transparent;
+  }
+  .figure figcaption{
+    font-family:var(--font-display);font-weight:700;font-size:clamp(.85rem,2.6vw,1.05rem);
+    color:#2b5f86;letter-spacing:.02em;
+  }
+  .figure--tan figcaption{color:#8a6a3f}
+
+  /* the little buttons model-viewer injects */
+  .ar-button{
+    position:absolute;top:10px;right:10px;z-index:3;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 12px;border-radius:999px;border:1px solid rgba(58,58,85,.12);
+    background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+    font:700 .74rem/1 var(--font-body);color:#2b5f86;cursor:pointer;
+    box-shadow:0 6px 16px -10px rgba(46,121,172,.6);
+  }
+  .ar-button:active{transform:scale(.97)}
+
+  .hint{
+    margin:0;text-align:center;color:var(--ink-soft);font-size:.84rem;
+    display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  }
+  .hint span{background:rgba(255,255,255,.72);border:1px solid rgba(58,58,85,.08);border-radius:999px;padding:4px 11px}
+  @media (max-width:520px){
+    .hint{gap:6px;font-size:.74rem}
+    .hint span{padding:3px 9px}
+  }
+
+  .links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .links a{
+    text-decoration:none;font-weight:700;font-size:.86rem;color:#2b5f86;
+    background:rgba(255,255,255,.8);border:1px solid rgba(58,58,85,.08);
+    border-radius:999px;padding:9px 16px;transition:transform .18s ease,box-shadow .18s ease;
+  }
+  .links a:hover{transform:translateY(-1px);box-shadow:0 10px 20px -14px rgba(46,121,172,.8)}
+
+  footer{text-align:center;color:var(--ink-soft);font-size:.78rem;max-width:52ch}
+  footer strong{color:#2b5f86;font-weight:700}
+
+  noscript p{margin:0;text-align:center;color:var(--ink-soft);font-size:.86rem}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Two little drawings, stood up</p>
+    <h1>Siu Bak <em>&amp;</em> Siu Gai Mo</h1>
+    <p class="lede">Turn them around with a finger, or put them on the table in front of you.</p>
+  </header>
+
+  <section class="shelf" aria-label="Siu Bak and Siu Gai Mo as 3D models">
+    <div class="lawn" aria-hidden="true"></div>
+    <div class="figures">
+      <figure class="figure figure--white">
+        <model-viewer
+          id="siubak"
+          src="../SiuBakForest/assets/models/siubak.glb"
+          ios-src="../SiuBakForest/assets/models/siubak.usdz"
+          poster="../SiuBakForest/assets/SiuBak.png"
+          alt="A 3D model of Siu Bak, a small white fluffy puppy"
+          camera-controls
+                interaction-prompt="none"
+          touch-action="pan-y"
+          auto-rotate
+          auto-rotate-delay="600"
+          rotation-per-second="18deg"
+          shadow-intensity="0.8"
+          shadow-softness="0.9"
+          exposure="1.05"
+          field-of-view="26deg"
+          environment-image="neutral"
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          ar-scale="fixed"
+          ar-placement="floor">
+          <button class="ar-button" slot="ar-button" type="button">Put her on the table</button>
+        </model-viewer>
+        <figcaption>Siu Bak</figcaption>
+      </figure>
+
+      <figure class="figure figure--tan">
+        <model-viewer
+          id="siugaimo"
+          src="../SiuBakForest/assets/models/siugaimo.glb"
+          ios-src="../SiuBakForest/assets/models/siugaimo.usdz"
+          poster="../SiuBakForest/assets/SiuGaiMo.png"
+          alt="A 3D model of Siu Gai Mo, a cream puppy with a pink collar"
+          camera-controls
+                interaction-prompt="none"
+          touch-action="pan-y"
+          auto-rotate
+          auto-rotate-delay="600"
+          rotation-per-second="18deg"
+          shadow-intensity="0.8"
+          shadow-softness="0.9"
+          exposure="1.05"
+          field-of-view="26deg"
+          environment-image="neutral"
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          ar-scale="fixed"
+          ar-placement="floor">
+          <button class="ar-button" slot="ar-button" type="button">Put him on the table</button>
+        </model-viewer>
+        <figcaption>Siu Gai Mo</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <p class="hint">
+    <span>Drag to turn</span>
+    <span>Pinch to zoom</span>
+    <span id="ar-hint">AR works on a phone</span>
+  </p>
+
+  <div class="links">
+    <a href="../SiuBakForest/">Play the Fire &amp; Water Quest →</a>
+    <a href="../SiuBakChar/">Open the scrapbook →</a>
+  </div>
+
+  <footer>
+    <p><strong>How these were made:</strong> the two puppy drawings from the game were turned into 3D models with Meshy, then simplified so they load on a phone. No photos of anyone were used — only the drawings.</p>
+  </footer>
+
+  <noscript><p>The 3D viewer needs JavaScript. The drawings still live in the <a href="../SiuBakForest/">forest game</a>.</p></noscript>
+</div>
+
+<script>
+  // Respect a calm system setting: no idle spinning.
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll("model-viewer").forEach((mv) => mv.removeAttribute("auto-rotate"));
+  }
+
+  // If a model fails to load, leave the drawing poster in place instead of a blank box.
+  document.querySelectorAll("model-viewer").forEach((mv) => {
+    mv.addEventListener("error", () => {
+      mv.style.setProperty("--poster-color", "#ffffff00");
+      mv.classList.add("is-flat");
+    });
+  });
+
+  // Say the useful thing about AR on the device that is reading this.
+  const arHint = document.getElementById("ar-hint");
+  const firstViewer = document.querySelector("model-viewer");
+  if (arHint && firstViewer) {
+    const settleHint = () => {
+      arHint.textContent = firstViewer.canActivateAR
+        ? "Tap AR to put them in the room"
+        : "AR works on a phone";
+    };
+    if (typeof firstViewer.canActivateAR === "boolean") {
+      settleHint();
+    } else {
+      firstViewer.addEventListener("load", settleHint, { once: true });
+    }
+  }
+</script>
+</body>
+</html>

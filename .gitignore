@@ -10,3 +10,5 @@ dailybrief-pipeline/.cache/
 .venv/
 .agents/
 skills-lock.json
+opencode.json
+meshy_output/

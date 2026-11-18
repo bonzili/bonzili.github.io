@@ -1327,6 +1327,23 @@ function updateInterface() {
   }
 }
 
+let dioramaRequested = false;
+
+function revealDiorama() {
+  const diorama = $("final-diorama");
+  if (!diorama || dioramaRequested) return;
+  dioramaRequested = true;
+  diorama.hidden = false;
+  if (REDUCED) {
+    diorama.querySelectorAll("model-viewer").forEach((viewer) => viewer.removeAttribute("auto-rotate"));
+  }
+  // Loaded only when the letter is actually opened, so the game itself stays small.
+  import("../vendor/model-viewer.min.js").catch(() => {
+    diorama.hidden = true;
+    dioramaRequested = false;
+  });
+}
+
 function setState(nextState) {
   if (state !== nextState && document.activeElement instanceof HTMLElement) previousFocus = document.activeElement;
   state = nextState;
@@ -1343,6 +1360,7 @@ function setState(nextState) {
   } else if (nextState === "clear") {
     window.setTimeout(() => $("next-button").focus(), 0);
   } else if (nextState === "final") {
+    revealDiorama();
     window.setTimeout(() => $("song-button").focus(), 0);
   } else if (nextState === "memory") {
     window.setTimeout(() => $("memory-close").focus(), 0);

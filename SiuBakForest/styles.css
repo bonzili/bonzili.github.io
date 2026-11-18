@@ -1220,6 +1220,60 @@ kbd {
   color: white;
 }
 
+/* ---------- the little 3D window at the end of the letter ---------- */
+.final-card__diorama {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  margin: 0 auto 1rem;
+  width: min(100%, 26rem);
+}
+
+.diorama-stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.5rem 0.35rem 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #e9f8ff 0%, #e6f6e8 58%, #cfeac0 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 10px 24px -16px rgba(12, 40, 32, 0.7), 0 18px 40px -26px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.diorama-stage model-viewer {
+  width: 50%;
+  height: clamp(128px, 30vw, 168px);
+  background: transparent;
+  display: block;
+  --poster-color: transparent;
+}
+
+.diorama-caption {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.diorama-caption a {
+  color: #ffd3dc;
+  text-underline-offset: 0.2rem;
+}
+
+.diorama-caption a:hover {
+  color: white;
+}
+
+@media (max-width: 380px) {
+  .diorama-stage model-viewer {
+    height: 112px;
+  }
+}
+
 .screen--memory {
   background: rgba(2, 14, 13, 0.8);
 }
