@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="A working field manual for the CISSP exam: condensed notes for all eight domains, a 1,150-question practice bank with explanations, flashcards, and a timed mock exam.">
   <meta name="theme-color" content="#e9ede6">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20">
+  <link rel="stylesheet" href="assets/styles.css?v=21">
   <script>
     (function () {
       try {
@@ -29,6 +29,11 @@
         if (scale >= 0.8 && scale <= 1.4 && scale !== 1) {
           document.documentElement.setAttribute("data-reading", "on");
           document.documentElement.style.setProperty("--reading-scale", scale);
+        }
+        if (localStorage.getItem("cissp.fieldmanual.theme.v1") === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+          var themeMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeMeta) themeMeta.setAttribute("content", "#101714");
         }
       } catch (err) { /* storage may be unavailable */ }
     })();
@@ -75,6 +80,10 @@
         <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
         <div class="topbar__right">
           <a class="streak" id="streak-pill" href="#/progress" title="Open progress"></a>
+          <button class="theme-toggle" id="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode" title="Switch to dark mode">
+            <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5 8.7 8.7 0 1 0 20.5 14.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </button>
           <div class="text-size" role="group" aria-label="Reading size">
             <button type="button" class="text-size__button" data-text-dec aria-label="Decrease reading size">A−</button>
             <span class="text-size__label" id="text-size-label" aria-live="polite">100%</span>
@@ -121,6 +130,6 @@
   <script src="assets/questions-d8.js?v=20"></script>
   <script src="assets/flashcards.js?v=20"></script>
   <script src="assets/sync.js?v=20"></script>
-  <script src="assets/app.js?v=20"></script>
+  <script src="assets/app.js?v=21"></script>
 </body>
 </html>

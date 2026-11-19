@@ -33,6 +33,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 - **Optional encrypted cross-device sync**: create a 128-bit sync code, enter it on your phone, and each device syncs its own encrypted snapshot through a small Cloudflare Worker. No accounts, email, or analytics; the Worker stores ciphertext only. See `sync-worker/README.md` for deployment.
 - **Local-first progress**: attempts, accuracy, coverage, mastery, streak, exam history, and readiness are stored in `localStorage` under `cissp.fieldmanual.v1`. Sync is additive and per-device, so one device cannot overwrite another.
 - **A− / A+ reading-size control** in the top bar: 90–130% in 10% steps, remembered per browser.
+- **Optional dark mode** via the sun/moon button beside the reading-size control. The whole site flips to a late-night palette; the choice is remembered in this browser (`cissp.fieldmanual.theme.v1`) and follows other tabs live.
 - **Exam date countdown** and a daily four-move study brief.
 - Responsive down to 360 px, keyboard shortcuts, reduced-motion support, and print styles for the notes.
 

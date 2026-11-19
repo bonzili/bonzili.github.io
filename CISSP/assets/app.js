@@ -269,8 +269,10 @@
   var scrim = document.getElementById("spine-scrim");
   var menuButton = document.getElementById("menu-button");
   var TEXT_SIZE_KEY = "cissp.fieldmanual.textsize.v1";
+  var THEME_KEY = "cissp.fieldmanual.theme.v1";
   var TEXT_SCALES = [0.9, 1, 1.1, 1.2, 1.3];
   var textScale = loadTextScale();
+  var theme = loadTheme();
 
   var practiceSession = null;
   var cardSession = null;
@@ -1186,6 +1188,36 @@
     { section: "progress", href: "#/progress", label: "Progress", icon: "chart" },
     { section: "debrief", href: "#/debrief", label: "CAT debrief", icon: "target" }
   ];
+
+  function loadTheme() {
+    try {
+      return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+    } catch (err) {
+      return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    }
+  }
+
+  function applyTheme() {
+    var root = document.documentElement;
+    if (theme === "dark") root.setAttribute("data-theme", "dark");
+    else root.removeAttribute("data-theme");
+
+    var toDark = theme !== "dark";
+    var label = toDark ? "Switch to dark mode" : "Switch to light mode";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-theme-toggle]"), function (button) {
+      button.setAttribute("aria-label", label);
+      button.setAttribute("title", label);
+    });
+
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", toDark ? "#e9ede6" : "#101714");
+  }
+
+  function toggleTheme() {
+    theme = theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem(THEME_KEY, theme); } catch (err) { /* ignore */ }
+    applyTheme();
+  }
 
   function loadTextScale() {
     try {
@@ -4147,7 +4179,11 @@
   Array.prototype.forEach.call(document.querySelectorAll("[data-text-inc]"), function (button) {
     button.addEventListener("click", function () { changeTextScale(1); });
   });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-theme-toggle]"), function (button) {
+    button.addEventListener("click", toggleTheme);
+  });
   applyTextScale();
+  applyTheme();
 
   render();
 
@@ -4164,6 +4200,11 @@
   });
 
   window.addEventListener("storage", function (event) {
+    if (event.key === THEME_KEY) {
+      theme = event.newValue === "dark" ? "dark" : "light";
+      applyTheme();
+      return;
+    }
     if (event.key === STORAGE_KEY && event.newValue) {
       try {
         var parsed = JSON.parse(event.newValue);

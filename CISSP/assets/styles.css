@@ -2161,3 +2161,160 @@ html[data-reading] .site-foot { font-size: 0.76em; }
 
 .pack-domains { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .pack-domains .label { display: block; margin-bottom: 8px; }
+
+/* ---------- Optional dark theme ----------
+   Chosen from the top bar and remembered in localStorage. Light stays the
+   default; dark flips the paper to a late-night slate while keeping the oxide
+   signal, the binder spine, and the stamped verdict. */
+
+.theme-toggle {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--ink-2);
+}
+.theme-toggle:hover { border-color: var(--ink); background: var(--paper); color: var(--ink); }
+.theme-toggle svg { width: 15px; height: 15px; }
+.theme-toggle__icon--sun { display: none; }
+html[data-theme="dark"] .theme-toggle__icon--sun { display: block; }
+html[data-theme="dark"] .theme-toggle__icon--moon { display: none; }
+html[data-theme="dark"] .theme-toggle:hover { background: var(--surface-2); }
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e6ece2;
+  --ink-2: #bdc9bd;
+  --ink-3: #93a49a;
+  --paper: #101714;
+  --surface: #161f1b;
+  --surface-2: #1c2822;
+  --surface-3: #26342d;
+  --line: #2a3a33;
+  --line-2: #42564b;
+  --signal: #e0654a;
+  --signal-soft: #3a221d;
+  --ok: #67c096;
+  --ok-soft: #162f26;
+  --blue: #8cbad9;
+  --blue-soft: #162833;
+  --brass: #d3aa52;
+  --brass-soft: #302a17;
+  --shadow: 0 24px 60px -34px rgba(0, 0, 0, 0.85);
+}
+
+html[data-theme="dark"] body::before {
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+}
+
+html[data-theme="dark"] .spine,
+html[data-theme="dark"] .tabbar {
+  background: #0b110f;
+  border-color: #24332c;
+}
+
+html[data-theme="dark"] .topbar {
+  background: rgba(16, 23, 20, 0.9);
+}
+
+html[data-theme="dark"] .wordmark__mark { color: var(--ink); }
+
+/* Ink outlines flip to hairlines on dark; selected and filled marks stay lit. */
+html[data-theme="dark"] .section-head,
+html[data-theme="dark"] .page-head,
+html[data-theme="dark"] .exam-bar,
+html[data-theme="dark"] .explain,
+html[data-theme="dark"] .plan-timeline,
+html[data-theme="dark"] .deck-list,
+html[data-theme="dark"] .sheet,
+html[data-theme="dark"] .sheet__head,
+html[data-theme="dark"] .brief,
+html[data-theme="dark"] .worked,
+html[data-theme="dark"] .score-band,
+html[data-theme="dark"] .score-band__score,
+html[data-theme="dark"] .stat-grid,
+html[data-theme="dark"] .plan-daily,
+html[data-theme="dark"] .flashcard__face,
+html[data-theme="dark"] .dialog,
+html[data-theme="dark"] .dialog__head,
+html[data-theme="dark"] .palette-dialog,
+html[data-theme="dark"] .palette-dialog__head,
+html[data-theme="dark"] .register th,
+html[data-theme="dark"] .summary-table th,
+html[data-theme="dark"] .history th { border-color: var(--line-2); }
+
+/* The dark blocks in the light theme stay dark, just deeper than the page. */
+html[data-theme="dark"] .lens-card,
+html[data-theme="dark"] .brief__head,
+html[data-theme="dark"] .mode--primary,
+html[data-theme="dark"] .study-cta,
+html[data-theme="dark"] .lens,
+html[data-theme="dark"] .plan-exam,
+html[data-theme="dark"] .flashcard__face--back {
+  background: #0b120f;
+  color: var(--ink);
+  border-color: #2b3b33;
+}
+html[data-theme="dark"] .lens-card h2,
+html[data-theme="dark"] .brief__head h2,
+html[data-theme="dark"] .study-cta h3,
+html[data-theme="dark"] .plan-exam h2 { color: var(--ink); }
+html[data-theme="dark"] .study-cta .btn {
+  background: var(--ink);
+  color: #0b120f;
+  border-color: var(--ink);
+}
+html[data-theme="dark"] .study-cta .btn:hover { background: #fff; color: #0b120f; }
+
+/* Light-only hovers and washes. */
+html[data-theme="dark"] .domain-picker a:hover,
+html[data-theme="dark"] .domain-picker button:hover,
+html[data-theme="dark"] .brief__item:hover,
+html[data-theme="dark"] .option:hover:not(:disabled),
+html[data-theme="dark"] .option.is-selected,
+html[data-theme="dark"] .plan-step:hover,
+html[data-theme="dark"] .plan-step.is-current { background: var(--surface-2); }
+html[data-theme="dark"] .register tbody tr:hover,
+html[data-theme="dark"] .review-item summary:hover,
+html[data-theme="dark"] .deck-row:hover { background: rgba(230, 236, 226, 0.045); }
+html[data-theme="dark"] .empty { background: rgba(22, 31, 27, 0.5); }
+html[data-theme="dark"] .worked__option.is-out { background: var(--surface-2); }
+
+html[data-theme="dark"] .btn:hover { background: #f2f6ee; color: var(--paper); }
+html[data-theme="dark"] .btn--signal { color: #140d0a; }
+html[data-theme="dark"] .btn--signal:hover { background: #f07a5f; }
+html[data-theme="dark"] .btn--ghost:hover { background: var(--surface-2); color: var(--ink); }
+html[data-theme="dark"] .card-controls .btn--again { border-color: #7d4033; }
+html[data-theme="dark"] .card-controls .btn--good { color: #08130e; }
+html[data-theme="dark"] .card-controls .btn--good:hover { background: #4fae83; color: #08130e; }
+html[data-theme="dark"] .brief__item.is-done .brief__box { color: #08130e; }
+html[data-theme="dark"] .option.is-correct .option__letter { color: #08130e; }
+html[data-theme="dark"] .option.is-incorrect .option__letter { color: #140d0a; }
+
+html[data-theme="dark"] .toast {
+  background: #0b120f;
+  color: var(--ink);
+  border-color: var(--line-2);
+}
+
+/* Accent surfaces need brighter borders and text once the fills go dark. */
+html[data-theme="dark"] .chip--signal { border-color: #7d4033; color: #f0a896; }
+html[data-theme="dark"] .chip--ok { border-color: #2f6a52; }
+html[data-theme="dark"] .chip--blue { border-color: #335773; }
+html[data-theme="dark"] .exam-warning { border-color: #7d4033; }
+html[data-theme="dark"] .exam-warning p { color: #eba797; }
+html[data-theme="dark"] .option.is-correct .option__why { color: #a9d8c1; }
+html[data-theme="dark"] .option.is-incorrect .option__why { color: #e8a393; }
+html[data-theme="dark"] .plan-week__milestone p { color: #a9d8c1; }
+html[data-theme="dark"] .plan-week__no { color: var(--ink-3); }
+html[data-theme="dark"] .sheet__row.is-focus .bubble { border-color: #a85a44; }
+
+@media (max-width: 720px) {
+  .theme-toggle { width: 32px; height: 32px; }
+}
