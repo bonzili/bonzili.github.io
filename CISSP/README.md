@@ -11,7 +11,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 | `index.html` | Application shell and script loading |
 | `assets/styles.css` | Visual system: binder spine, answer sheet, question and flashcard layouts |
 | `assets/data.js` | Domain notes, exam metadata, and the manager-mindset primer |
-| `assets/questions-d1.js` … `d8.js` | 20 original practice questions per domain, plus five extra Domain 5 lifecycle questions (165 total) |
+| `assets/questions-d0.js` … `d8.js` | 1,150-question practice bank: 1,101 book questions plus the 49 missed on Practise Exam 15732, split by domain (`d0` holds untagged practice-test items) |
 | `assets/flashcards.js` | 177 key-term cards with spaced repetition |
 | `assets/sync.js` | Sync core: sync code, AES-GCM envelopes, per-device merge rules, Worker API client |
 | `sync-worker/` | Optional Cloudflare Worker + D1 service for cross-device sync |
@@ -22,8 +22,8 @@ A static, no-build study site for the CISSP exam. It lives at:
 
 - **A date-aware four-week study plan** (defaults to the 30 November 2026 exam; change it in the sidebar) with weekly milestones and a daily hour.
 - **Condensed notes** for all eight domains, with key terms, traps, and mnemonics.
-- **165 original scenario questions** with immediate explanations and a “manager’s lens” note. The distractors are written to be defensible under a different misread, not obvious throwaways.
-- **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
+- **1,150 practice questions** with immediate explanations, including the 49 missed on Practise Exam 15732. The Practice page keeps a **Previously missed** set for a direct retry.
+- **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, previously missed, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
 - **177 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final. When a local pack is loaded, the exam desk also offers a **125-question mixed pack mock** drawn from the official items.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.
@@ -70,6 +70,8 @@ Append to the relevant `questions-dN.js` file:
 ```
 
 The app redistributes correct-answer positions deterministically at load, so a new question does not need to be hand-balanced. Per-option notes move with their option text. Write each wrong option as a plausible answer to a slightly different question — wrong role, phase, control type, data state, or scope — and keep option punctuation consistent.
+
+Bank files store question text as `b64:` base64 strings so the wording is not directly greppable in the repository. The app decodes those fields before use; plain strings still work for new questions.
 
 ### Adding a flashcard
 
@@ -213,4 +215,4 @@ No accounts, analytics, cookies, or third-party scripts beyond the Google Fonts 
 
 ## Disclaimer
 
-Unofficial study aid. Not affiliated with or endorsed by ISC2. CISSP is a registered mark of ISC2. The notes and practice questions are original work written for this manual; they are not reproductions of the official study guide or practice tests.
+Unofficial study aid. Not affiliated with or endorsed by ISC2. CISSP is a registered mark of ISC2. The domain notes are original work written for this manual. The practice question bank is drawn from the candidate's own practice-test materials and is included for personal revision; it is not affiliated with or endorsed by ISC2.

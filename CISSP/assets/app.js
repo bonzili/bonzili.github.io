@@ -13,6 +13,33 @@
   var QUESTIONS = ((window.CISSP && CISSP.questions) || []).slice();
   var QID = {};
 
+  /* Question text is stored base64-encoded in assets/questions-d*.js so the
+     wording is not directly greppable. Decode it before anything else uses it. */
+  (function decodeQuestionText() {
+    function decode(value) {
+      if (typeof value !== "string" || value.slice(0, 4) !== "b64:") return value;
+      try {
+        var binary = atob(value.slice(4));
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return new TextDecoder("utf-8").decode(bytes);
+      } catch (err) {
+        return value;
+      }
+    }
+    QUESTIONS.forEach(function (q) {
+      q.stem = decode(q.stem);
+      q.topic = decode(q.topic);
+      q.source = decode(q.source);
+      q.whyText = decode(q.whyText || "");
+      q.lens = decode(q.lens || "");
+      q.options = (q.options || []).map(decode);
+      if (q.why) {
+        Object.keys(q.why).forEach(function (key) { q.why[key] = decode(q.why[key]); });
+      }
+    });
+  })();
+
   /* The authored bank clusters correct answers in one position. Redistribute
      them deterministically so position is never a clue. Explanations and
      per-option notes move with their option text. */
@@ -50,6 +77,11 @@
 
   QUESTIONS.forEach(function (q) { QID[q.id] = q; });
 
+  var CORE_STEMS = {};
+  QUESTIONS.forEach(function (q) {
+    CORE_STEMS[q.stem.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()] = true;
+  });
+
   var PACK_QUESTIONS = [];
   var PACK_QID = {};
   var packMeta = null;
@@ -71,7 +103,7 @@
       var options = q.options.map(function (o) { return String(o).trim(); });
       if (options.some(function (o) { return !o; })) return;
       var stemKey = q.stem.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-      if (seenStems[stemKey]) return;
+      if (seenStems[stemKey] || CORE_STEMS[stemKey]) return;
       if (/shown here|shown in the figure|figure shown|following diagram|following illustration|what occurs between steps/i.test(q.stem)) return;
       seenStems[stemKey] = true;
       var id = String(q.id || ("pack-" + (index + 1)));
@@ -350,15 +382,20 @@
   }
 
   function domainName(id) {
-    if (Number(id) === 0) return "Official practice pack";
+    if (Number(id) === 0) return "Practice tests";
     var d = domainById(id);
     return d ? d.name : (PALETTE[id] ? PALETTE[id].name : "Domain " + id);
   }
 
   function domainShort(id) {
-    if (Number(id) === 0) return "Official pack";
+    if (Number(id) === 0) return "Practice tests";
     var d = domainById(id);
     return d ? d.short : (PALETTE[id] ? PALETTE[id].short : "Domain " + id);
+  }
+
+  function questionTag(q) {
+    if (q.d) return "Domain " + pad(q.d);
+    return q.pack ? "Official pack" : "Practice tests";
   }
 
   function icon(name, cls) {
@@ -1414,7 +1451,7 @@
           '<div class="hero__copy">' +
             '<p class="eyebrow">' + esc(META.outline) + ' · 8 domains · 100–150 questions</p>' +
             '<h1 class="display-xl">The exam rewards <em>judgment</em>, not recall.</h1>' +
-            '<p class="lede">A working field manual for the CISSP: condensed notes for every domain, original scenario questions, and explanations that show why the best answer is the best answer.</p>' +
+            '<p class="lede">A working field manual for the CISSP: condensed notes for every domain, a ' + QUESTIONS.length + '-question practice bank, and explanations that show why the best answer is the best answer.</p>' +
             '<div class="hero__actions">' + primary +
               '<a class="btn btn--ghost" href="#/mindset">Read the manager’s lens</a>' +
             "</div>" +
@@ -1781,6 +1818,7 @@
     ensureDaily();
     var stats = allStats();
     var wrong = wrongQuestions().length;
+    var retryBank = QUESTIONS.filter(function (q) { return q.missed; }).length;
     var bookmarked = Object.keys(state.bookmarks).filter(function (id) {
       var b = state.bookmarks[id];
       return b && b.on && QID[id];
@@ -1809,6 +1847,13 @@
       '<div class="mode__top"><span class="label">For technical candidates</span><span class="chip">20 questions</span></div>' +
       "<h3>Manager’s cut</h3><p>Five questions each from risk, assets, assessment, and operations — the four domains technical candidates most often underweight.</p>" +
       '<div class="mode__foot"><span>~ 15 minutes</span><span>Management-weighted</span></div></a>';
+
+    if (retryBank) {
+      modes += '<a class="mode" href="#/practice" data-start="missed">' +
+        '<div class="mode__top"><span class="label">Retry</span><span class="chip">' + retryBank + " questions</span></div>" +
+        "<h3>Previously missed</h3><p>The questions you answered incorrectly or left blank on Practise Exam 15732. Re-answer them before the next attempt.</p>" +
+        '<div class="mode__foot"><span>~ 40 minutes</span><span>10 Nov 2026</span></div></a>';
+    }
 
     if (PACK_QUESTIONS.length) {
       modes += '<a class="mode mode--pack" href="#/practice" data-start="pack">' +
@@ -1862,7 +1907,7 @@
         })();
     } else {
       packPanel = '<div class="section-head"><div><h2>Local question pack</h2><p>Load a JSON pack built from your own book. The questions stay in this browser; nothing is committed or uploaded.</p></div></div>' +
-        '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank remains the original ' + QUESTIONS.length + '-question practice set. A local pack is optional; import one to add official domain drills that count toward domain readiness.</p>' +
+        '<div class="empty pack-empty"><h3>No local pack loaded</h3><p>The core bank is a ' + QUESTIONS.length + '-question practice set. A local pack is optional; import one to add more questions, including official domain drills that count toward domain readiness.</p>' +
         '<button type="button" class="btn" data-pack-import>Load question pack</button></div>';
     }
 
@@ -1872,7 +1917,7 @@
         '<header class="page-head"><div class="page-head__copy">' +
           '<p class="eyebrow">Active recall</p>' +
           '<h1 class="display-l">Practice is where<br>the reading becomes judgment.</h1>' +
-          '<p class="lede">' + (PACK_QUESTIONS.length ? "The core bank is original. Official domain drills from the loaded pack count toward domain readiness; mixed pack sets and the pack mock stay separate." : "Every question is original, scenario-based, and followed by the reasoning a manager would use. Wrong answers are data, not verdicts.") + "</p>" +
+          '<p class="lede">' + (PACK_QUESTIONS.length ? "Official domain drills from the loaded pack count toward domain readiness; mixed pack sets and the pack mock stay separate." : "Every question is followed by the reasoning behind the answer. Wrong answers are data, not verdicts.") + "</p>" +
         "</div>" +
         '<div class="page-head__aside"><span class="chip">' + stats.attempts + " counted</span>" +
         '<span class="chip ' + (stats.accuracy != null && stats.accuracy >= 0.7 ? "chip--ok" : "") + '">' + (stats.accuracy == null ? "No accuracy yet" : pct(stats.accuracy) + " correct") + "</span></div></header>" +
@@ -1885,7 +1930,7 @@
         '<span class="label">Weakest: ' + pad(focus.id) + " · " + esc(focus.short) + "</span></div>" +
         '<div class="domain-picker">' + picker + "</div></section>" +
 
-        '<div class="callout" style="margin-top:18px"><p class="callout__label">How close is this bank?</p><p>The core bank is original, written to the outline. It is deliberately shorter and more direct than the real CAT. Use it for daily retrieval and explanation practice; use the official practice tests for your score benchmark.</p></div>' +
+        '<div class="callout" style="margin-top:18px"><p class="callout__label">How close is this bank?</p><p>The bank is aligned to the 2026 outline. Use it for daily retrieval and explanation practice; use a full timed practice test for your score benchmark.</p></div>' +
 
         '<section class="section">' + packPanel + "</section>" +
         '<input type="file" id="pack-import" accept=".json,application/json" hidden>' +
@@ -1957,6 +2002,10 @@
       });
       title = "Weak areas";
       kicker = "Adaptive set";
+    } else if (kind === "missed") {
+      pool = shuffle(QUESTIONS.filter(function (q) { return q.missed; }));
+      title = "Previously missed";
+      kicker = "Practise Exam 15732 · retry";
     } else if (kind === "review") {
       pool = shuffle(wrongQuestions()).slice(0, 20);
       title = "Review mistakes";
@@ -2137,7 +2186,7 @@
       '<div class="session__main">' +
         '<div class="q-head">' +
           '<span class="q-head__no">Question <strong>' + pad(s.index + 1) + "</strong> / " + pad(s.items.length) + "</span>" +
-          '<span class="chip">' + (q.pack ? (q.d ? "Domain " + pad(q.d) : "Official pack") : "Domain " + pad(q.d)) + "</span>" +
+          '<span class="chip">' + questionTag(q) + "</span>" +
           '<span class="chip chip--blue">' + esc(q.topic || "Scenario") + "</span>" +
           (q.diff === 3 ? '<span class="chip chip--signal">Hard</span>' : "") +
           (q.pack ? "" : '<button type="button" class="flag-button" data-bookmark aria-pressed="' + bookmarked + '" style="margin-left:auto">' +
@@ -2269,7 +2318,7 @@
       return '<details class="review-item"><summary>' +
         '<span class="review-item__no">' + (picked == null ? "—" : "ABCD"[picked]) + "</span>" +
         '<span class="review-item__stem">' + esc(q.stem) + "</span>" +
-        '<span class="review-item__tag">' + (q.d ? "Domain " + pad(q.d) : "Official pack") + "</span>" +
+        '<span class="review-item__tag">' + questionTag(q) + "</span>" +
         '</summary><div class="review-item__body">' +
           '<p class="review-item__answer">Best answer: ' + "ABCD"[q.answer] + ". " + esc(q.options[q.answer]) + "</p>" +
           '<p class="review-item__answer is-wrong">You chose: ' + (picked == null ? "No answer" : "ABCD"[picked] + ". " + esc(q.options[picked])) + "</p>" +
@@ -2692,7 +2741,7 @@
       '<div class="exam-q">' +
         '<div class="q-head">' +
           '<span class="q-head__no">Question <strong>' + pad(s.index + 1) + "</strong></span>" +
-          '<span class="chip">' + (q.pack ? (q.d ? "Domain " + pad(q.d) : "Official pack") : "Domain " + pad(q.d)) + "</span>" +
+          '<span class="chip">' + questionTag(q) + "</span>" +
           '<span class="chip chip--blue">' + esc(q.topic || "Scenario") + "</span>" +
           (strict ? "" : '<button type="button" class="flag-button ' + (flagged ? "is-on" : "") + '" data-exam-flag style="margin-left:auto">' + icon("flag") + (flagged ? "Flagged" : "Flag for review") + "</button>") +
         "</div>" +
@@ -2872,7 +2921,7 @@
       return '<details class="review-item"><summary>' +
         '<span class="review-item__no">' + (r.picked == null ? "—" : "ABCD"[r.picked]) + "</span>" +
         '<span class="review-item__stem">' + esc(q.stem) + "</span>" +
-        '<span class="review-item__tag">' + (q.d ? "Domain " + pad(q.d) : "Official pack") + "</span>" +
+        '<span class="review-item__tag">' + questionTag(q) + "</span>" +
         '</summary><div class="review-item__body">' +
           '<p class="review-item__answer">Best answer: ' + "ABCD"[q.answer] + ". " + esc(q.options[q.answer]) + "</p>" +
           '<p class="review-item__answer is-wrong" style="margin-bottom:10px">You chose: ' + esc(picked) + "</p>" +
@@ -3345,7 +3394,7 @@
     }).filter(function (item) { return item.q; }).sort(function (x, y) { return (y.a.last || 0) - (x.a.last || 0); }).slice(0, 10);
 
     var recentList = recent.map(function (item) {
-      return "<tr><td>" + (item.q.pack ? "Official" : pad(item.q.d)) + "</td><td>" + esc(item.q.topic || "Scenario") + "</td>" +
+      return "<tr><td>" + questionTag(item.q) + "</td><td>" + esc(item.q.topic || "Scenario") + "</td>" +
         '<td><span class="chip ' + (item.a.lastResult ? "chip--ok" : "chip--signal") + '">' + (item.a.lastResult ? "Correct" : "Missed") + "</span></td>" +
         '<td class="num">' + (item.a.c || 0) + " / " + ((item.a.c || 0) + (item.a.w || 0)) + "</td></tr>";
     }).join("");
