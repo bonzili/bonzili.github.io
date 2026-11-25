@@ -11,7 +11,7 @@ A static, no-build study site for the CISSP exam. It lives at:
 | `index.html` | Application shell and script loading |
 | `assets/styles.css` | Visual system: binder spine, answer sheet, question and flashcard layouts |
 | `assets/data.js` | Domain notes, exam metadata, and the manager-mindset primer |
-| `assets/questions-d0.js` … `d8.js` | 1,150-question practice bank: 1,101 book questions plus the 49 missed on Practise Exam 15732, split by domain (`d0` holds untagged practice-test items) |
+| `assets/questions-d0.js` … `d8.js` | 1,463-question practice bank: 1,101 book questions, 49 missed on Practise Exam 15732, and 313 unique questions from the personal attempt log, split by domain (`d0` holds untagged practice-test items) |
 | `assets/flashcards.js` | 177 key-term cards with spaced repetition |
 | `assets/sync.js` | Sync core: sync code, AES-GCM envelopes, per-device merge rules, Worker API client |
 | `sync-worker/` | Optional Cloudflare Worker + D1 service for cross-device sync |
@@ -22,8 +22,8 @@ A static, no-build study site for the CISSP exam. It lives at:
 
 - **A date-aware four-week study plan** (defaults to the 30 November 2026 exam; change it in the sidebar) with weekly milestones and a daily hour.
 - **Condensed notes** for all eight domains, with key terms, traps, and mnemonics.
-- **1,150 practice questions** with immediate explanations, including the 49 missed on Practise Exam 15732. The Practice page keeps a **Previously missed** set for a direct retry.
-- **Practice modes**: diagnostic, quick ten, Manager’s cut for technical candidates, previously missed, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
+- **1,463 practice questions** with immediate explanations, including the 49 missed on Practise Exam 15732. The Practice page keeps a **Previously missed** set for a direct retry and a **Practice tests** set for untagged items.
+- **Practice modes**: diagnostic, quick ten, practice tests, Manager’s cut for technical candidates, previously missed, domain drill, adaptive weak areas, review mistakes, bookmarks. Core and pack drills prefer unseen questions before recycling old ones; active drills survive a refresh.
 - **177 flashcards** using Leitner-style intervals (1, 3, 7, 21, 45 days).
 - **Fixed-form mock exam**: 125 questions, 3 hours, weighted 16/10/13/13/13/12/13/10, with flagging, a question map, resume-after-refresh, and a domain breakdown. Optional **CAT-style pacing** removes previous/flag/map so answers are final. When a local pack is loaded, the exam desk also offers a **125-question mixed pack mock** drawn from the official items.
 - **A manager’s-lens primer** with a section written for technical candidates moving into management.

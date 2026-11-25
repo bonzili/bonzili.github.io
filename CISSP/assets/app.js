@@ -1851,6 +1851,7 @@
     var stats = allStats();
     var wrong = wrongQuestions().length;
     var retryBank = QUESTIONS.filter(function (q) { return q.missed; }).length;
+    var practiceTests = questionsFor(0).length;
     var bookmarked = Object.keys(state.bookmarks).filter(function (id) {
       var b = state.bookmarks[id];
       return b && b.on && QID[id];
@@ -1874,6 +1875,13 @@
       '<div class="mode__top"><span class="label">Daily drill</span><span class="chip">10 questions</span></div>' +
       "<h3>Quick ten</h3><p>A short interleaved set from across the register. The best use of a coffee break.</p>" +
       '<div class="mode__foot"><span>~ 8 minutes</span><span>Mixed</span></div></a>';
+
+    if (practiceTests) {
+      modes += '<a class="mode" href="#/practice" data-start="practiceTests">' +
+        '<div class="mode__top"><span class="label">Untagged bank</span><span class="chip">' + practiceTests + " questions</span></div>" +
+        "<h3>Practice tests</h3><p>Questions from the practice-test sources that do not carry a domain tag. Twenty at a time, unseen first.</p>" +
+        '<div class="mode__foot"><span>20 at a time</span><span>Mixed</span></div></a>';
+    }
 
     modes += '<a class="mode" href="#/practice" data-start="manager">' +
       '<div class="mode__top"><span class="label">For technical candidates</span><span class="chip">20 questions</span></div>' +
@@ -1988,6 +1996,10 @@
       pool = pickQuestions(QUESTIONS, 10);
       title = "Quick ten";
       kicker = "Daily drill";
+    } else if (kind === "practiceTests") {
+      pool = pickQuestions(questionsFor(0), 20);
+      title = "Practice tests";
+      kicker = "Untagged practice-test bank";
     } else if (kind === "domain") {
       var domain = domainById(domainId);
       if (!domain) return null;
